@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <title>Pesanan Masuk - Pengenumroh</title>
+    <link rel="icon" type="image/png" href="/assets/img/marketplace/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F8FAFC;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 antialiased selection:bg-orange-500 selection:text-white">
+
+    <nav class="fixed w-full z-50 bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="/marketplace/" class="flex items-center gap-2 group">
+                    <img src="/assets/img/marketplace/logo.png" alt="Logo PengenUmroh"
+                        class="h-10 w-auto object-contain">
+                </a>
+
+                <div class="hidden lg:flex items-center gap-4">
+                    <a href="/marketplace/"
+                        class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-orange-600 transition bg-slate-50 px-4 py-2 rounded-full border border-slate-100 hover:bg-orange-50 hover:border-orange-100">
+                        <i class="ph-bold ph-arrow-left"></i> Kembali ke Beranda
+                    </a>
+
+                    <div class="h-6 w-px bg-slate-200 mx-2"></div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-slate-700">Rahmat Rio</p>
+                            <p class="text-[10px] text-slate-500">Biro Travel</p>
+                        </div>
+                        <div class="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
+                            <img src="https://ui-avatars.com/api/?name=Rakha+Rizki&background=F97316&color=fff"
+                                class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:hidden">
+                    <a href="/marketplace/" class="text-slate-700 hover:text-orange-600">
+                        <i class="ph-bold ph-house text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-28 pb-10 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+                <div class="lg:col-span-1 space-y-6" data-aos="fade-right">
+
+                    <div
+                        class="bg-white rounded-2xl p-6 border border-slate-200 text-center shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-orange-100 to-orange-50">
+                        </div>
+                        <div class="relative z-10">
+                            <div
+                                class="w-24 h-24 mx-auto rounded-full border-4 border-white shadow-md overflow-hidden bg-slate-100 mb-3">
+                                <img id="sidebar-avatar"
+                                    src="https://ui-avatars.com/api/?name=Rakha+Rizki&background=F97316&color=fff"
+                                    class="w-full h-full object-cover">
+                            </div>
+
+                            <h2 class="text-lg font-bold text-slate-900">Rahmat Rio</h2>
+                            <p class="text-sm text-slate-500">Bergabung sejak 2024</p>
+
+                            <div class="mt-4 text-left">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-semibold text-slate-600">Kelengkapan Data</span>
+                                    <span class="font-bold text-emerald-600">100%</span>
+                                </div>
+
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-emerald-500 h-2 rounded-full transition-all duration-1000 w-full">
+                                    </div>
+                                </div>
+
+                                <p
+                                    class="text-[11px] text-emerald-700 mt-2 flex items-center gap-1 font-medium bg-emerald-50 py-1 px-2 rounded-lg">
+                                    <i class="ph-fill ph-check-circle text-emerald-600"></i>
+                                    Data Anda sudah lengkap.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                        <nav class="flex flex-col">
+                            <a href="/marketplace/travel/profil/"
+                                class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
+                                <i class="ph-bold ph-user text-xl"></i>Profil
+                            </a>
+                            <a href="/marketplace/travel/pesanan-masuk/"
+                                class="flex items-center gap-3 px-5 py-4 bg-orange-50 text-orange-700 font-bold border-l-4 border-orange-600">
+                                <i class="ph-bold ph-receipt text-xl"></i> Pesanan Masuk
+                            </a>
+                            <a href="/marketplace/travel/upload-produk/"
+                                class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
+                                <i class="ph-bold ph-upload text-xl"></i> Upload Produk
+                            </a>
+                            <a href="/marketplace/travel/kelola-produk/"
+                                class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
+                                <i class="ph-bold ph-package text-xl"></i> Kelola Produk
+                            </a>
+                        </nav>
+
+                        <!-- <div class="mt-auto border-t border-slate-100 p-2 bg-slate-50">
+                            <button onclick="confirmLogout()"
+                                class="flex w-full items-center justify-center gap-2 px-5 py-3 text-red-600 hover:bg-red-100/50 hover:text-red-700 font-bold transition rounded-xl text-sm border border-transparent hover:border-red-100">
+                                <i class="ph-bold ph-sign-out text-lg"></i> Keluar Akun
+                            </button>
+                        </div> -->
+                    </div>
+                </div>
+
+                <div class="lg:col-span-3" data-aos="fade-up" data-aos-delay="100">
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 min-h-[600px]">
+
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Pesanan Masuk</h1>
+                                <p class="text-slate-500 text-sm mt-1">Kelola pesanan masuk dan verifikasi pembayaran
+                                    jamaah.</p>
+                            </div>
+                            <div class="relative w-full md:w-80">
+                                <i
+                                    class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                <input type="text" placeholder="Cari Kode Booking / Nama Jamaah..."
+                                    class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-100 transition shadow-sm">
+                            </div>
+                        </div>
+
+                        <div class="mb-8 overflow-x-auto no-scrollbar">
+                            <div class="flex gap-4 min-w-max border-b border-slate-100 pb-1">
+                                <button
+                                    class="tab-btn active group relative px-2 py-3 text-sm font-bold text-orange-600 transition-all"
+                                    onclick="filterOrder('all', this)">
+                                    Semua Pesanan
+                                    <span
+                                        class="absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
+                                </button>
+                                <button
+                                    class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all"
+                                    onclick="filterOrder('verifikasi', this)">
+                                    Perlu Verifikasi
+                                    <span
+                                        class="ml-1.5 bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded-full font-bold">1</span>
+                                    <span
+                                        class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
+                                </button>
+                                <button
+                                    class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all"
+                                    onclick="filterOrder('lunas', this)">
+                                    Lunas / Siap Berangkat
+                                    <span
+                                        class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
+                                </button>
+                                <button
+                                    class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all"
+                                    onclick="filterOrder('selesai', this)">
+                                    Riwayat Selesai
+                                    <span
+                                        class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6" id="order-container">
+
+                            <div class="order-card group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-orange-300 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 relative"
+                                data-status="verifikasi">
+
+                                <div
+                                    class="bg-orange-50/80 backdrop-blur-sm px-6 py-3 border-b border-orange-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex items-center gap-2 bg-white border border-orange-200 text-orange-700 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+                                            Menunggu Verifikasi
+                                        </div>
+                                        <span class="text-xs text-slate-500 font-medium flex items-center gap-1">
+                                            <i class="ph-fill ph-clock"></i> 10 Jan 2026, 08:30 WIB
+                                        </span>
+                                    </div>
+                                    <div
+                                        class="flex items-center gap-2 text-sm text-slate-600 bg-white/50 px-3 py-1 rounded-lg border border-orange-100">
+                                        <span class="font-medium text-slate-500">Invoice:</span>
+                                        <span
+                                            class="font-bold font-mono tracking-wide text-slate-900 select-all">INV/UMR/009</span>
+                                        <button onclick="copyToClipboard('INV/UMR/009')"
+                                            class="ml-1 text-slate-400 hover:text-orange-600 transition"
+                                            title="Salin Invoice">
+                                            <i class="ph-bold ph-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+
+                                    <div class="md:col-span-5 flex gap-4">
+                                        <div
+                                            class="w-30 h-30 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 shadow-sm relative group-hover:scale-[1.02] transition">
+                                            <img src="/assets/img/marketplace/produk-dummy.png"
+                                                class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex flex-col justify-center">
+                                            <h3
+                                                class="text-base font-bold text-slate-900 leading-tight mb-2 group-hover:text-orange-600 transition">
+                                                Umroh Easy 22 Juni 2026
+                                            </h3>
+                                            <div class="space-y-1.5">
+                                                <p class="text-xs font-medium text-slate-500 flex items-center gap-2">
+                                                    <span
+                                                        class="w-5 h-5 rounded-full bg-orange-50 flex items-center justify-center text-orange-500"><i
+                                                            class="ph-duotone ph-buildings"></i></span>
+                                                    Makkah:
+                                                    Lemeridien Tower ⭐5
+                                                </p>
+                                                <p class="text-xs font-medium text-slate-500 flex items-center gap-2">
+                                                    <span
+                                                        class="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-orange-500"><i
+                                                            class="ph-duotone ph-buildings"></i></span>
+                                                    Madinah:
+                                                    Jiwal Al Saha ⭐5
+                                                </p>
+                                                <p class="text-xs font-medium text-slate-500 flex items-center gap-2">
+                                                    <span
+                                                        class="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"><i
+                                                            class="ph-duotone ph-airplane-tilt"></i></span>
+                                                    Oman Air
+                                                </p>
+                                                <p class="text-xs font-medium text-slate-500 flex items-center gap-2">
+                                                    <span
+                                                        class="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"><i
+                                                            class="ph-duotone ph-calendar-blank"></i></span>
+                                                    22 Juni 2026
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="md:col-span-4">
+                                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 h-full">
+                                            <p
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
+                                                <i class="ph-bold ph-user-circle"></i> Data Pemesan
+                                            </p>
+                                            <div class="flex items-start gap-3">
+                                                <div
+                                                    class="w-10 h-10 rounded-full bg-white p-0.5 border border-slate-200 shadow-sm">
+                                                    <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=random"
+                                                        class="w-full h-full rounded-full object-cover">
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="text-sm font-bold text-slate-900 truncate">Budi Santoso
+                                                    </p>
+                                                    <p class="text-xs text-slate-500 truncate mb-1.5">budi.s@gmail.com
+                                                    </p>
+                                                    <a href="https://wa.me/62812345678" target="_blank"
+                                                        class="inline-flex items-center gap-1.5 text-[11px] font-bold text-green-700 bg-green-100 px-2.5 py-1 rounded-md hover:bg-green-200 transition">
+                                                        <i class="ph-fill ph-whatsapp-logo text-green-600"></i> Hubungi
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="md:col-span-3 flex flex-col justify-between h-full pl-0 md:pl-2">
+                                        <div class="text-right mb-4">
+                                            <p class="text-xs font-medium text-slate-400 mb-0.5">Total Transfer</p>
+                                            <p class="text-xl font-extrabold text-orange-600 tracking-tight">Rp
+                                                28.900.000</p>
+                                        </div>
+
+                                        <div class="space-y-2.5">
+                                            <button onclick="lihatBuktiBayar('bukti-1.jpg')"
+                                                class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl shadow-lg shadow-slate-200 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                                <i class="ph-bold ph-image"></i> Lihat Bukti Bayar
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="order-card group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 relative"
+                                data-status="lunas">
+
+                                <div
+                                    class="bg-blue-50/80 backdrop-blur-sm px-6 py-3 border-b border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex items-center gap-2 bg-white border border-blue-200 text-green-700 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+                                            <i class="ph-fill ph-check-circle text-green-500 text-sm"></i>
+                                            Pembayaran Lunas
+                                        </div>
+                                        <span class="text-xs text-slate-500 font-medium flex items-center gap-1">
+                                            <i class="ph-fill ph-clock"></i> 10 Jan 2026, 08:45 WIB
+                                        </span>
+                                    </div>
+                                    <div
+                                        class="flex items-center gap-2 text-sm text-slate-600 bg-white/50 px-3 py-1 rounded-lg border border-blue-100">
+                                        <span class="font-medium text-slate-500">Invoice:</span>
+                                        <span
+                                            class="font-bold font-mono tracking-wide text-slate-900 select-all">INV/UMR/001</span>
+                                    </div>
+                                </div>
+
+                                <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+
+                                    <div class="md:col-span-5 flex gap-4">
+                                        <div
+                                            class="w-30 h-30 flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 shadow-sm relative group-hover:scale-[1.02] transition">
+                                            <img src="/assets/img/marketplace/produk-dummy.png"
+                                                class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex flex-col justify-center">
+                                            <h3
+                                                class="text-base font-bold text-slate-900 leading-tight mb-2 group-hover:text-blue-600 transition">
+                                                Umroh Easy 22 Juni 2026
+                                            </h3>
+                                            <div class="space-y-1.5">
+                                                <p class="text-xs font-medium text-slate-500 flex items-center gap-2">
+                                                    <span
+                                                        class="w-5 h-5 rounded-full bg-orange-50 flex items-center justify-center text-orange-500"><i
+                                                            class="ph-duotone ph-buildings"></i></span>
+                                                    Makkah:
+                                                    Lemeridien Tower ⭐5
+                                                </p>
+                                                <p class="text-xs font-medium text-slate-500 flex items-center gap-2">
+                                                    <span
+                                                        class="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-orange-500"><i
+                                                            class="ph-duotone ph-buildings"></i></span>
+                                                    Madinah:
+                                                    Jiwal Al Saha ⭐5
+                                                </p>
+                                                <p class="text-xs font-medium text-slate-500 flex items-center gap-2">
+                                                    <span
+                                                        class="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"><i
+                                                            class="ph-duotone ph-airplane-tilt"></i></span>
+                                                    Oman Air
+                                                </p>
+                                                <p class="text-xs font-medium text-slate-500 flex items-center gap-2">
+                                                    <span
+                                                        class="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"><i
+                                                            class="ph-duotone ph-calendar-blank"></i></span>
+                                                    22 Juni 2026
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="md:col-span-4">
+                                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 h-full">
+                                            <p
+                                                class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1">
+                                                <i class="ph-bold ph-user-circle"></i> Data Pemesan
+                                            </p>
+                                            <div class="flex items-start gap-3">
+                                                <div
+                                                    class="w-10 h-10 rounded-full bg-white p-0.5 border border-slate-200 shadow-sm">
+                                                    <img src="https://ui-avatars.com/api/?name=Budi+Santoso&background=random"
+                                                        class="w-full h-full rounded-full object-cover">
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="text-sm font-bold text-slate-900 truncate">Budi Santoso
+                                                    </p>
+                                                    <p class="text-xs text-slate-500 truncate mb-1.5">budi.s@gmail.com
+                                                    </p>
+                                                    <a href="https://wa.me/62812345678" target="_blank"
+                                                        class="inline-flex items-center gap-1.5 text-[11px] font-bold text-green-700 bg-green-100 px-2.5 py-1 rounded-md hover:bg-green-200 transition">
+                                                        <i class="ph-fill ph-whatsapp-logo text-green-600"></i> Hubungi
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="md:col-span-3 flex flex-col justify-between h-full pl-0 md:pl-2">
+                                        <div class="text-right mb-4">
+                                            <p class="text-xs font-medium text-slate-400 mb-0.5">Total Dibayar</p>
+                                            <p class="text-xl font-extrabold text-slate-900 tracking-tight">Rp
+                                                28.900.000</p>
+                                        </div>
+                                        <div class="space-y-2.5">
+                                            <button
+                                                class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                                <i class="ph-bold ph-file-pdf"></i> Bukti Pembayaran
+                                            </button>
+                                            <!-- <button
+                                                class="w-full py-2.5 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold rounded-xl transition flex items-center justify-center gap-2">
+                                                <i class="ph-bold ph-info"></i> Detail
+                                            </button> -->
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div id="empty-state" class="hidden flex-col items-center justify-center py-24 text-center">
+                                <div
+                                    class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4 ring-8 ring-slate-50/50">
+                                    <i class="ph-duotone ph-inbox text-5xl text-slate-300"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-900">Tidak ada pesanan</h3>
+                                <p class="text-slate-500 text-sm mt-1 mb-6 max-w-xs mx-auto">
+                                    Belum ada pesanan masuk untuk filter yang Anda pilih saat ini.
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // Filter Logic
+        function filterOrder(status, btn) {
+            // 1. Update Tab Style
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => {
+                b.classList.remove('active', 'text-orange-600', 'font-bold');
+                b.classList.add('text-slate-500', 'font-medium');
+                b.querySelector('span:first-child').classList.add('hidden'); // Underline
+            });
+
+            btn.classList.add('active', 'text-orange-600', 'font-bold');
+            btn.classList.remove('text-slate-500', 'font-medium');
+            btn.querySelector('span:first-child').classList.remove('hidden');
+
+            // 2. Filter Cards
+            const cards = document.querySelectorAll('.order-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                if (status === 'all' || card.getAttribute('data-status') === status) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // 3. Show Empty State
+            const emptyState = document.getElementById('empty-state');
+            if (visibleCount === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+        }
+
+        // Copy Clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            // Bisa tambahkan SweetAlert toast disini
+            alert('Invoice ' + text + ' disalin!');
+        }
+
+        // Simulasi Lihat Bukti Bayar
+        function lihatBuktiBayar(imgUrl) {
+            Swal.fire({
+                title: 'Bukti Pembayaran',
+                imageUrl: '/assets/img/marketplace/bukti-transfer-dummy.jpg', // Ganti dengan path image asli
+                imageWidth: 400,
+                imageAlt: 'Bukti Transfer',
+                showCancelButton: true,
+                confirmButtonText: 'Verifikasi Valid',
+                cancelButtonText: 'Tutup',
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#64748b',
+                footer: '<p class="text-sm text-slate-500">Pastikan nominal sesuai dengan tagihan.</p>'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire('Berhasil!', 'Pembayaran telah diverifikasi.', 'success');
+                }
+            });
+        }
+    </script>
+
+    <script>
+        // Filter Logic
+        function filterOrder(status, btn) {
+            // 1. Update Tab Style
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(b => {
+                b.classList.remove('active', 'text-orange-600', 'font-bold');
+                b.classList.add('text-slate-500', 'font-medium');
+                b.querySelector('span').classList.add('hidden');
+            });
+
+            btn.classList.add('active', 'text-orange-600', 'font-bold');
+            btn.classList.remove('text-slate-500', 'font-medium');
+            btn.querySelector('span').classList.remove('hidden');
+
+            // 2. Filter Cards
+            const cards = document.querySelectorAll('.order-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                if (status === 'all' || card.getAttribute('data-status') === status) {
+                    card.style.display = 'block';
+                    // Re-trigger animation
+                    card.classList.remove('aos-animate');
+                    setTimeout(() => card.classList.add('aos-animate'), 50);
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // 3. Show Empty State if no cards visible
+            const emptyState = document.getElementById('empty-state');
+            if (visibleCount === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+        }
+
+        // Copy Clipboard Function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+                Toast.fire({
+                    icon: "success",
+                    title: "Kode Booking disalin!"
+                });
+            });
+        }
+
+        // --- UX FUNCTION: Logout Confirmation ---
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Keluar dari Akun?',
+                text: "Anda harus masuk kembali untuk mengakses Profil & Pesanan.",
+                icon: 'warning',
+                iconColor: '#dc2626',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Keluar Akun',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Berhasil Keluar',
+                        text: 'Mengalihkan ke beranda...',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = '/marketplace/'; // Redirect
+                    });
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

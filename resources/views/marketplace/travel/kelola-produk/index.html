@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <title>Kelola Produk - Pengenumroh</title>
+    <link rel="icon" type="image/png" href="/assets/img/marketplace/favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F8FAFC;
+        }
+
+        /* Custom Input Style for focused ring color */
+        .form-input:focus {
+            border-color: #ea580c;
+            box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1);
+        }
+
+        /* itenary */
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-down {
+            animation: fadeInDown 0.2s ease-out;
+        }
+    </style>
+</head>
+
+<body class="text-slate-800 antialiased selection:bg-orange-500 selection:text-white">
+
+    <nav class="fixed w-full z-50 bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="/marketplace/" class="flex items-center gap-2 group">
+                    <img src="/assets/img/marketplace/logo.png" alt="Logo PengenUmroh"
+                        class="h-10 w-auto object-contain">
+                </a>
+
+                <div class="hidden lg:flex items-center gap-4">
+                    <a href="/marketplace/"
+                        class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-orange-600 transition bg-slate-50 px-4 py-2 rounded-full border border-slate-100 hover:bg-orange-50 hover:border-orange-100">
+                        <i class="ph-bold ph-arrow-left"></i> Kembali ke Beranda
+                    </a>
+
+                    <div class="h-6 w-px bg-slate-200 mx-2"></div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-slate-700">Rahmat Rio</p>
+                            <p class="text-[10px] text-slate-500">Biro Travel</p>
+                        </div>
+                        <div class="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
+                            <img id="nav-avatar"
+                                src="https://ui-avatars.com/api/?name=Rakha+Rizki&background=F97316&color=fff"
+                                class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:hidden">
+                    <a href="/marketplace/" class="text-slate-700 hover:text-orange-600">
+                        <i class="ph-bold ph-house text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-28 pb-5 min-h-screen bg-slate-50/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+                <div class="lg:col-span-1 space-y-6" data-aos="fade-right">
+                    <div
+                        class="bg-white rounded-2xl p-6 border border-slate-200 text-center shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-orange-100 to-orange-50">
+                        </div>
+                        <div class="relative z-10">
+                            <div
+                                class="w-24 h-24 mx-auto rounded-full border-4 border-white shadow-md overflow-hidden bg-slate-100 mb-3">
+                                <img id="sidebar-avatar"
+                                    src="https://ui-avatars.com/api/?name=Rakha+Rizki&background=F97316&color=fff"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <h2 class="text-lg font-bold text-slate-900">Rahmat Rio</h2>
+                            <p class="text-sm text-slate-500">Travel Agent Resmi</p>
+                            <div class="mt-4 text-left">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-semibold text-slate-600">Kelengkapan Data</span>
+                                    <span class="font-bold text-emerald-600">100%</span>
+                                </div>
+
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-emerald-500 h-2 rounded-full transition-all duration-1000 w-full">
+                                    </div>
+                                </div>
+
+                                <p
+                                    class="text-[11px] text-emerald-700 mt-2 flex items-center gap-1 font-medium bg-emerald-50 py-1 px-2 rounded-lg">
+                                    <i class="ph-fill ph-check-circle text-emerald-600"></i>
+                                    Data Anda sudah lengkap.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                        <nav class="flex flex-col">
+
+                            <a href="/marketplace/travel/profil/"
+                                class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
+                                <i class="ph-bold ph-user text-xl"></i> Profil
+                            </a>
+
+                            <a href="/marketplace/travel/pesanan-masuk/"
+                                class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
+                                <i class="ph-bold ph-receipt text-xl"></i> Pesanan Masuk
+                            </a>
+
+                            <a href="/marketplace/travel/upload-produk/"
+                                class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
+                                <i class="ph-bold ph-upload text-xl"></i> Upload Produk
+                            </a>
+
+                            <a href="/marketplace/travel/kelola-produk/"
+                                class="flex items-center gap-3 px-5 py-4 bg-orange-50 text-orange-700 font-bold border-l-4 border-orange-600">
+                                <i class="ph-bold ph-package text-xl"></i> Kelola Produk
+                            </a>
+
+                        </nav>
+                        <!-- <div class="mt-auto border-t border-slate-100 p-2 bg-slate-50">
+                            <button onclick="confirmLogout()"
+                                class="flex w-full items-center justify-center gap-2 px-5 py-3 text-red-600 hover:bg-red-100/50 hover:text-red-700 font-bold transition rounded-xl text-sm">
+                                <i class="ph-bold ph-sign-out text-lg"></i> Keluar Akun
+                            </button>
+                        </div> -->
+                    </div>
+                </div>
+
+                <div class="lg:col-span-3" data-aos="fade-up" data-aos-delay="100">
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 min-h-[600px]">
+
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Kelola Produk</h1>
+                                <p class="text-slate-500 text-sm mt-1">Atur ketersediaan dan informasi paket perjalanan
+                                    Anda.</p>
+                            </div>
+                            <div class="flex gap-3 w-full md:w-auto">
+                                <div class="relative flex-grow md:w-64">
+                                    <i
+                                        class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                    <input type="text" placeholder="Cari paket..."
+                                        class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-100 transition shadow-sm">
+                                </div>
+                                <a href="/marketplace/travel/upload-produk/"
+                                    class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-orange-500/20 transition whitespace-nowrap">
+                                    <i class="ph-bold ph-plus"></i> <span class="hidden sm:inline">Tambah</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="mb-8 overflow-x-auto no-scrollbar">
+                            <div class="flex gap-4 min-w-max border-b border-slate-100 pb-1">
+                                <button
+                                    class="tab-btn active group relative px-2 py-3 text-sm font-bold text-orange-600 transition-all"
+                                    onclick="filterProduct('all', this)">
+                                    Semua Paket
+                                    <span
+                                        class="ml-1.5 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-bold">2</span>
+                                    <span
+                                        class="absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
+                                </button>
+                                <button
+                                    class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all"
+                                    onclick="filterProduct('active', this)">
+                                    Aktif (Tayang)
+                                    <span
+                                        class="ml-1.5 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-bold">1</span>
+                                    <span
+                                        class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
+                                </button>
+                                <button
+                                    class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all"
+                                    onclick="filterProduct('archive', this)">
+                                    Arsip (Draft)
+                                    <span
+                                        class="ml-1.5 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-bold">1</span>
+                                    <span
+                                        class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4" id="product-container">
+
+                            <div class="product-card group bg-white rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row gap-5 transition hover:shadow-md hover:border-orange-200"
+                                data-status="active">
+
+                                <div
+                                    class="w-full sm:w-32 h-32 sm:h-28 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 relative">
+                                    <img src="/assets/img/marketplace/produk-dummy.png"
+                                        class="w-full h-full object-cover transition group-hover:scale-105 duration-500">
+                                    <div
+                                        class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-slate-700 flex items-center gap-1 shadow-sm">
+                                        <i class="ph-fill ph-star text-yellow-400"></i> 4.8
+                                    </div>
+                                </div>
+
+                                <div class="flex-grow flex flex-col justify-center">
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span
+                                            class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-md border border-blue-100">
+                                            Umroh Reguler 9 Hari
+                                        </span>
+                                        <span
+                                            class="text-xs text-slate-500 flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                                            <i class="ph-bold ph-calendar text-slate-400"></i> 22 Juni 2026
+                                        </span>
+                                    </div>
+
+                                    <h3
+                                        class="text-base font-bold text-slate-900 mb-2 group-hover:text-orange-600 transition line-clamp-1 leading-snug">
+                                        Umroh Easy 22 Juni 2026
+                                    </h3>
+
+                                    <div class="flex items-center gap-4 text-sm">
+                                        <p class="text-orange-600 font-extrabold text-base">
+                                            Rp 28.900.000 <span class="text-slate-400 font-normal text-xs">/ Pax</span>
+                                        </p>
+                                        <div class="h-4 w-[1px] bg-slate-200"></div>
+                                        <p class="text-slate-500 text-xs flex items-center gap-1.5 font-medium">
+                                            <i class="ph-fill ph-users text-slate-400"></i> Sisa Kuota: <span
+                                                class="text-slate-700 font-bold">42</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-4 border-t sm:border-t-0 sm:border-l border-slate-100 pt-4 sm:pt-0 sm:pl-5 min-w-[140px]">
+
+                                    <div class="flex flex-col items-center gap-1.5">
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer toggle-status" checked>
+                                            <div
+                                                class="w-10 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 shadow-inner">
+                                            </div>
+                                        </label>
+                                        <span
+                                            class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 transition-all duration-300">Tayang</span>
+                                    </div>
+
+                                    <a href="/marketplace/travel/kelola-produk/edit-produk/"
+                                        class="w-full py-2 flex items-center justify-center gap-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg transition text-xs font-bold">
+                                        <i class="ph-bold ph-pencil-simple text-sm"></i> Edit
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="product-card group bg-white rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row gap-5 transition hover:shadow-md opacity-75 hover:opacity-100"
+                                data-status="archive">
+
+                                <div
+                                    class="w-full sm:w-32 h-32 sm:h-28 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 grayscale relative">
+                                    <img src="/assets/img/marketplace/produk-dummy2.png"
+                                        class="w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-slate-900/10"></div>
+                                </div>
+
+                                <div class="flex-grow flex flex-col justify-center">
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span
+                                            class="bg-purple-50 text-purple-600 text-[10px] font-bold px-2.5 py-1 rounded-md border border-purple-100">
+                                            Haji Khusus
+                                        </span>
+                                        <span
+                                            class="text-xs text-slate-500 flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                                            <i class="ph-bold ph-calendar text-slate-400"></i> 31 Desember 2035
+                                        </span>
+                                    </div>
+
+                                    <h3
+                                        class="text-base font-bold text-slate-900 mb-2 group-hover:text-purple-600 transition line-clamp-1 leading-snug">
+                                        Pendaftaran Haji
+                                        Khusus 2026 Program 26 Hari
+                                    </h3>
+
+                                    <div class="flex items-center gap-4 text-sm">
+                                        <p class="text-slate-500 font-bold text-base">
+                                            $ 16.000 Usd
+                                        </p>
+                                        <div class="h-4 w-[1px] bg-slate-200"></div>
+                                        <p
+                                            class="text-red-500 text-xs flex items-center gap-1.5 font-bold bg-red-50 px-2 py-0.5 rounded">
+                                            <i class="ph-fill ph-x-circle"></i> Kuota Habis
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-4 border-t sm:border-t-0 sm:border-l border-slate-100 pt-4 sm:pt-0 sm:pl-5 min-w-[140px]">
+
+                                    <div class="flex flex-col items-center gap-1.5">
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" class="sr-only peer toggle-status">
+                                            <div
+                                                class="w-10 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 shadow-inner">
+                                            </div>
+                                        </label>
+                                        <span
+                                            class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 transition-all duration-300">Arsip</span>
+                                    </div>
+
+                                    <a href="/marketplace/travel/kelola-produk/edit-produk/"
+                                        class="w-full py-2 flex items-center justify-center gap-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg transition text-xs font-bold">
+                                        <i class="ph-bold ph-pencil-simple text-sm"></i> Edit
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div id="empty-product" class="hidden flex-col items-center justify-center py-24 text-center">
+                            <div
+                                class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4 ring-8 ring-slate-50/50">
+                                <i class="ph-duotone ph-package text-5xl text-slate-300"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900">Belum ada paket</h3>
+                            <p class="text-slate-500 text-sm mt-1 mb-6 max-w-xs mx-auto">
+                                Anda belum memiliki paket perjalanan pada kategori ini.
+                            </p>
+                            <a href="/marketplace/travel/upload-produk/"
+                                class="px-5 py-2.5 rounded-xl bg-orange-600 text-white font-bold text-sm shadow-lg hover:bg-orange-700 transition">
+                                Buat Paket Baru
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <script>
+                    // Simple Filter Logic
+                    function filterProduct(status, btn) {
+                        // Update Tab Styles
+                        document.querySelectorAll('.tab-btn').forEach(b => {
+                            b.classList.remove('active', 'text-orange-600', 'font-bold');
+                            b.classList.add('text-slate-500', 'font-medium');
+                            b.querySelector('span:last-child').classList.add('hidden');
+                        });
+                        btn.classList.add('active', 'text-orange-600', 'font-bold');
+                        btn.classList.remove('text-slate-500', 'font-medium');
+                        btn.querySelector('span:last-child').classList.remove('hidden');
+
+                        // Filter Logic
+                        const cards = document.querySelectorAll('.product-card');
+                        let visible = 0;
+                        cards.forEach(card => {
+                            if (status === 'all' || card.dataset.status === status) {
+                                card.style.display = 'flex';
+                                visible++;
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+
+                        // Show/Hide Empty State
+                        const emptyState = document.getElementById('empty-product');
+                        if (visible === 0) {
+                            emptyState.classList.remove('hidden');
+                            emptyState.classList.add('flex');
+                        } else {
+                            emptyState.classList.add('hidden');
+                            emptyState.classList.remove('flex');
+                        }
+                    }
+                </script>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+
+
+        // --- UX FUNCTION: Logout Confirmation ---
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Keluar dari Akun?',
+                text: "Anda harus masuk kembali untuk mengakses Profil & Pesanan Masuk",
+                icon: 'warning',
+                iconColor: '#dc2626',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Keluar Akun',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Berhasil Keluar',
+                        text: 'Mengalihkan ke beranda...',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = '/marketplace/'; // Redirect
+                    });
+                }
+            });
+        }
+    </script>
+
+    <script>
+        // Pilih semua elemen dengan class 'toggle-status'
+        const statusToggles = document.querySelectorAll('.toggle-status');
+
+        statusToggles.forEach(toggle => {
+            toggle.addEventListener('change', function () {
+                // Cari elemen span (Label) yang satu grup dengan checkbox ini
+                const labelSpan = this.closest('div.flex').querySelector('span');
+
+                if (this.checked) {
+                    // --- JIKA DINYALAKAN (AKTIF) ---
+
+                    // 1. Ubah Teks & Style
+                    labelSpan.textContent = "Tayang";
+                    labelSpan.className = "text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 transition-all duration-300";
+
+                    // 2. Tampilkan Notifikasi Tengah (Success)
+                    showAlert('Berhasil Diterbitkan', 'Produk kini tampil di beranda', 'success');
+
+                } else {
+                    // --- JIKA DIMATIKAN (ARSIP) ---
+
+                    // 1. Ubah Teks & Style
+                    labelSpan.textContent = "Arsip";
+                    labelSpan.className = "text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 transition-all duration-300";
+
+                    // 2. Tampilkan Notifikasi Tengah (Info)
+                    showAlert('Produk Diarsipkan', 'Produk disembunyikan dari beranda', 'info');
+                }
+            });
+        });
+
+        // Fungsi Helper untuk Notifikasi di Tengah (Modal)
+        function showAlert(title, text, icon) {
+            Swal.fire({
+                icon: icon,               // Ikon (success/info/warning)
+                title: title,             // Judul Besar
+                text: text,               // Teks kecil di bawahnya
+                position: 'center',       // Posisi di tengah
+                showConfirmButton: false, // Hilangkan tombol OK
+                timer: 1500,              // Otomatis tutup dalam 1.5 detik
+                timerProgressBar: true    // Bar waktu berjalan
+            });
+        }
+    </script>
+
+</body>
+
+</html>
