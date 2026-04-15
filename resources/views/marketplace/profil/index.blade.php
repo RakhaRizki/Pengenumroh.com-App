@@ -111,17 +111,17 @@
 
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                         <nav class="flex flex-col">
-                            <a href="/marketplace/profil/"
+                            <a href="{{ route('marketplace.profil.index') }}"
                                 class="flex items-center gap-3 px-5 py-4 bg-orange-50 text-orange-700 font-bold border-l-4 border-orange-600">
                                 <i class="ph-bold ph-user text-xl"></i> Profil
                             </a>
 
-                            <a href="/marketplace/pesanan/"
+                            <a href="{{ route('marketplace.profil.pesanan') }}"
                                 class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
                                 <i class="ph-bold ph-ticket text-xl"></i> Pesanan
                             </a>
 
-                            <a href="/marketplace/wishlist/"
+                            <a href="{{ route('marketplace.profil.wishlist') }}"
                                 class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
                                 <i class="ph-bold ph-heart text-xl"></i> Wishlist
                             </a>

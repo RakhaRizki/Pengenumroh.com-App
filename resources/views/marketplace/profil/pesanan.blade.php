@@ -109,17 +109,17 @@
 
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                         <nav class="flex flex-col">
-                            <a href="/marketplace/profil/"
+                            <a href="{{ route('marketplace.profil.index') }}"
                                 class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
                                 <i class="ph-bold ph-user text-xl"></i> Profil
                             </a>
 
-                            <a href="/marketplace/pesanan/"
+                            <a href="{{ route('marketplace.profil.pesanan') }}"
                                 class="flex items-center gap-3 px-5 py-4 bg-orange-50 text-orange-700 font-bold border-l-4 border-orange-600">
                                 <i class="ph-bold ph-ticket text-xl"></i> Pesanan
                             </a>
 
-                            <a href="/marketplace/wishlist/"
+                            <a href="{{ route('marketplace.profil.wishlist') }}"
                                 class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
                                 <i class="ph-bold ph-heart text-xl"></i> Wishlist
                             </a>
@@ -529,7 +529,8 @@
                                 </div>
                             </div>
 
-                            <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-center">
+                            <div id="empty-state"
+                                class="hidden flex-col items-center justify-center py-20 text-center">
                                 <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                                     <i class="ph-duotone ph-receipt text-5xl text-slate-300"></i>
                                 </div>
@@ -554,7 +555,10 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init({ duration: 800, once: true });
+        AOS.init({
+            duration: 800,
+            once: true
+        });
 
         // Filter Logic
         function filterOrder(status, btn) {
@@ -648,7 +652,6 @@
     </script>
 
     <script>
-
         function openPaymentModal() {
             Swal.fire({
                 title: '<span class="text-lg font-bold text-slate-900">Upload Bukti Transfer</span>',
@@ -728,14 +731,14 @@
 
                     // --- TAHAP 1: SIMULASI LOADING ---
                     Swal.fire({
-                        title: 'Mengirim Bukti...',
-                        html: 'Mohon tunggu, sedang memverifikasi.',
-                        timer: 2000,
-                        timerProgressBar: true,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    })
+                            title: 'Mengirim Bukti...',
+                            html: 'Mohon tunggu, sedang memverifikasi.',
+                            timer: 2000,
+                            timerProgressBar: true,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        })
                         .then(() => {
                             // --- TAHAP 2: NOTIFIKASI SUKSES ---
                             // Kita gunakan 'return' agar bisa di-chain ke .then() berikutnya
@@ -775,7 +778,7 @@
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
 
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     previewImg.src = e.target.result;
                     filename.textContent = input.files[0].name;
 
@@ -914,8 +917,8 @@
                     </div>
                 `,
                 showConfirmButton: false, // Hilangkan tombol OK bawaan
-                showCloseButton: true,    // Tampilkan tombol X di pojok
-                width: '450px',           // Lebar modal ideal
+                showCloseButton: true, // Tampilkan tombol X di pojok
+                width: '450px', // Lebar modal ideal
                 customClass: {
                     popup: 'rounded-2xl text-left', // Styling container modal
                     closeButton: 'focus:outline-none'
@@ -1173,7 +1176,10 @@
                 showConfirmButton: false,
                 showCloseButton: true,
                 width: '450px',
-                customClass: { popup: 'rounded-2xl text-left', closeButton: 'focus:outline-none' }
+                customClass: {
+                    popup: 'rounded-2xl text-left',
+                    closeButton: 'focus:outline-none'
+                }
             });
         }
 
@@ -1216,7 +1222,9 @@
                 showConfirmButton: false,
                 showCloseButton: false,
                 width: '400px',
-                customClass: { popup: 'rounded-3xl' }
+                customClass: {
+                    popup: 'rounded-3xl'
+                }
             });
         }
 
@@ -1243,7 +1251,6 @@
                 });
             }, 1500);
         }
-
     </script>
 
 </body>

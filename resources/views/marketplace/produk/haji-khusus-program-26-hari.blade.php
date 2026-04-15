@@ -2,7 +2,7 @@
 <html lang="id">
 
 <head>
-    <title>Umroh Easy 26 Juni 2026 - Pengenumroh</title>
+    <title>Pendaftaran Haji Khusus 2026 Program 26 Hari - Pengenumroh</title>
     <link rel="icon" type="image/png" href="/assets/img/marketplace/favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -116,31 +116,31 @@
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="/marketplace/#produk"
+                        <a href="#produk"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Produk
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="/marketplace/#mitra"
+                        <a href="#mitra"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Mitra
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="/marketplace/perbandingan/"
+                        <a href="{{ route('marketplace.bandingkan') }}"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Perbandingan
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="/marketplace/haji-khusus/"
+                        <a href="{{ route('marketplace.produk.haji-khusus') }}"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Haji Khusus
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="/"
+                        <a href="{{ route('company.beranda') }}"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Tentang Kami
                             <span
@@ -176,24 +176,24 @@
                                     class="ph-bold ph-caret-down text-slate-400 pr-2 group-hover:text-orange-500 transition"></i>
                             </button>
 
-                            <div
+                             <div
                                 class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50 overflow-hidden">
                                 <div class="py-2">
-                                    <a href="/marketplace/profil/"
+                                    <a href="{{ route('marketplace.profil.index') }}"
                                         class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                         <i class="ph-bold ph-user mr-3 text-lg"></i> Profil
                                     </a>
-                                    <a href="/marketplace/pesanan/"
+                                    <a href="{{ route('marketplace.profil.pesanan') }}"
                                         class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                         <i class="ph-bold ph-ticket mr-3 text-lg"></i> Pesanan
                                     </a>
-                                    <a href="/marketplace/wishlist/"
+                                    <a href="{{ route('marketplace.profil.wishlist') }}"
                                         class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                         <i class="ph-bold ph-heart mr-3 text-lg"></i> Wishlist
                                     </a>
                                     <div class="border-t border-gray-100 my-1"></div>
                                     <a href="#" onclick="toggleAuth(false)"
-                                        class="flex items-center px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition">
+                                        class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
                                         <i class="ph-bold ph-sign-out mr-3 text-lg"></i> Keluar
                                     </a>
                                 </div>
@@ -234,55 +234,50 @@
                         </div>
                     </div>
 
-                    <a href="/marketplace/"
+                     <a href="/marketplace/"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Beranda</a>
-                    <a href="/marketplace/#produk"
+                    <a href="#produk"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Produk</a>
-                    <a href="/marketplace/#mitra"
+                    <a href="#mitra"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Mitra</a>
-                    <a href="/marketplace/perbandingan/"
+                    <a href="{{ route('marketplace.bandingkan') }}"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Perbandingan</a>
-                    <a href="/marketplace/haji-khusus/"
+                    <a href="{{ route('marketplace.produk.haji-khusus') }}"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Haji
                         Khusus</a>
-                    <a href="/"
+                    <a href="{{ route('company.beranda') }}"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Tentang
                         Kami</a>
 
                     <div class="border-t border-slate-100 my-2"></div>
 
-                    <div id="mobile-guest-actions" class="space-y-2 pt-2">
-                        <a href="#" onclick="toggleAuth(true)"
-                            class="flex items-center justify-center w-full py-3 rounded-xl font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 transition">
-                            Masuk
-                        </a>
-                        <a href="#" onclick="toggleAuth(true)"
-                            class="flex items-center justify-center w-full py-3 bg-slate-900 text-white font-bold rounded-xl shadow-md active:scale-95 transition">
-                            Daftar Sekarang
-                        </a>
+                     <div id="mobile-guest-actions" class="space-y-2 pt-2">
+                        <a href="{{ route('login') }}"
+                            class="flex items-center justify-center w-full py-3 rounded-xl font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Masuk</a>
+                        <a href="{{ route('register') }}"
+                            class="flex items-center justify-center w-full py-3 bg-slate-900 text-white font-bold rounded-xl shadow-md active:scale-95 transition">Daftar
+                            Sekarang</a>
                     </div>
 
                     <div id="mobile-user-actions" class="hidden space-y-2">
-                        <a href="/marketplace/pesanan/"
+                        <a href="{{ route('marketplace.profil.pesanan') }}"
                             class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                             <i class="ph-bold ph-ticket mr-3"></i> Pesanan
                         </a>
-                        <a href="/marketplace/profil/"
+                        <a href="{{ route('marketplace.profil.index') }}"
                             class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                             <i class="ph-bold ph-user mr-3"></i> Profil
                         </a>
-                        <a href="/marketplace/wishlist/"
+                        <a href="{{ route('marketplace.profil.wishlist') }}"
                             class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                             <i class="ph-bold ph-heart mr-3"></i> Wishlist
                         </a>
-                        <a href="/marketplace/#karir"
+                        <a href="#karir"
                             class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                             <i class="ph-bold ph-briefcase mr-3"></i> Karir
                         </a>
                         <button onclick="toggleAuth(false)"
-                            class="w-full mt-2 py-3 text-red-600 font-bold hover:bg-red-50 rounded-xl transition">
-                            Keluar
-                        </button>
+                            class="w-full mt-2 py-3 text-red-600 font-bold hover:bg-red-50 rounded-xl transition">Keluar</button>
                     </div>
 
                 </div>
@@ -309,8 +304,8 @@
 
                 <li>
                     <div class="flex items-center">
-                        <a href="#" class="hover:text-orange-600 transition-colors duration-200">
-                            Reguler 9 Hari
+                        <a href="/marketplace/haji-khusus/" class="hover:text-orange-600 transition-colors duration-200">
+                            Haji Khusus
                         </a>
                     </div>
                 </li>
@@ -321,8 +316,9 @@
 
                 <li>
                     <div class="flex items-center">
-                        <a href="#" class="hover:text-orange-600 transition-colors duration-200">
-                            Mutiara Sunnah Travel
+                        <a href="/marketplace/haramainku-travel/"
+                            class="hover:text-orange-600 transition-colors duration-200">
+                            Haramainku Travel
                         </a>
                     </div>
                 </li>
@@ -332,7 +328,7 @@
                 </li>
 
                 <li aria-current="page">
-                    <span class="text-gray-900 font-bold">Umroh Easy 22 Juni 2026</span>
+                    <span class="text-gray-900 font-bold">Pendaftaran Haji Khusus 2026 Program 26 Hari</span>
                 </li>
 
             </ol>
@@ -347,21 +343,25 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="relative w-full aspect-[3/4] md:aspect-auto md:h-[700px] md:col-span-3 rounded-2xl overflow-hidden shadow-sm group cursor-pointer"
                             onclick="openLightbox(this)">
-                            <img src="/assets/img/marketplace/produk-dummy.png"
+                            <img src="/assets/img/marketplace/produk-dummy3.png"
                                 class="w-full h-full object-cover transition duration-700 ease-in-out group-hover:scale-105"
                                 alt="Ka'bah">
+                            <div
+                                class="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition group-hover:bg-black/60">
+                                <i class="ph-fill ph-camera"></i> Lihat Galeri
+                            </div>
                         </div>
 
                         <div class="hidden md:grid md:col-span-1 grid-rows-2 gap-4 h-[700px]">
                             <div class="relative rounded-2xl overflow-hidden cursor-pointer group shadow-sm"
                                 onclick="openLightbox(this)">
-                                <img src="/assets/img/marketplace/lemeredien-tower.jpg"
+                                <img src="/assets/img/marketplace/dummy.jpg"
                                     class="w-full h-full object-cover hover:scale-110 transition duration-500"
                                     alt="Madinah">
                             </div>
                             <div class="relative rounded-2xl overflow-hidden cursor-pointer group shadow-sm"
                                 onclick="openLightbox(this)">
-                                <img src="/assets/img/marketplace/al-saha.webp"
+                                <img src="/assets/img/marketplace/dummy.jpg"
                                     class="w-full h-full object-cover hover:scale-110 transition duration-500"
                                     alt="Hotel Room">
                                 <!-- <div
@@ -374,15 +374,15 @@
 
                     <div class="flex md:hidden gap-3 overflow-x-auto no-scrollbar pb-2">
                         <div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 border-orange-500">
-                            <img src="/assets/img/marketplace/produk-dummy.png" class="w-full h-full object-cover">
+                            <img src="/assets/img/marketplace/produk-dummy3.png" class="w-full h-full object-cover">
                         </div>
                         <div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden grayscale opacity-70 cursor-pointer"
                             onclick="openLightbox(this)">
-                            <img src="/assets/img/marketplace/lemeredien-tower.jpg" class="w-full h-full object-cover">
+                            <img src="/assets/img/marketplace/dummy.jpg" class="w-full h-full object-cover">
                         </div>
                         <div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden grayscale opacity-70 cursor-pointer"
                             onclick="openLightbox(this)">
-                            <img src="/assets/img/marketplace/al-saha.webp" class="w-full h-full object-cover">
+                            <img src="/assets/img/marketplace/dummy.jpg" class="w-full h-full object-cover">
                         </div>
                     </div>
 
@@ -393,14 +393,14 @@
                         <div>
                             <span
                                 class="bg-blue-100 text-blue-700 text-xs px-2.5 py-1 rounded-md font-bold uppercase tracking-wide mb-2 inline-block">Paket
-                                Reguler 9 Hari</span>
-                            <h1 class="text-2xl md:text-4xl font-bold text-gray-900 leading-tight">Umroh Easy 22 Juni
-                                2026</h1>
+                                Haji Khusus</span>
+                            <h1 class="text-2xl md:text-4xl font-bold text-gray-900 leading-tight">Pendaftaran Haji
+                                Khusus 2026 Program 26 Hari</h1>
                             <div class="flex items-center gap-2 mt-2 text-gray-500 text-sm">
-                                <i class="ph-fill ph-calendar-blank text-orange-500 text-lg"></i> <span>22 Juni
-                                    2026</span>
+                                <i class="ph-fill ph-calendar-blank text-orange-500 text-lg"></i> <span>31 Desember
+                                    2035</span>
                                 <span class="mx-1">•</span>
-                                <i class="ph-fill ph-clock text-orange-500 text-lg"></i> <span>9 Hari</span>
+                                <i class="ph-fill ph-clock text-orange-500 text-lg"></i> <span>26 Hari</span>
                             </div>
                         </div>
                     </div>
@@ -418,37 +418,37 @@
                             class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
                             <i class="ph-duotone ph-airplane-takeoff text-2xl text-orange-500 mb-1"></i>
                             <span class="text-xs text-gray-500">Maskapai</span>
-                            <span class="text-sm font-bold text-gray-800">Oman Air</span>
+                            <span class="text-sm font-bold text-gray-800">Maskapai Internasional</span>
                         </div>
                         <div
                             class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
                             <i class="ph-duotone ph-buildings text-2xl text-orange-500 mb-1"></i>
                             <span class="text-xs text-gray-500">Hotel Mekkah</span>
-                            <span class="text-sm font-bold text-gray-800">Lemeridien Tower</span>
+                            <span class="text-sm font-bold text-gray-800">Hotel Bintang 5</span>
                         </div>
                         <div
                             class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
                             <i class="ph-duotone ph-map-pin text-2xl text-orange-500 mb-1"></i>
                             <span class="text-xs text-gray-500">Jarak Hotel Makkah</span>
-                            <span class="text-sm font-bold text-gray-800">± by shuttle</span>
+                            <span class="text-sm font-bold text-gray-800">-</span>
                         </div>
                         <div
                             class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
                             <i class="ph-duotone ph-buildings text-2xl text-orange-500 mb-1"></i>
                             <span class="text-xs text-gray-500">Hotel Madinah</span>
-                            <span class="text-sm font-bold text-gray-800">Jiwal Al Saha</span>
+                            <span class="text-sm font-bold text-gray-800">Hotel Bintang 5</span>
                         </div>
                         <div
                             class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
                             <i class="ph-duotone ph-map-pin text-2xl text-orange-500 mb-1"></i>
                             <span class="text-xs text-gray-500">Jarak Hotel Madinah</span>
-                            <span class="text-sm font-bold text-gray-800">± 500m</span>
+                            <span class="text-sm font-bold text-gray-800">-</span>
                         </div>
                         <div
                             class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
                             <i class="ph-duotone ph-users-three text-2xl text-orange-500 mb-1"></i>
                             <span class="text-xs text-gray-500">Biro Travel</span>
-                            <span class="text-sm font-bold text-gray-800">Mutiara Sunnah Travel</span>
+                            <span class="text-sm font-bold text-gray-800">Haramainku Travel</span>
                         </div>
                     </div>
                 </div>
@@ -477,20 +477,20 @@
                     <h3 class="text-xl font-bold text-gray-900 mb-4">Akomodasi & Hotel</h3>
                     <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
                         <div class="flex flex-col md:flex-row gap-6">
-                            <img src="/assets/img/marketplace/lemeredien-tower.jpg"
+                            <img src="/assets/img/marketplace/dummy.jpg"
                                 class="w-full md:w-1/3 rounded-lg object-cover h-48 cursor-pointer"
                                 onclick="openLightbox(this)" alt="Fairmont Hotel">
                             <div class="flex-1">
                                 <div class="flex justify-between items-start">
-                                    <h4 class="text-lg font-bold text-gray-800">Lemeridien Tower</h4>
+                                    <h4 class="text-lg font-bold text-gray-800">Hotel Bintang 5</h4>
                                     <span class="flex text-yellow-400 text-xs">⭐⭐⭐⭐⭐</span>
                                 </div>
                                 <p class="text-sm text-gray-500 mt-1 flex items-center gap-1"><i
-                                        class="ph-fill ph-map-pin text-gray-400"></i> by shuttle</p>
+                                        class="ph-fill ph-map-pin text-gray-400"></i>-</p>
                                 <ul class="mt-4 space-y-2">
                                     <li class="flex items-center text-sm text-gray-600 gap-2"><i
-                                            class="ph-fill ph-check-circle text-green-500"></i>Restoran, WIFI, Brankas,
-                                        AC
+                                            class="ph-fill ph-check-circle text-green-500"></i>Restaurant, AC, Kulkas,
+                                        Wifi
                                     </li>
                                     <!-- <li class="flex items-center text-sm text-gray-600 gap-2"><i
                                             class="ph-fill ph-check-circle text-green-500"></i> Full Board (Menu
@@ -499,20 +499,20 @@
                             </div>
                         </div>
                         <div class="mt-5 flex flex-col md:flex-row gap-6">
-                            <img src="/assets/img/marketplace/al-saha.webp"
+                            <img src="/assets/img/marketplace/dummy.jpg"
                                 class="w-full md:w-1/3 rounded-lg object-cover h-48 cursor-pointer"
                                 onclick="openLightbox(this)" alt="Fairmont Hotel">
                             <div class="flex-1">
                                 <div class="flex justify-between items-start">
-                                    <h4 class="text-lg font-bold text-gray-800">Jiwal Al Saha</h4>
+                                    <h4 class="text-lg font-bold text-gray-800">Hotel Bintang 5</h4>
                                     <span class="flex text-yellow-400 text-xs">⭐⭐⭐⭐⭐</span>
                                 </div>
                                 <p class="text-sm text-gray-500 mt-1 flex items-center gap-1"><i
-                                        class="ph-fill ph-map-pin text-gray-400"></i> 500m</p>
+                                        class="ph-fill ph-map-pin text-gray-400"></i>-</p>
                                 <ul class="mt-4 space-y-2">
                                     <li class="flex items-center text-sm text-gray-600 gap-2"><i
-                                            class="ph-fill ph-check-circle text-green-500"></i>Restaurant, AC, Wifi,
-                                        Kulkas
+                                            class="ph-fill ph-check-circle text-green-500"></i>Restoran, WIFI, Brankas,
+                                        AC
                                     </li>
                                     <!-- <li class="flex items-center text-sm text-gray-600 gap-2"><i
                                             class="ph-fill ph-check-circle text-green-500"></i> Full Board (Menu
@@ -545,14 +545,13 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 
                                 <div
-                                    class="group flex gap-4 items-center p-2 rounded-xl hover:bg-green-50 transition-colors duration-200 cursor-pointer">
-                                    <div class="flex-shrink-0">
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
                                         <i
                                             class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
                                     </div>
-
                                     <div>
-                                        <p class="font-bold text-gray-800 text-sm">Tiket Pesawat Internasional</p>
+                                        <p class="font-bold text-gray-800 text-sm">Pesantren Haji</p>
                                     </div>
                                 </div>
 
@@ -563,7 +562,7 @@
                                             class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-gray-800 text-sm">Visa Umroh</p>
+                                        <p class="font-bold text-gray-800 text-sm">Kajian Tazkiyatun Nafs</p>
                                     </div>
                                 </div>
 
@@ -574,7 +573,7 @@
                                             class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-gray-800 text-sm">Handling Bandara</p>
+                                        <p class="font-bold text-gray-800 text-sm">Tahsin & Tahfidz Al Quran</p>
                                     </div>
                                 </div>
 
@@ -585,7 +584,8 @@
                                             class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-gray-800 text-sm">Handling Hotel</p>
+                                        <p class="font-bold text-gray-800 text-sm">Perenungan Sejarah Nabi di Madinah &
+                                            Makkah</p>
                                     </div>
                                 </div>
 
@@ -596,7 +596,7 @@
                                             class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-gray-800 text-sm">Transportasi & City Tour</p>
+                                        <p class="font-bold text-gray-800 text-sm">City Tour Makkah & Madinah</p>
                                     </div>
                                 </div>
 
@@ -607,63 +607,118 @@
                                             class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-gray-800 text-sm">Asuransi Perjalanan</p>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
-                                    <div class="flex-shrink-0 mt-1">
-                                        <i
-                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-gray-800 text-sm">Muthawif & Tour Guide</p>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
-                                    <div class="flex-shrink-0 mt-1">
-                                        <i
-                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-gray-800 text-sm">Makan 3x Sehari</p>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
-                                    <div class="flex-shrink-0 mt-1">
-                                        <i
-                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-gray-800 text-sm">Zamzam 5L</p>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
-                                    <div class="flex-shrink-0 mt-1">
-                                        <i
-                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-gray-800 text-sm">Free Ayam Al Baik</p>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
-                                    <div class="flex-shrink-0 mt-1">
-                                        <i
-                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-gray-800 text-sm">Free Kuliner Arab / Kebab Shawarma
+                                        <p class="font-bold text-gray-800 text-sm">Hotel Bintang Lima Makkah & Madinah
                                         </p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i
+                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">Hotel Transit</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i
+                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">Tiket dan Maskapai Internasional</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i
+                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">Visa Haji Resmi Saudia Arabia</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i
+                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">Tenda Maktab VIP</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i
+                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">VIP Lounge Keberangkatan</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i
+                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">Bus Full AC</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i
+                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">Manasik Haji</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i
+                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">Perlengkapan</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i
+                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">Audio Receiver</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="group flex gap-4 items-start p-2 rounded-xl hover:bg-orange-50 transition-colors duration-200">
+                                    <div class="flex-shrink-0 mt-1">
+                                        <i
+                                            class="ph-duotone ph-check-circle text-2xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">Dam Hadyu</p>
                                     </div>
                                 </div>
 
@@ -687,11 +742,7 @@
                                 </li>
                                 <li class="flex items-start gap-3 text-sm text-slate-600">
                                     <i class="ph-bold ph-minus-circle text-slate-400 mt-1"></i>
-                                    <span>Vaksin Meningitis & Polio</span>
-                                </li>
-                                <li class="flex items-start gap-3 text-sm text-slate-600">
-                                    <i class="ph-bold ph-minus-circle text-slate-400 mt-1"></i>
-                                    <span>Kelebihan Bagasi</span>
+                                    <span>Akomodasi dari Daerah Ke Bandara</span>
                                 </li>
                                 <li class="flex items-start gap-3 text-sm text-slate-600">
                                     <i class="ph-bold ph-minus-circle text-slate-400 mt-1"></i>
@@ -699,7 +750,15 @@
                                 </li>
                                 <li class="flex items-start gap-3 text-sm text-slate-600">
                                     <i class="ph-bold ph-minus-circle text-slate-400 mt-1"></i>
-                                    <span>Perlengkapan Umroh</span>
+                                    <span>Kelebihan Bagasi</span>
+                                </li>
+                                <li class="flex items-start gap-3 text-sm text-slate-600">
+                                    <i class="ph-bold ph-minus-circle text-slate-400 mt-1"></i>
+                                    <span>Pemeriksaan Kesehatan</span>
+                                </li>
+                                <li class="flex items-start gap-3 text-sm text-slate-600">
+                                    <i class="ph-bold ph-minus-circle text-slate-400 mt-1"></i>
+                                    <span>Vaksin Miningitis</span>
                                 </li>
                             </ul>
                         </div>
@@ -717,8 +776,6 @@
                             </div>
                             <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                                 <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari 1</span>
-                                <h4 class="text-lg font-bold text-gray-900 mt-1">Keberangkatan Jakarta - Muscat</h4>
-                                <p class="text-gray-600 text-sm mt-2">Keberangkatan - Transit di Oman</p>
                             </div>
                         </div>
                         <div class="relative pl-10">
@@ -727,11 +784,8 @@
                             </div>
                             <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                                 <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari 2</span>
-                                <h4 class="text-lg font-bold text-gray-900 mt-1">Muscat - Madinah</h4>
-                                <p class="text-gray-600 text-sm mt-2">Tiba di Madinah - Tour Masjid Nabawi</p>
                             </div>
                         </div>
-
                         <div id="extra-itinerary" class="hidden space-y-8">
                             <div class="relative pl-10">
                                 <div
@@ -740,8 +794,6 @@
                                 <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                                     <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
                                         3</span>
-                                    <h4 class="text-lg font-bold text-gray-900 mt-1">Madinah</h4>
-                                    <p class="text-gray-600 text-sm mt-2">City Tour Madinah</p>
                                 </div>
                             </div>
                             <div class="relative pl-10">
@@ -751,9 +803,6 @@
                                 <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                                     <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
                                         4</span>
-                                    <h4 class="text-lg font-bold text-gray-900 mt-1">Madinah - Makkah</h4>
-                                    <p class="text-gray-600 text-sm mt-2">Melanjutkan ke Makkah dan Melaksanakan Ibadah
-                                        Umroh</p>
                                 </div>
                             </div>
                             <div class="relative pl-10">
@@ -763,8 +812,6 @@
                                 <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                                     <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
                                         5</span>
-                                    <h4 class="text-lg font-bold text-gray-900 mt-1">Makkah</h4>
-                                    <p class="text-gray-600 text-sm mt-2">Tour Masjidil Haram</p>
                                 </div>
                             </div>
                             <div class="relative pl-10">
@@ -774,8 +821,6 @@
                                 <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                                     <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
                                         6</span>
-                                    <h4 class="text-lg font-bold text-gray-900 mt-1">Makkah</h4>
-                                    <p class="text-gray-600 text-sm mt-2">City Tour Makkah</p>
                                 </div>
                             </div>
                             <div class="relative pl-10">
@@ -785,8 +830,6 @@
                                 <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                                     <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
                                         7</span>
-                                    <h4 class="text-lg font-bold text-gray-900 mt-1">Thaif</h4>
-                                    <p class="text-gray-600 text-sm mt-2">City Tour Thaif</p>
                                 </div>
                             </div>
                             <div class="relative pl-10">
@@ -796,8 +839,6 @@
                                 <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                                     <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
                                         8</span>
-                                    <h4 class="text-lg font-bold text-gray-900 mt-1">Makkah - Jeddah - Muscat</h4>
-                                    <p class="text-gray-600 text-sm mt-2">Persiapan Kepulangan - Transit di Oman</p>
                                 </div>
                             </div>
                             <div class="relative pl-10">
@@ -807,8 +848,159 @@
                                 <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                                     <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
                                         9</span>
-                                    <h4 class="text-lg font-bold text-gray-900 mt-1">Kepulangan Muscat - Jakarta</h4>
-                                    <p class="text-gray-600 text-sm mt-2">Tiba di Indonesia</p>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        10</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        11</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        12</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        13</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        14</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        15</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        16</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        17</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        18</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        19</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        20</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        21</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        22</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        23</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        24</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        25</span>
+                                </div>
+                            </div>
+                            <div class="relative pl-10">
+                                <div
+                                    class="absolute left-[11px] top-1 w-5 h-5 bg-white border-4 border-orange-500 rounded-full z-10">
+                                </div>
+                                <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                                    <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Hari
+                                        26</span>
                                 </div>
                             </div>
                         </div>
@@ -828,12 +1020,13 @@
                 <section id="syarat" class="scroll-mt-40">
                     <h3 class="text-xl font-bold text-gray-900 mb-4">Syarat & Ketentuan</h3>
                     <div class="bg-white p-6 rounded-xl border border-gray-100 text-sm text-gray-600 space-y-2">
-                        <p>1. Paspor</p>
-                        <p>2. KTP</p>
-                        <p>3. KK</p>
-                        <p>4. Buku Nikah (Suami Istri)</p>
-                        <p>5. Akte (Anak)</p>
-                        <p>6. Pas Foto (Latar Putih)</p>
+                        <p>1. Fotocopy KTP, dan KK</p>
+                        <p>2. Fotocopy Buku Nikah (untuk suami/istri)</p>
+                        <p>3. Fotocopy Akta Lahir / ijazah (untuk anak)</p>
+                        <p>4. Pas foto ukuran 3x4 bg putih 10 lembar</p>
+                        <p>5. Mengisi form pendaftaran</p>
+                        <p>6. Menandatangani Surat MoU calon jamaah, Surat Kuasa, dan Surat Pernyataan</p>
+                        <p>7. Membayar setoran awal sebesar $4500</p>
                     </div>
                 </section>
 
@@ -846,11 +1039,11 @@
                         <div>
                             <h4 class="font-bold text-gray-800 mb-2">Tentang Paket Ini</h4>
                             <p>
-                                Paket Umrah Easy ini dirancang khusus untuk jamaah yang menginginkan kenyamanan dengan
-                                harga terjangkau.
-                                Menggunakan maskapai Oman Air dengan pelayanan premium dan hotel yang berlokasi
-                                strategis dekat dengan
-                                Masjidil Haram dan Masjid Nabawi.
+                                Paket Pendaftaran Haji Khusus 2026 program 26 hari ini dirancang khusus untuk jamaah
+                                yang menginginkan kenyamanan
+                                terbaik. Menggunakan maskapai internasional dan hotel bintang 5 yang berlokasi strategis
+                                dekat dengan Masjidil Haram dan
+                                Masjid Nabawi.
                             </p>
                         </div>
 
@@ -859,7 +1052,8 @@
                         <div>
                             <h4 class="font-bold text-gray-800 mb-2">Catatan Penting</h4>
                             <ul class="list-disc pl-5 space-y-1 marker:text-orange-500">
-                                <li>Harga dapat berubah sewaktu-waktu mengikuti kebijakan maskapai dan kurs mata uang
+                                -
+                                <!-- <li>Harga dapat berubah sewaktu-waktu mengikuti kebijakan maskapai dan kurs mata uang
                                     asing.</li>
                                 <li>Jadwal perjalanan (Itinerary) bersifat tentatif dan dapat berubah menyesuaikan
                                     kondisi di lapangan
@@ -867,7 +1061,7 @@
                                 <li>Pelunasan pembayaran wajib dilakukan maksimal H-30 sebelum tanggal keberangkatan.
                                 </li>
                                 <li>Bagi jamaah lansia atau berkebutuhan khusus, diwajibkan membawa pendamping keluarga.
-                                </li>
+                                </li> -->
                             </ul>
                         </div>
 
@@ -896,13 +1090,13 @@
                                     </div>
                                     <div>
                                         <p class="font-bold text-sm text-gray-800">Quad</p>
-                                        <p class="text-xs text-gray-500">Rp 25,9 Jt/pax</p>
+                                        <p class="text-xs text-gray-500">$ 16.000 /pax</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
                                     <button onclick="updateQty('quad', -1)"
                                         class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 transition">-</button>
-                                    <input type="number" id="qty-quad" value="1" data-name="Quad" data-price="25900000"
+                                    <input type="number" id="qty-quad" value="1" data-name="Quad" data-price="16000"
                                         class="qty-input w-10 text-center text-sm font-bold bg-transparent focus:outline-none"
                                         readonly>
                                     <button onclick="updateQty('quad', 1)"
@@ -918,14 +1112,13 @@
                                     </div>
                                     <div>
                                         <p class="font-bold text-sm text-gray-800">Triple</p>
-                                        <p class="text-xs text-gray-500">Rp 27 Jt/pax</p>
+                                        <p class="text-xs text-gray-500">$ 17.000 /pax</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-1">
                                     <button onclick="updateQty('triple', -1)"
                                         class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 transition">-</button>
-                                    <input type="number" id="qty-triple" value="0" data-name="Triple"
-                                        data-price="27000000"
+                                    <input type="number" id="qty-triple" value="0" data-name="Triple" data-price="17000"
                                         class="qty-input w-10 text-center text-sm font-bold bg-transparent focus:outline-none"
                                         readonly>
                                     <button onclick="updateQty('triple', 1)"
@@ -941,14 +1134,13 @@
                                     </div>
                                     <div>
                                         <p class="font-bold text-sm text-gray-800">Double</p>
-                                        <p class="text-xs text-gray-500">Rp 28,9 Jt/pax</p>
+                                        <p class="text-xs text-gray-500">$ 18.000 /pax</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-1">
                                     <button onclick="updateQty('double', -1)"
                                         class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 transition">-</button>
-                                    <input type="number" id="qty-double" value="0" data-name="Double"
-                                        data-price="28900000"
+                                    <input type="number" id="qty-double" value="0" data-name="Double" data-price="18000"
                                         class="qty-input w-10 text-center text-sm font-bold bg-transparent focus:outline-none"
                                         readonly>
                                     <button onclick="updateQty('double', 1)"
@@ -971,8 +1163,8 @@
                                 <span class="text-xs text-gray-400 font-bold" id="total-pax">1 Pax</span>
                             </div>
                             <div class="flex items-end">
-                                <span class="text-3xl font-extrabold text-orange-600" id="total-price-display">Rp
-                                    25.900.000</span>
+                                <span class="text-3xl font-extrabold text-orange-600" id="total-price-display">$
+                                    16.000 USD</span>
                             </div>
                         </div>
 
@@ -1029,7 +1221,6 @@
 
                 </div>
             </div>
-
         </div>
     </main>
 
@@ -1038,7 +1229,7 @@
 
         <div class="flex flex-col flex-1 min-w-0 pr-1">
             <span class="text-[10px] text-gray-500 uppercase font-medium tracking-wide">Total Harga</span>
-            <span class="text-base font-extrabold text-orange-600 truncate" id="total-price-mobile">Rp 25.9 Jt</span>
+            <span class="text-base font-extrabold text-orange-600 truncate" id="total-price-mobile">$ 16.000 USD</span>
         </div>
 
         <button onclick="toggleCompareDetail()" id="btn-compare-mobile"
@@ -1127,8 +1318,8 @@
         const displayPriceCard = document.getElementById('display-price-card');
         const radios = document.querySelectorAll('input[name="room_type"]');
 
-        function formatRupiah(number) {
-            return "Rp " + number.toLocaleString('id-ID');
+        function formatDollar(number) {
+            return "$ " + number.toLocaleString('en-US');
         }
 
         function updatePricing() {
@@ -1137,9 +1328,10 @@
             const qty = parseInt(qtyInput.value);
             const total = pricePerPax * qty;
 
-            displayPriceCard.textContent = formatRupiah(pricePerPax);
-            priceDesktop.textContent = formatRupiah(total);
-            priceMobile.textContent = formatRupiah(total);
+            // 2. Panggil fungsi formatDollar yang baru
+            displayPriceCard.textContent = formatDollar(pricePerPax);
+            priceDesktop.textContent = formatDollar(total);
+            priceMobile.textContent = formatDollar(total);
         }
 
         function changeQty(amount) {
@@ -1401,18 +1593,18 @@
 
                     // Detail Desktop
                     summaryHtml += `
-                    <div class="flex justify-between text-xs font-medium text-orange-800">
-                        <span>${qty}x Pax ${name}</span>
-                        <span>Rp ${(qty * price).toLocaleString('id-ID')}</span>
-                    </div>`;
+            <div class="flex justify-between text-xs font-medium text-orange-800">
+                <span>${qty}x Pax ${name}</span>
+                <span>$ ${(qty * price).toLocaleString('en-US')}</span>
+            </div>`;
 
-                    // Ringkasan Mobile (Contoh: "1 Double, 2 Triple")
+                    // Ringkasan Mobile
                     mobileSummaryArr.push(`${qty} ${name}`);
                 }
             });
 
-            // Format Rupiah
-            const formattedTotal = 'Rp ' + total.toLocaleString('id-ID');
+            // 4. Ubah format total akhir
+            const formattedTotal = '$ ' + total.toLocaleString('en-US');
 
             // UPDATE DESKTOP
             document.getElementById('total-price-display').innerText = formattedTotal;

@@ -347,7 +347,7 @@
                                 <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
                                 <p class="text-xl font-black text-slate-900">Rp 25.9 <span class="text-sm">Jt</span></p>
                             </div>
-                            <a href="/marketplace/paket1/" onclick="showDetail(event)"
+                            <a href="{{ route('marketplace.produk.easy-22-juni-2026') }}" onclick="showDetail(event)"
                                 class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
                                 <i class="ph-bold ph-arrow-right text-lg"></i>
                             </a>
@@ -423,7 +423,7 @@
                                 <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
                                 <p class="text-xl font-black text-slate-900">Rp 31.9 <span class="text-sm">Jt</span></p>
                             </div>
-                            <a href="/marketplace/paket2/" onclick="showDetail(event)"
+                            <a href="{{ route('marketplace.produk.libur-lebaran-23-maret-2026') }}" onclick="showDetail(event)"
                                 class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
                                 <i class="ph-bold ph-arrow-right text-lg"></i>
                             </a>
@@ -497,7 +497,7 @@
                                 <p class="text-xl font-black text-slate-900">$ 16.000 <span class="text-sm">Usd</span>
                                 </p>
                             </div>
-                            <a href="/marketplace/paket3/" onclick="showDetail(event)"
+                            <a href="{{ route('marketplace.produk.haji-khusus-program-26-hari') }}" onclick="showDetail(event)"
                                 class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
                                 <i class="ph-bold ph-arrow-right text-lg"></i>
                             </a>
@@ -920,7 +920,7 @@
 
             <div id="mitra-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
 
-                <a href="/marketplace/haramainku-travel/"
+                <a href="{{ route('marketplace.produk.travel.haramainku-travel') }}"
                     class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full"
                     data-aos="fade-up" data-aos-delay="100">
 

@@ -36,7 +36,7 @@
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="{{ route('marketplace.produk.kategori', 'haji-khusus') }}"
+                        <a href="{{ route('marketplace.produk.haji-khusus') }}"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Haji Khusus
                             <span
@@ -52,9 +52,9 @@
 
                     <div class="hidden lg:flex items-center gap-4">
                         <div id="desktop-guest" class="flex items-center gap-4">
-                            <a href="/marketplace/login/"
+                            <a href="{{ route('login') }}"
                                 class="text-sm font-bold text-slate-600 hover:text-orange-600 transition">Masuk</a>
-                            <a href="/marketplace/register/"
+                            <a href="{{ route('register') }}"
                                 class="px-5 py-2.5 bg-slate-900 hover:bg-orange-600 text-white text-sm font-semibold rounded-full transition-all duration-300 shadow-lg hover:shadow-orange-500/30 transform hover:-translate-y-0.5 flex items-center gap-2">
                                 <i class="ph-bold ph-note-pencil"></i> Daftar Sekarang
                             </a>
@@ -78,15 +78,15 @@
                             <div
                                 class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50 overflow-hidden">
                                 <div class="py-2">
-                                    <a href="/marketplace/profil/"
+                                    <a href="{{ route('marketplace.profil.index') }}"
                                         class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                         <i class="ph-bold ph-user mr-3 text-lg"></i> Profil
                                     </a>
-                                    <a href="/marketplace/pesanan/"
+                                    <a href="{{ route('marketplace.profil.pesanan') }}"
                                         class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                         <i class="ph-bold ph-ticket mr-3 text-lg"></i> Pesanan
                                     </a>
-                                    <a href="/marketplace/wishlist/"
+                                    <a href="{{ route('marketplace.profil.wishlist') }}"
                                         class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                         <i class="ph-bold ph-heart mr-3 text-lg"></i> Wishlist
                                     </a>
@@ -151,7 +151,7 @@
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Mitra</a>
                     <a href="{{ route('marketplace.bandingkan') }}"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Perbandingan</a>
-                    <a href="{{ route('marketplace.produk.kategori', 'haji-khusus') }}"
+                    <a href="{{ route('marketplace.produk.haji-khusus') }}"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Haji
                         Khusus</a>
                     <a href="{{ route('company.beranda') }}"
@@ -161,23 +161,23 @@
                     <div class="border-t border-slate-100 my-2"></div>
 
                     <div id="mobile-guest-actions" class="space-y-2 pt-2">
-                        <a href="/marketplace/login/"
+                        <a href="{{ route('login') }}"
                             class="flex items-center justify-center w-full py-3 rounded-xl font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Masuk</a>
-                        <a href="/marketplace/register/"
+                        <a href="{{ route('register') }}"
                             class="flex items-center justify-center w-full py-3 bg-slate-900 text-white font-bold rounded-xl shadow-md active:scale-95 transition">Daftar
                             Sekarang</a>
                     </div>
 
                     <div id="mobile-user-actions" class="hidden space-y-2">
-                        <a href="/marketplace/pesanan/"
+                        <a href="{{ route('marketplace.profil.pesanan') }}"
                             class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                             <i class="ph-bold ph-ticket mr-3"></i> Pesanan
                         </a>
-                        <a href="/marketplace/profil/"
+                        <a href="{{ route('marketplace.profil.index') }}"
                             class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                             <i class="ph-bold ph-user mr-3"></i> Profil
                         </a>
-                        <a href="/marketplace/wishlist/"
+                        <a href="{{ route('marketplace.profil.wishlist') }}"
                             class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                             <i class="ph-bold ph-heart mr-3"></i> Wishlist
                         </a>

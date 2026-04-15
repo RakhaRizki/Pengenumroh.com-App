@@ -92,7 +92,7 @@
 
 <body class="text-slate-800 antialiased selection:bg-orange-500 selection:text-white pb-24 lg:pb-0">
 
-    <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
+     <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
         <div class="bg-white border-b border-slate-200 shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-20">
@@ -112,31 +112,31 @@
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="/marketplace/#produk"
+                        <a href="#produk"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Produk
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="/marketplace/#mitra"
+                        <a href="#mitra"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Mitra
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="/marketplace/perbandingan/"
+                        <a href="{{ route('marketplace.bandingkan') }}"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Perbandingan
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="/marketplace/haji-khusus/"
+                        <a href="{{ route('marketplace.produk.haji-khusus') }}"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Haji Khusus
                             <span
                                 class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                         </a>
-                        <a href="/"
+                        <a href="{{ route('company.beranda') }}"
                             class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                             Tentang Kami
                             <span
@@ -172,24 +172,24 @@
                                     class="ph-bold ph-caret-down text-slate-400 pr-2 group-hover:text-orange-500 transition"></i>
                             </button>
 
-                            <div
+                             <div
                                 class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50 overflow-hidden">
                                 <div class="py-2">
-                                    <a href="/marketplace/profil/"
+                                    <a href="{{ route('marketplace.profil.index') }}"
                                         class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                         <i class="ph-bold ph-user mr-3 text-lg"></i> Profil
                                     </a>
-                                    <a href="/marketplace/pesanan/"
+                                    <a href="{{ route('marketplace.profil.pesanan') }}"
                                         class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                         <i class="ph-bold ph-ticket mr-3 text-lg"></i> Pesanan
                                     </a>
-                                    <a href="/marketplace/wishlist/"
+                                    <a href="{{ route('marketplace.profil.wishlist') }}"
                                         class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                         <i class="ph-bold ph-heart mr-3 text-lg"></i> Wishlist
                                     </a>
                                     <div class="border-t border-gray-100 my-1"></div>
                                     <a href="#" onclick="toggleAuth(false)"
-                                        class="flex items-center px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition">
+                                        class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
                                         <i class="ph-bold ph-sign-out mr-3 text-lg"></i> Keluar
                                     </a>
                                 </div>
@@ -230,38 +230,41 @@
                         </div>
                     </div>
 
-                    <a href="/"
+                     <a href="/marketplace/"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Beranda</a>
-                    <a href="/#produk"
+                    <a href="#produk"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Produk</a>
-                    <a href="/#galeri"
-                        class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Galeri</a>
-                    <a href="/#mitra"
+                    <a href="#mitra"
                         class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Mitra</a>
+                    <a href="{{ route('marketplace.bandingkan') }}"
+                        class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Perbandingan</a>
+                    <a href="{{ route('marketplace.produk.haji-khusus') }}"
+                        class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Haji
+                        Khusus</a>
+                    <a href="{{ route('company.beranda') }}"
+                        class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Tentang
+                        Kami</a>
 
                     <div class="border-t border-slate-100 my-2"></div>
 
-                    <div id="mobile-guest-actions" class="space-y-2 pt-2">
-                        <a href="#" onclick="toggleAuth(true)"
-                            class="flex items-center justify-center w-full py-3 rounded-xl font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 transition">
-                            Masuk
-                        </a>
-                        <a href="#" onclick="toggleAuth(true)"
-                            class="flex items-center justify-center w-full py-3 bg-slate-900 text-white font-bold rounded-xl shadow-md active:scale-95 transition">
-                            Daftar Sekarang
-                        </a>
+                     <div id="mobile-guest-actions" class="space-y-2 pt-2">
+                        <a href="{{ route('login') }}"
+                            class="flex items-center justify-center w-full py-3 rounded-xl font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Masuk</a>
+                        <a href="{{ route('register') }}"
+                            class="flex items-center justify-center w-full py-3 bg-slate-900 text-white font-bold rounded-xl shadow-md active:scale-95 transition">Daftar
+                            Sekarang</a>
                     </div>
 
                     <div id="mobile-user-actions" class="hidden space-y-2">
-                        <a href="/marketplace/pesanan/"
+                        <a href="{{ route('marketplace.profil.pesanan') }}"
                             class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                             <i class="ph-bold ph-ticket mr-3"></i> Pesanan
                         </a>
-                        <a href="/marketplace/profil/"
+                        <a href="{{ route('marketplace.profil.index') }}"
                             class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                             <i class="ph-bold ph-user mr-3"></i> Profil
                         </a>
-                        <a href="/marketplace/wishlist/"
+                        <a href="{{ route('marketplace.profil.wishlist') }}"
                             class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                             <i class="ph-bold ph-heart mr-3"></i> Wishlist
                         </a>
@@ -270,9 +273,7 @@
                             <i class="ph-bold ph-briefcase mr-3"></i> Karir
                         </a>
                         <button onclick="toggleAuth(false)"
-                            class="w-full mt-2 py-3 text-red-600 font-bold hover:bg-red-50 rounded-xl transition">
-                            Keluar
-                        </button>
+                            class="w-full mt-2 py-3 text-red-600 font-bold hover:bg-red-50 rounded-xl transition">Keluar</button>
                     </div>
 
                 </div>
@@ -691,7 +692,7 @@
                                         <p class="text-xl font-black text-slate-900">Rp 31.9 <span
                                                 class="text-sm">Jt</span></p>
                                     </div>
-                                    <a href="/marketplace/paket2/"
+                                    <a href="{{ route('marketplace.produk.libur-lebaran-23-maret-2026') }}"
                                         class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
                                         <i class="ph-bold ph-arrow-right text-lg"></i>
                                     </a>
@@ -775,7 +776,7 @@
                                         <p class="text-xl font-black text-slate-900">$ 16.000 <span
                                                 class="text-sm">Usd</span></p>
                                     </div>
-                                    <a href="/marketplace/paket3/"
+                                    <a href="{{ route('marketplace.produk.haji-khusus-program-26-hari') }}"
                                         class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
                                         <i class="ph-bold ph-arrow-right text-lg"></i>
                                     </a>

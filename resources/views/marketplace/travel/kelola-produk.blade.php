@@ -133,22 +133,22 @@
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                         <nav class="flex flex-col">
 
-                            <a href="/marketplace/travel/profil/"
+                            <a href="{{ route('marketplace.travel.profil') }}"
                                 class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
                                 <i class="ph-bold ph-user text-xl"></i> Profil
                             </a>
 
-                            <a href="/marketplace/travel/pesanan-masuk/"
+                            <a href="{{ route('marketplace.travel.pesanan-masuk') }}"
                                 class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
                                 <i class="ph-bold ph-receipt text-xl"></i> Pesanan Masuk
                             </a>
 
-                            <a href="/marketplace/travel/upload-produk/"
+                            <a href="{{ route('marketplace.travel.upload-produk') }}"
                                 class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
                                 <i class="ph-bold ph-upload text-xl"></i> Upload Produk
                             </a>
 
-                            <a href="/marketplace/travel/kelola-produk/"
+                            <a href="{{ route('marketplace.travel.kelola-produk') }}"
                                 class="flex items-center gap-3 px-5 py-4 bg-orange-50 text-orange-700 font-bold border-l-4 border-orange-600">
                                 <i class="ph-bold ph-package text-xl"></i> Kelola Produk
                             </a>
@@ -277,7 +277,7 @@
                                             class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 transition-all duration-300">Tayang</span>
                                     </div>
 
-                                    <a href="/marketplace/travel/kelola-produk/edit-produk/"
+                                    <a href="{{ route('marketplace.travel.produk.edit') }}"
                                         class="w-full py-2 flex items-center justify-center gap-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg transition text-xs font-bold">
                                         <i class="ph-bold ph-pencil-simple text-sm"></i> Edit
                                     </a>
@@ -338,7 +338,7 @@
                                             class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 transition-all duration-300">Arsip</span>
                                     </div>
 
-                                    <a href="/marketplace/travel/kelola-produk/edit-produk/"
+                                    <a href="{{ route('marketplace.travel.produk.edit') }}"
                                         class="w-full py-2 flex items-center justify-center gap-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg transition text-xs font-bold">
                                         <i class="ph-bold ph-pencil-simple text-sm"></i> Edit
                                     </a>
@@ -411,7 +411,10 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
 
     <script>
-        AOS.init({ duration: 800, once: true });
+        AOS.init({
+            duration: 800,
+            once: true
+        });
 
 
 
@@ -449,7 +452,7 @@
         const statusToggles = document.querySelectorAll('.toggle-status');
 
         statusToggles.forEach(toggle => {
-            toggle.addEventListener('change', function () {
+            toggle.addEventListener('change', function() {
                 // Cari elemen span (Label) yang satu grup dengan checkbox ini
                 const labelSpan = this.closest('div.flex').querySelector('span');
 
@@ -458,7 +461,8 @@
 
                     // 1. Ubah Teks & Style
                     labelSpan.textContent = "Tayang";
-                    labelSpan.className = "text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 transition-all duration-300";
+                    labelSpan.className =
+                        "text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 transition-all duration-300";
 
                     // 2. Tampilkan Notifikasi Tengah (Success)
                     showAlert('Berhasil Diterbitkan', 'Produk kini tampil di beranda', 'success');
@@ -468,7 +472,8 @@
 
                     // 1. Ubah Teks & Style
                     labelSpan.textContent = "Arsip";
-                    labelSpan.className = "text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 transition-all duration-300";
+                    labelSpan.className =
+                        "text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 transition-all duration-300";
 
                     // 2. Tampilkan Notifikasi Tengah (Info)
                     showAlert('Produk Diarsipkan', 'Produk disembunyikan dari beranda', 'info');
@@ -479,13 +484,13 @@
         // Fungsi Helper untuk Notifikasi di Tengah (Modal)
         function showAlert(title, text, icon) {
             Swal.fire({
-                icon: icon,               // Ikon (success/info/warning)
-                title: title,             // Judul Besar
-                text: text,               // Teks kecil di bawahnya
-                position: 'center',       // Posisi di tengah
+                icon: icon, // Ikon (success/info/warning)
+                title: title, // Judul Besar
+                text: text, // Teks kecil di bawahnya
+                position: 'center', // Posisi di tengah
                 showConfirmButton: false, // Hilangkan tombol OK
-                timer: 1500,              // Otomatis tutup dalam 1.5 detik
-                timerProgressBar: true    // Bar waktu berjalan
+                timer: 1500, // Otomatis tutup dalam 1.5 detik
+                timerProgressBar: true // Bar waktu berjalan
             });
         }
     </script>

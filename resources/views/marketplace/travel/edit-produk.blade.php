@@ -133,24 +133,24 @@
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                         <nav class="flex flex-col">
 
-                            <a href="/marketplace/travel/profil/"
+                            <a href="{{ route('marketplace.travel.profil') }}"
                                 class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
                                 <i class="ph-bold ph-user text-xl"></i> Profil
                             </a>
 
-                            <a href="/marketplace/travel/pesanan-masuk/"
+                            <a href="{{ route('marketplace.travel.pesanan-masuk') }}"
                                 class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
                                 <i class="ph-bold ph-receipt text-xl"></i> Pesanan Masuk
                             </a>
 
-                            <a href="/marketplace/travel/upload-produk/"
+                            <a href="{{ route('marketplace.travel.upload-produk') }}"
                                 class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
                                 <i class="ph-bold ph-upload text-xl"></i> Upload Produk
                             </a>
 
                             <div class="bg-orange-50 border-l-4 border-orange-600">
 
-                                <a href="/marketplace/travel/kelola-produk/"
+                                <a href="{{ route('marketplace.travel.kelola-produk') }}"
                                     class="flex items-center gap-3 px-5 py-3 text-slate-600 hover:text-orange-900 transition group">
                                     <i
                                         class="ph-bold ph-package text-xl group-hover:scale-110 transition-transform"></i>
