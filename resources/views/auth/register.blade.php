@@ -112,7 +112,26 @@
                         <p class="text-slate-500 mt-2 text-sm">Pilih jenis akun dan lengkapi data diri Anda.</p>
                     </div>
 
-                    <form id="registerForm" class="space-y-5" onsubmit="handleRegister(event)">
+                    <!-- TAMPILAN ERROR / SUCCESS -->
+                    @if(session('error'))
+                        <div class="bg-red-50 text-red-600 border border-red-200 p-4 rounded-xl text-sm font-bold flex items-center gap-2 mb-5">
+                            <i class="ph-fill ph-warning-circle text-lg"></i>
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    @if(session('success'))
+                        <div class="bg-green-50 text-green-600 border border-green-200 p-4 rounded-xl text-sm font-bold flex items-center gap-2 mb-5">
+                            <i class="ph-fill ph-check-circle text-lg"></i>
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    <!-- FORM DIUBAH KE ROUTE REGISTER -->
+                    <form id="registerForm" class="space-y-5" action="{{ route('register.proses') }}" method="POST" onsubmit="handleRegister()">
+                        
+                        <!-- WAJIB CSRF -->
+                        @csrf
 
                         <input type="hidden" name="role" id="roleInput" value="jamaah">
 
@@ -141,7 +160,8 @@
                                     <i id="icon-name"
                                         class="ph-duotone ph-user text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors"></i>
                                 </div>
-                                <input type="text" id="input-name" required
+                                <!-- Tambah name="name" -->
+                                <input type="text" id="input-name" name="name" required
                                     class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
                                     placeholder="Contoh: Budi Santoso">
                             </div>
@@ -156,7 +176,8 @@
                                         <i
                                             class="ph-duotone ph-envelope text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors"></i>
                                     </div>
-                                    <input type="email" required
+                                    <!-- Tambah name="email" -->
+                                    <input type="email" name="email" required
                                         class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
                                         placeholder="nama@email.com">
                                 </div>
@@ -169,7 +190,8 @@
                                         <i
                                             class="ph-duotone ph-whatsapp-logo text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors"></i>
                                     </div>
-                                    <input type="number" required
+                                    <!-- Tambah name="no_hp" -->
+                                    <input type="number" name="no_hp" required
                                         class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium appearance-none"
                                         placeholder="0812xxx">
                                 </div>
@@ -184,7 +206,8 @@
                                     <i
                                         class="ph-duotone ph-lock-key text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors"></i>
                                 </div>
-                                <input type="password" id="password" required
+                                <!-- Tambah name="password" -->
+                                <input type="password" id="password" name="password" required
                                     class="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
                                     placeholder="Minimal 8 karakter">
                                 <button type="button" onclick="togglePassword('password', this)"
@@ -237,35 +260,12 @@
             }
         }
 
-        function handleRegister(e) {
-            e.preventDefault();
+        // Script sudah dibersihkan dari preventDefault agar bisa ngepost ke Controller
+        function handleRegister() {
             const btn = document.getElementById('submitBtn');
-            const originalContent = btn.innerHTML;
-
             btn.disabled = true;
             btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-xl"></i> Memproses...`;
             btn.classList.add('opacity-75', 'cursor-not-allowed');
-
-            setTimeout(() => {
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: 'Silakan cek email Anda.',
-                    icon: 'success',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#0f172a',
-                    customClass: {
-                        popup: 'rounded-2xl',
-                        confirmButton: 'rounded-xl px-6 py-2'
-                    },
-                    // TAMBAHKAN DUA BARIS INI:
-                    heightAuto: false, // Mencegah perubahan tinggi body/html
-                    scrollbarPadding: false // Mencegah penambahan padding kanan
-                });
-
-                btn.disabled = false;
-                btn.innerHTML = originalContent;
-                btn.classList.remove('opacity-75', 'cursor-not-allowed');
-            }, 1500);
         }
     </script>
 
@@ -287,49 +287,30 @@
 
             // 3. Logika Perubahan Tampilan
             if (role === 'jamaah') {
-                // Set Style Tombol
                 btnJamaah.classList.add(...activeClass);
                 btnJamaah.classList.remove(...inactiveClass);
 
                 btnTravel.classList.remove(...activeClass);
                 btnTravel.classList.add(...inactiveClass);
 
-                // Ubah Label & Placeholder
                 labelName.textContent = "Nama Lengkap";
                 inputName.placeholder = "Contoh: Budi Santoso";
 
-                // Ubah Ikon kembali ke User
                 iconName.className =
                     "ph-duotone ph-user text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors";
 
             } else if (role === 'travel') {
-                // Set Style Tombol
                 btnTravel.classList.add(...activeClass);
                 btnTravel.classList.remove(...inactiveClass);
 
                 btnJamaah.classList.remove(...activeClass);
                 btnJamaah.classList.add(...inactiveClass);
 
-                // Ubah Label & Placeholder
                 labelName.textContent = "Nama Travel / Biro";
                 inputName.placeholder = "Contoh: PT Berkah Mulia Travel";
 
-                // Ubah Ikon menjadi Gedung
                 iconName.className =
                     "ph-duotone ph-buildings text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors";
-            }
-        }
-
-        // Fungsi Toggle Password (Bawaan)
-        function togglePassword(inputId, btn) {
-            const input = document.getElementById(inputId);
-            const icon = btn.querySelector('i');
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.replace('ph-eye-slash', 'ph-eye');
-            } else {
-                input.type = "password";
-                icon.classList.replace('ph-eye', 'ph-eye-slash');
             }
         }
     </script>

@@ -80,7 +80,19 @@
                         <p class="text-slate-500 mt-2 text-sm">Masuk untuk mengelola rencana ibadah Anda.</p>
                     </div>
 
-                    <form id="loginForm" class="space-y-5" onsubmit="handleLogin(event)">
+                    <!-- Tampilkan Pesan Error Jika Login Gagal -->
+                    @if(session('error'))
+                        <div class="bg-red-50 text-red-600 border border-red-200 p-4 rounded-xl text-sm font-bold flex items-center gap-2 mb-5">
+                            <i class="ph-fill ph-warning-circle text-lg"></i>
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <!-- FORM SUDAH DIUBAH MENGARAH KE ROUTE LARAVEL -->
+                    <form id="loginForm" class="space-y-5" action="{{ route('login.proses') }}" method="POST" onsubmit="handleLogin()">
+                        
+                        <!-- WAJIB UNTUK LARAVEL -->
+                        @csrf
 
                         <div class="space-y-1.5">
                             <label class="text-xs font-bold text-slate-700 ml-1 uppercase tracking-wide">Email atau
@@ -90,7 +102,8 @@
                                     <i
                                         class="ph-duotone ph-user-circle text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors"></i>
                                 </div>
-                                <input type="text" required
+                                <!-- Ditambah name="email" -->
+                                <input type="text" name="email" required
                                     class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
                                     placeholder="nama@email.com / 0812...">
                             </div>
@@ -106,7 +119,8 @@
                                     <i
                                         class="ph-duotone ph-key text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors"></i>
                                 </div>
-                                <input type="password" id="password" required
+                                <!-- Ditambah name="password" -->
+                                <input type="password" id="password" name="password" required
                                     class="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
                                     placeholder="Masukkan kata sandi">
                                 <button type="button" onclick="togglePassword('password', this)"
@@ -208,37 +222,12 @@
             }
         }
 
-        function handleLogin(e) {
-            e.preventDefault();
+        function handleLogin() {
+            // Animasi loading tombol saat form dikirim
             const btn = document.getElementById('loginBtn');
-            const originalContent = btn.innerHTML;
-
             btn.disabled = true;
             btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-xl"></i> Memuat...`;
             btn.classList.add('opacity-90', 'cursor-not-allowed');
-
-            setTimeout(() => {
-                Swal.fire({
-                    title: 'Berhasil Masuk!',
-                    text: 'Selamat datang kembali.',
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false,
-                    background: '#fff',
-                    customClass: {
-                        popup: 'rounded-2xl',
-                        title: 'text-slate-900 font-bold'
-                    },
-                    // TAMBAHKAN DUA BARIS INI:
-                    heightAuto: false, // Mencegah perubahan tinggi body/html
-                    scrollbarPadding: false // Mencegah penambahan padding kanan
-                }).then(() => {
-                    window.location.href = '/marketplace/';
-                });
-                btn.disabled = false;
-                btn.innerHTML = originalContent;
-                btn.classList.remove('opacity-90', 'cursor-not-allowed');
-            }, 1500);
         }
     </script>
 </body>
