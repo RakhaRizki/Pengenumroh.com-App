@@ -241,637 +241,150 @@
 
     <section class="py-16 md:py-24 bg-slate-50" id="produk">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
             <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6" data-aos="fade-down">
-                <div class="text-center md:text-left w-full md:w-auto">
-                    <span class="text-orange-600 font-bold text-xs md:text-sm tracking-widest uppercase mb-2 block">
-                        Pilihan Terbaik
-                    </span>
-                    <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 leading-tight">
-                        Program Ibadah Unggulan
-                    </h2>
+    <div class="text-center md:text-left w-full md:w-auto">
+        <span class="text-orange-600 font-bold text-xs md:text-sm tracking-widest uppercase mb-2 block">
+            Pilihan Terbaik
+        </span>
+        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 leading-tight">
+            Program Ibadah Unggulan
+        </h2>
+    </div>
+
+    <div class="w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
+        <div class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-2 min-w-max bg-transparent md:bg-white md:p-1.5 md:rounded-full md:shadow-sm md:border md:border-slate-100">
+            
+            <!-- Tombol Statis untuk "Semua" -->
+            <button class="filter-btn active px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 whitespace-nowrap border bg-orange-600 text-white border-transparent shadow-md hover:bg-orange-700"
+                data-filter="all">Semua</button>
+
+            <!-- Looping Tombol dari API Kategori -->
+            @foreach($daftarKategori as $kategori)
+                <button class="filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent"
+                    {{-- Kita pakai ID kategori sebagai filter biar lebih akurat --}}
+                    data-filter="{{ $kategori['id'] }}">
+                    {{-- Antisipasi nama kuncinya antara 'name' atau 'nama_kategori' --}}
+                    {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
+                </button>
+            @endforeach
+
+          </div>
+       </div>
+     </div>
+            
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="product-grid">
+        
+        @forelse($daftarProduk as $produk)
+            <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
+                data-category="{{ $produk['category_id'] }}" data-aos="fade-up">
+
+                <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
+                    
+                   <img src="https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/{{ rawurlencode($produk['thumbnail_url']) }}"
+     class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+     alt="{{ $produk['nama_produk'] }}"
+     onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';">
+
+                    <div class="absolute top-3 right-3 z-10 flex gap-2">
+                        <button onclick="addToCompare(this)"
+                            class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
+                            title="Bandingkan">
+                            <i class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
+                        </button>
+
+                        <button
+                            class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
+                            <i class="ph-fill ph-heart text-lg"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
-                    <div
-                        class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-2 min-w-max bg-transparent md:bg-white md:p-1.5 md:rounded-full md:shadow-sm md:border md:border-slate-100">
-                        <button
-                            class="filter-btn active px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 whitespace-nowrap border bg-orange-600 text-white border-transparent shadow-md hover:bg-orange-700"
-                            data-filter="all">Semua</button>
-                        <button
-                            class="filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent"
-                            data-filter="9hari">9 Hari</button>
-                        <button
-                            class="filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent"
-                            data-filter="12hari">12 Hari</button>
-                        <button
-                            class="filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent"
-                            data-filter="ramadhan">Ramadhan</button>
-                        <button
-                            class="filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent"
-                            data-filter="plus">Umroh Plus Wisata</button>
-                        <button
-                            class="filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent"
-                            data-filter="haji">Haji Khusus</button>
+                <div class="p-5 flex flex-col flex-grow">
+                    <div class="min-h-[3.5rem]">
+                        <h3 class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
+                            {{ $produk['nama_produk'] }}
+                        </h3>
+                    </div>
+                    
+                    <div class="flex-grow space-y-3 mb-6">
+                        {{-- Cek apakah ada data hotel pertama di array hotels --}}
+                        @if(!empty($produk['hotels'][0]))
+                        <div class="flex items-center gap-3">
+                            <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
+                            <p class="text-sm font-semibold text-slate-600 truncate">
+                                {{ $produk['hotels'][0]['city'] ?? 'Kota' }}: {{ $produk['hotels'][0]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][0]['rating'] ?? '5' }}
+                            </p>
+                        </div>
+                        @endif
+                        
+                        {{-- Cek apakah ada data hotel kedua di array hotels --}}
+                        @if(!empty($produk['hotels'][1]))
+                        <div class="flex items-center gap-3">
+                            <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
+                            <p class="text-sm font-semibold text-slate-600 truncate">
+                                {{ $produk['hotels'][1]['city'] ?? 'Kota' }}: {{ $produk['hotels'][1]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][1]['rating'] ?? '5' }}
+                            </p>
+                        </div>
+                        @endif
+
+                        <div class="flex items-center gap-3">
+                            <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
+                            {{-- Panggil kunci airline_name --}}
+                            <p class="text-sm font-semibold text-slate-600 truncate">{{ $produk['flights'][0]['airline_name'] ?? 'Maskapai' }}</p>
+                        </div>
+                        
+                        <div class="flex items-center gap-3">
+                            <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
+                            <p class="text-sm font-semibold text-slate-600">{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->translatedFormat('d M Y') }}</p>
+                        </div>
+                        
+                        <div class="pt-2">
+                            <div class="flex justify-between text-[11px] mb-1.5 font-bold">
+                                <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
+                                <span class="text-[#ff782e] font-black">{{ $produk['quota'] }} Seat</span>
+                            </div>
+
+                            <div class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
+                                <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
+                                    style="width: {{ rand(30, 90) }}%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                        <div>
+    <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
+    <p class="text-xl font-black text-slate-900">
+        @php
+            // Mencoba mengambil harga dari kunci 'harga' atau 'price'
+            $hargaInput = $produk['prices'][0]['harga'] ?? ($produk['prices'][0]['price'] ?? 0);
+        @endphp
+
+        @if($hargaInput > 0)
+            {{-- Jika harga jutaan, kita format jadi 25.9 Jt --}}
+            Rp {{ number_format($hargaInput / 1000000, 1, ',', '.') }} <span class="text-sm">Jt</span>
+        @else
+            <span class="text-sm">Hubungi Kami</span>
+        @endif
+    </p>
+</div>
+                        {{-- Ganti URL ini nanti dengan halaman detail lu --}}
+                        <a href="/marketplace/produk/{{ $produk['id'] }}" onclick="showDetail(event)"
+                            class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
+                            <i class="ph-bold ph-arrow-right text-lg"></i>
+                        </a>
                     </div>
                 </div>
             </div>
+        @empty
+            <div class="col-span-full text-center py-12">Belum ada paket produk dari API.</div>
+        @endforelse
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8" id="product-grid">
+       </div>
 
-                <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                    data-category="9hari" data-aos="fade-up">
-
-                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                        <img src="/assets/img/marketplace/produk-dummy.png"
-                            class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                            alt="9hari">
-
-                        <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                            <button onclick="addToCompare(this)"
-                                class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                title="Bandingkan">
-                                <i
-                                    class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                            </button>
-
-                            <button
-                                class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                <i class="ph-fill ph-heart text-lg"></i>
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="min-h-[3.5rem]">
-                            <h3
-                                class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                Umroh Easy 22 Juni 2026
-                            </h3>
-                        </div>
-                        <div class="flex-grow space-y-3 mb-6">
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Lemeridien Tower ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Jiwal Al Saha ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Oman Air</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600">22 Juni 2026</p>
-                            </div>
-                            <div class="pt-2">
-                                <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                    <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                    <span class="text-[#ff782e] font-black">3 / 45</span>
-                                </div>
-
-                                <div
-                                    class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                    <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                        style="width: 88%">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                            <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
-                                <p class="text-xl font-black text-slate-900">Rp 25.9 <span class="text-sm">Jt</span></p>
-                            </div>
-                            <a href="{{ route('marketplace.produk.easy-22-juni-2026') }}" onclick="showDetail(event)"
-                                class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                <i class="ph-bold ph-arrow-right text-lg"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                    data-category="12hari" data-aos="fade-up">
-
-                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                        <img src="/assets/img/marketplace/produk-dummy2.png"
-                            class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                            alt="Umroh">
-
-                        <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                            <button onclick="addToCompare(this)"
-                                class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                title="Bandingkan">
-                                <i
-                                    class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                            </button>
-
-                            <button
-                                class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                <i class="ph-fill ph-heart text-lg"></i>
-                            </button>
-                        </div>
-
-                    </div>
-
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="min-h-[3.5rem]">
-                            <h3
-                                class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                Umroh Libur Lebaran 23 Maret 2026
-                            </h3>
-                        </div>
-                        <div class="flex-grow space-y-3 mb-6">
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Waha Ajyad ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Odst Almadinah ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Garuda Indonesia</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600">23 Maret 2026</p>
-                            </div>
-                            <div class="pt-2">
-                                <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                    <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                    <span class="text-[#ff782e] font-black">12 / 45</span>
-                                </div>
-
-                                <div
-                                    class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                    <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                        style="width: 70%">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                            <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
-                                <p class="text-xl font-black text-slate-900">Rp 31.9 <span class="text-sm">Jt</span></p>
-                            </div>
-                            <a href="{{ route('marketplace.produk.libur-lebaran-23-maret-2026') }}" onclick="showDetail(event)"
-                                class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                <i class="ph-bold ph-arrow-right text-lg"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                    data-category="haji" data-aos="fade-up">
-                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                        <img src="/assets/img/marketplace/produk-dummy3.png"
-                            class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                            alt="Umroh">
-                        <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                            <button onclick="addToCompare(this)"
-                                class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                title="Bandingkan">
-                                <i
-                                    class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                            </button>
-
-                            <button
-                                class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                <i class="ph-fill ph-heart text-lg"></i>
-                            </button>
-
-                        </div>
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="min-h-[3.5rem]">
-                            <h3
-                                class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                Pendaftaran Haji Khusus 2026 Program 26 Hari
-                            </h3>
-                        </div>
-                        <div class="flex-grow space-y-3 mb-6">
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Hotel Bintang ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Hotel Bintang ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Maskapai Internasional</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600">31 Desember 2035</p>
-                            </div>
-                            <div class="pt-2">
-                                <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                    <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                    <span class="text-[#ff782e] font-black">15 / 80</span>
-                                </div>
-
-                                <div
-                                    class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                    <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                        style="width: 85%">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                            <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
-                                <p class="text-xl font-black text-slate-900">$ 16.000 <span class="text-sm">Usd</span>
-                                </p>
-                            </div>
-                            <a href="{{ route('marketplace.produk.haji-khusus-program-26-hari') }}" onclick="showDetail(event)"
-                                class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                <i class="ph-bold ph-arrow-right text-lg"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                    data-category="plus" data-aos="fade-up">
-                    <div class="relative aspect-[4/3] overflow-hidden /assets/img/marketplacete-200">
-                        <img src="/assets/img/marketplace/produk1.jpg"
-                            class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                            alt="Umroh">
-                        <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                            <button onclick="addToCompare(this)"
-                                class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                title="Bandingkan">
-                                <i
-                                    class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                            </button>
-
-                            <button
-                                class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                <i class="ph-fill ph-heart text-lg"></i>
-                            </button>
-
-                        </div>
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="min-h-[3.5rem]">
-                            <h3
-                                class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                Paket Umroh Awal Ramadhan 2025 Hemat
-                            </h3>
-                        </div>
-                        <div class="flex-grow space-y-3 mb-6">
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Fairmont ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Rawda Royal ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Garuda Indonesia</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600">25 Feb 2025</p>
-                            </div>
-                            <div class="pt-2">
-                                <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                    <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                    <span class="text-[#ff782e] font-black">2 / 45</span>
-                                </div>
-
-                                <div
-                                    class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                    <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                        style="width: 93%">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                            <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
-                                <p class="text-xl font-black text-slate-900">Rp 32.5 <span class="text-sm">Jt</span></p>
-                            </div>
-                            <a href="/marketplace/paket1/" onclick="showDetail(event)"
-                                class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                <i class="ph-bold ph-arrow-right text-lg"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                    data-category="ramadhan" data-aos="fade-up">
-                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                        <img src="/assets/img/marketplace/produk1.jpg"
-                            class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                            alt="Umroh">
-                        <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                            <button onclick="addToCompare(this)"
-                                class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                title="Bandingkan">
-                                <i
-                                    class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                            </button>
-
-                            <button
-                                class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                <i class="ph-fill ph-heart text-lg"></i>
-                            </button>
-
-                        </div>
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="min-h-[3.5rem]">
-                            <h3
-                                class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                Paket Umroh Awal Ramadhan 2025 Hemat
-                            </h3>
-                        </div>
-                        <div class="flex-grow space-y-3 mb-6">
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Fairmont ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Rawda Royal ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Garuda Indonesia</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600">25 Feb 2025</p>
-                            </div>
-                            <div class="pt-2">
-                                <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                    <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                    <span class="text-[#ff782e] font-black">2 / 45</span>
-                                </div>
-
-                                <div
-                                    class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                    <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                        style="width: 93%">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                            <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
-                                <p class="text-xl font-black text-slate-900">Rp 32.5 <span class="text-sm">Jt</span></p>
-                            </div>
-                            <a href="/marketplace/paket1/" onclick="showDetail(event)"
-                                class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                <i class="ph-bold ph-arrow-right text-lg"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                    data-category="12hari" data-aos="fade-up">
-                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                        <img src="/assets/img/marketplace/produk1.jpg"
-                            class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                            alt="Umroh">
-                        <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                            <button onclick="addToCompare(this)"
-                                class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                title="Bandingkan">
-                                <i
-                                    class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                            </button>
-
-                            <button
-                                class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                <i class="ph-fill ph-heart text-lg"></i>
-                            </button>
-
-                        </div>
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="min-h-[3.5rem]">
-                            <h3
-                                class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                Paket Umroh Awal Ramadhan 2025 Hemat
-                            </h3>
-                        </div>
-                        <div class="flex-grow space-y-3 mb-6">
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Fairmont ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Rawda Royal ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Garuda Indonesia</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600">25 Feb 2025</p>
-                            </div>
-                            <div class="pt-2">
-                                <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                    <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                    <span class="text-[#ff782e] font-black">2 / 45</span>
-                                </div>
-
-                                <div
-                                    class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                    <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                        style="width: 93%">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                            <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
-                                <p class="text-xl font-black text-slate-900">Rp 32.5 <span class="text-sm">Jt</span></p>
-                            </div>
-                            <a href="/marketplace/paket1/" onclick="showDetail(event)"
-                                class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                <i class="ph-bold ph-arrow-right text-lg"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                    data-category="9hari" data-aos="fade-up">
-                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                        <img src="/assets/img/marketplace/produk1.jpg"
-                            class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                            alt="Umroh">
-                        <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                            <button onclick="addToCompare(this)"
-                                class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                title="Bandingkan">
-                                <i
-                                    class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                            </button>
-
-                            <button
-                                class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                <i class="ph-fill ph-heart text-lg"></i>
-                            </button>
-
-                        </div>
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="min-h-[3.5rem]">
-                            <h3
-                                class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                Paket Umroh Awal Ramadhan 2025 Hemat
-                            </h3>
-                        </div>
-                        <div class="flex-grow space-y-3 mb-6">
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Fairmont ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Rawda Royal ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Garuda Indonesia</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600">25 Feb 2025</p>
-                            </div>
-                            <div class="pt-2">
-                                <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                    <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                    <span class="text-[#ff782e] font-black">2 / 45</span>
-                                </div>
-
-                                <div
-                                    class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                    <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                        style="width: 93%">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                            <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
-                                <p class="text-xl font-black text-slate-900">Rp 32.5 <span class="text-sm">Jt</span></p>
-                            </div>
-                            <a href="/marketplace/paket1/" onclick="showDetail(event)"
-                                class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                <i class="ph-bold ph-arrow-right text-lg"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                    data-category="plus" data-aos="fade-up">
-                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                        <img src="/assets/img/marketplace/produk1.jpg"
-                            class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                            alt="Umroh">
-                        <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                            <button onclick="addToCompare(this)"
-                                class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                title="Bandingkan">
-                                <i
-                                    class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                            </button>
-
-                            <button
-                                class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                <i class="ph-fill ph-heart text-lg"></i>
-                            </button>
-
-                        </div>
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="min-h-[3.5rem]">
-                            <h3
-                                class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                Paket Umroh Awal Ramadhan 2025 Hemat
-                            </h3>
-                        </div>
-                        <div class="flex-grow space-y-3 mb-6">
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Fairmont ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Rawda Royal ⭐5</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600 truncate">Garuda Indonesia</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                <p class="text-sm font-semibold text-slate-600">25 Feb 2025</p>
-                            </div>
-                            <div class="pt-2">
-                                <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                    <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                    <span class="text-[#ff782e] font-black">2 / 45</span>
-                                </div>
-
-                                <div
-                                    class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                    <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                        style="width: 93%">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                            <div>
-                                <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
-                                <p class="text-xl font-black text-slate-900">Rp 32.5 <span class="text-sm">Jt</span></p>
-                            </div>
-                            <a href="/marketplace/paket1/" onclick="showDetail(event)"
-                                class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                <i class="ph-bold ph-arrow-right text-lg"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
+        </div>
             <div class="mt-12 text-center">
                 <a href="{{ route('marketplace.produk.index') }}"
                     class="inline-flex items-center justify-center gap-2 text-sm font-semibold text-slate-500 hover:text-orange-600 transition group px-6 py-3 rounded-full hover:bg-orange-50">
@@ -880,6 +393,7 @@
                 </a>
             </div>
         </div>
+        
     </section>
 
     <div id="lightbox-modal"

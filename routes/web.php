@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApiAuthController;
+use App\Http\Controllers\MarketplaceController;
 use Illuminate\Support\Facades\Route;
 
 // ==========================================================
@@ -47,11 +48,7 @@ Route::get('/', function () {
 Route::prefix('marketplace')->name('marketplace.')->group(function () {
 
     // Beranda Marketplace 
-    // URL Akhir: domain.com/marketplace
-    // Nama Route: marketplace.beranda
-    Route::get('/', function () {
-        return view('marketplace.index'); 
-    })->name('beranda');
+    Route::get('/', [MarketplaceController::class, 'index'])->name('beranda');
 
     // ----------------------------------------------------
     // GRUP RUTE PRODUK

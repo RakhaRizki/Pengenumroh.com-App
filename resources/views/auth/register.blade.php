@@ -113,23 +113,26 @@
                     </div>
 
                     <!-- TAMPILAN ERROR / SUCCESS -->
-                    @if(session('error'))
-                        <div class="bg-red-50 text-red-600 border border-red-200 p-4 rounded-xl text-sm font-bold flex items-center gap-2 mb-5">
+                    @if (session('error'))
+                        <div
+                            class="bg-red-50 text-red-600 border border-red-200 p-4 rounded-xl text-sm font-bold flex items-center gap-2 mb-5">
                             <i class="ph-fill ph-warning-circle text-lg"></i>
                             {{ session('error') }}
                         </div>
                     @endif
 
-                    @if(session('success'))
-                        <div class="bg-green-50 text-green-600 border border-green-200 p-4 rounded-xl text-sm font-bold flex items-center gap-2 mb-5">
+                    @if (session('success'))
+                        <div
+                            class="bg-green-50 text-green-600 border border-green-200 p-4 rounded-xl text-sm font-bold flex items-center gap-2 mb-5">
                             <i class="ph-fill ph-check-circle text-lg"></i>
                             {{ session('success') }}
                         </div>
                     @endif
 
                     <!-- FORM DIUBAH KE ROUTE REGISTER -->
-                    <form id="registerForm" class="space-y-5" action="{{ route('register.proses') }}" method="POST" onsubmit="handleRegister()">
-                        
+                    <form id="registerForm" class="space-y-5" action="{{ route('register.proses') }}" method="POST"
+                        onsubmit="handleRegister()">
+
                         <!-- WAJIB CSRF -->
                         @csrf
 
@@ -137,13 +140,13 @@
 
                         <div
                             class="grid grid-cols-2 gap-1 p-1.5 bg-slate-100/80 border border-slate-200 rounded-2xl mb-6 relative">
-                            <button type="button" onclick="switchRole('jamaah')" id="btn-jamaah"
+                            <button type="button" onclick="switchRole('3')" id="btn-jamaah"
                                 class="relative z-10 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold transition-all duration-300 bg-white text-orange-600 shadow-sm ring-1 ring-slate-200">
                                 <i class="ph-bold ph-user"></i>
                                 Jamaah
                             </button>
 
-                            <button type="button" onclick="switchRole('travel')" id="btn-travel"
+                            <button type="button" onclick="switchRole('4')" id="btn-travel"
                                 class="relative z-10 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold transition-all duration-300 text-slate-500 hover:text-slate-700 hover:bg-slate-200/50">
                                 <i class="ph-bold ph-airplane-tilt"></i>
                                 Travel
@@ -286,7 +289,7 @@
             const inactiveClass = ['text-slate-500', 'hover:text-slate-700', 'hover:bg-slate-200/50'];
 
             // 3. Logika Perubahan Tampilan
-            if (role === 'jamaah') {
+            if (role === '3') {
                 btnJamaah.classList.add(...activeClass);
                 btnJamaah.classList.remove(...inactiveClass);
 
@@ -299,7 +302,7 @@
                 iconName.className =
                     "ph-duotone ph-user text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors";
 
-            } else if (role === 'travel') {
+            } else if (role === '4') {
                 btnTravel.classList.add(...activeClass);
                 btnTravel.classList.remove(...inactiveClass);
 
