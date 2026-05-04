@@ -165,6 +165,138 @@
         document.getElementById('year').textContent = new Date().getFullYear();
     </script>
 
+<script>
+    // --- FLATPICKR ---
+    const datePicker = flatpickr("#input-date", {
+        locale: "id",
+        altInput: true,
+        altFormat: "F Y",
+        dateFormat: "Y-m", 
+        minDate: "today",
+        disableMobile: "true",
+        theme: "airbnb",
+        onChange: function(selectedDates, dateStr, instance) {
+            instance.input.classList.add('text-orange-600');
+            setTimeout(() => instance.input.classList.remove('text-orange-600'), 300);
+        }
+    });
+
+    // --- LOGIKA FILTER KATEGORI (ATAS & BAWAH) ---
+    let kategoriAktif = 'all';
+
+    function filterKategori(idKategori) {
+        kategoriAktif = idKategori;
+
+        // [BARU] RESET FORM SEARCH SETIAP KALI TOMBOL KATEGORI DIKLIK
+        document.getElementById('input-departure').value = "";
+        document.getElementById('input-budget').value = "all";
+        if (typeof datePicker !== 'undefined' && datePicker) {
+            datePicker.clear(); // Bersihin tanggal di Flatpickr
+        } else {
+            document.getElementById('input-date').value = "";
+        }
+
+        // 1. KEMBALIKAN SEMUA TOMBOL KE WARNA DEFAULT
+        document.querySelectorAll('.kategori-btn').forEach(btn => {
+            btn.className = "kategori-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap";
+        });
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.className = "filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent";
+        });
+
+        // 2. WARNAIN OREN KHUSUS TOMBOL YANG DIKLIK
+        let tombolDipilih = document.querySelectorAll(`[onclick="filterKategori('${idKategori}')"], [data-filter="${idKategori}"]`);
+        tombolDipilih.forEach(btn => {
+            if (btn.classList.contains('kategori-btn')) {
+                btn.className = "kategori-btn active px-4 py-2 rounded-full text-xs md:text-sm font-bold text-white bg-orange-600 shadow-md transition-all duration-300 whitespace-nowrap hover:bg-orange-700";
+            } else {
+                btn.className = "filter-btn active px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 whitespace-nowrap border bg-orange-600 text-white border-transparent shadow-md hover:bg-orange-700";
+            }
+        });
+
+        // Langsung filter tanpa popup loading
+        jalankanPencarian(false); 
+    }
+
+    // --- SEARCH HANDLER (TOMBOL CARI) ---
+    function handleSearch(event) {
+        event.preventDefault(); 
+        
+        const btnSearch = document.getElementById('btn-search');
+        const originalContent = btnSearch.innerHTML;
+        
+        btnSearch.innerHTML = '<i class="ph-bold ph-spinner animate-spin text-xl"></i>';
+        btnSearch.disabled = true;
+        btnSearch.classList.add('opacity-75', 'cursor-not-allowed');
+
+        setTimeout(() => {
+            btnSearch.innerHTML = originalContent;
+            btnSearch.disabled = false;
+            btnSearch.classList.remove('opacity-75', 'cursor-not-allowed');
+
+            jalankanPencarian(true); 
+        }, 800); 
+    }
+
+    // --- MESIN UTAMA PENCARIAN ---
+    function jalankanPencarian(tampilkanPopup = false) {
+        let kotaBerangkat = document.getElementById('input-departure').value.toLowerCase();
+        let tglBerangkat = document.getElementById('input-date').value; 
+        let budget = document.getElementById('input-budget').value;
+
+        let daftarCard = document.querySelectorAll('.product-card');
+        let jumlahDitemukan = 0; 
+
+        daftarCard.forEach(card => {
+            let tampilkan = true;
+
+            // [BARU] Pake OR (|| '') buat nahan error kalau data API kosong
+            let cardKategori = card.getAttribute('data-category') || '';
+            let cardKota = (card.getAttribute('data-kota') || '').toLowerCase();
+            let cardTanggal = card.getAttribute('data-tanggal') || ''; 
+            let cardHarga = parseInt(card.getAttribute('data-harga')) || 0;
+
+            // A. Filter Kategori 
+            if (kategoriAktif !== 'all' && cardKategori !== String(kategoriAktif)) tampilkan = false;
+            
+            // B. Filter Kota 
+            if (kotaBerangkat !== '' && !cardKota.includes(kotaBerangkat)) tampilkan = false;
+            
+            // C. Filter Tanggal
+            if (tglBerangkat !== '' && !cardTanggal.startsWith(tglBerangkat)) tampilkan = false;
+
+            // D. Filter Budget
+            if (budget !== 'all') {
+                if (budget === 'hemat' && cardHarga >= 28000000) tampilkan = false;
+                if (budget === 'reguler' && (cardHarga < 28000000 || cardHarga > 35000000)) tampilkan = false;
+                if (budget === 'vip' && cardHarga <= 35000000) tampilkan = false;
+            }
+
+            // Eksekusi
+            if (tampilkan) {
+                card.style.display = 'flex';
+                jumlahDitemukan++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Popup Alert
+        if (tampilkanPopup) {
+            Swal.fire({
+                icon: jumlahDitemukan > 0 ? 'success' : 'warning',
+                title: jumlahDitemukan > 0 ? 'Pencarian Selesai!' : 'Oops!',
+                text: jumlahDitemukan > 0 ? `Ditemukan ${jumlahDitemukan} paket yang sesuai kriteria.` : 'Maaf, tidak ada paket yang sesuai dengan filter Anda.',
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#ea580c'
+            }).then(() => {
+                document.getElementById('produk').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+    }
+</script>
+
     <script>
         // Initialize AOS
         AOS.init({
@@ -388,149 +520,6 @@
         //         btnIcon.classList.replace('ph-caret-up', 'ph-arrow-right');
         //     }
         // });
-
-        // --- FLATPICKR ---
-        const datePicker = flatpickr("#input-date", {
-            locale: "id",
-            altInput: true,
-            altFormat: "F Y",
-            dateFormat: "Y-m",
-            minDate: "today",
-            disableMobile: "true",
-            theme: "airbnb",
-            onChange: function(selectedDates, dateStr, instance) {
-                instance.input.classList.add('text-orange-600');
-                setTimeout(() => instance.input.classList.remove('text-orange-600'), 300);
-            }
-        });
-
-        // --- TAB SWITCHING (HERO) ---
-        let currentCategory = 'reguler9';
-
-        function switchTab(category) {
-            currentCategory = category;
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => {
-                btn.className =
-                    "tab-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap cursor-pointer";
-            });
-            const activeBtn = document.getElementById(`btn-${category}`);
-            if (activeBtn) {
-                activeBtn.className =
-                    "tab-btn active px-4 py-2 rounded-full text-xs md:text-sm font-bold text-white bg-orange-600 shadow-md transition-all duration-300 whitespace-nowrap cursor-pointer transform scale-105";
-            }
-
-            let message = "";
-            if (datePicker) datePicker.clear();
-
-            switch (category) {
-                case 'reguler9':
-                    message = "Kategori: Umroh Reguler 9 Hari";
-                    break;
-                case 'reguler12':
-                    message = "Kategori: Umroh Reguler 12 Hari";
-                    break;
-                case 'plus':
-                    message = "Kategori: Umroh Plus Wisata";
-                    break;
-                case 'ramadhan':
-                    message = "Kategori: Umroh Ramadhan";
-                    if (datePicker) datePicker.setDate("2025-03");
-                    break;
-                case 'haji':
-                    message = "Kategori: Haji Khusus";
-                    if (datePicker) datePicker.setDate("2030-06");
-                    break;
-                default:
-                    message = "Kategori Dipilih";
-            }
-
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: message,
-                showConfirmButton: false,
-                timer: 1500,
-                timerProgressBar: true,
-                iconColor: '#ea580c',
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
-        }
-
-        // --- SEARCH HANDLER ---
-        function handleSearch(event) {
-            event.preventDefault();
-            const departure = document.getElementById('input-departure').value;
-            const date = document.getElementById('input-date').value;
-            const btnSearch = document.getElementById('btn-search');
-
-            if (!departure || !date) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Data Belum Lengkap',
-                    text: 'Mohon pilih Kota Keberangkatan dan Rencana Waktu.',
-                    confirmButtonColor: '#ea580c',
-                    confirmButtonText: 'Oke, Saya Lengkapi'
-                });
-                return;
-            }
-
-            const originalContent = btnSearch.innerHTML;
-            btnSearch.innerHTML = '<i class="ph-bold ph-spinner animate-spin text-xl"></i>';
-            btnSearch.disabled = true;
-            btnSearch.classList.add('opacity-75', 'cursor-not-allowed');
-
-            setTimeout(() => {
-                btnSearch.innerHTML = originalContent;
-                btnSearch.disabled = false;
-                btnSearch.classList.remove('opacity-75', 'cursor-not-allowed');
-
-                let categoryName = "";
-                switch (currentCategory) {
-                    case 'reguler9':
-                        categoryName = "Umroh Reguler 9 Hari";
-                        break;
-                    case 'reguler12':
-                        categoryName = "Umroh Reguler 12 Hari";
-                        break;
-                    case 'plus':
-                        categoryName = "Umroh Plus Wisata";
-                        break;
-                    case 'ramadhan':
-                        categoryName = "Umroh Ramadhan";
-                        break;
-                    case 'haji':
-                        categoryName = "Haji Khusus";
-                        break;
-                    default:
-                        categoryName = "Paket Umroh";
-                }
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Pencarian Selesai!',
-                    html: `
-                        <div class="text-left text-sm text-slate-600 bg-slate-50 p-4 rounded-lg border border-slate-200">
-                            <p>Kategori: <b class="text-orange-600">${categoryName}</b></p>
-                            <p>Dari: <b>${departure}</b></p>
-                            <p>Waktu: <b>${date}</b></p>
-                        </div>
-                    `,
-                    confirmButtonText: 'Lihat Paket Tersedia',
-                    confirmButtonColor: '#ea580c'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('produk').scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            }, 1200);
-        }
 
         function addToCompare(button) {
             // Mencegah event bubbling (agar tidak men-trigger klik gambar jika ada)

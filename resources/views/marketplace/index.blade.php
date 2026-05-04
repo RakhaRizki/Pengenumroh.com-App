@@ -31,24 +31,19 @@
                     <div class="overflow-x-auto no-scrollbar py-2">
                         <div
                             class="flex flex-nowrap md:flex-wrap justify-start md:justify-center items-center gap-3 min-w-max px-2">
-                            <div
-                                class="bg-black/40 backdrop-blur-md p-1.5 rounded-full flex gap-1.5 border border-white/10 shadow-lg">
-                                <button onclick="switchTab('reguler9')" id="btn-reguler9"
-                                    class="tab-btn active px-4 py-2 rounded-full text-xs md:text-sm font-bold text-white bg-orange-600 shadow-md transition-all duration-300 whitespace-nowrap hover:bg-orange-700">Reguler
-                                    9 Hari</button>
-                                <button onclick="switchTab('reguler12')" id="btn-reguler12"
-                                    class="tab-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap">Reguler
-                                    12 Hari</button>
-                                <button onclick="switchTab('plus')" id="btn-plus"
-                                    class="tab-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap">Umroh
-                                    Plus Wisata</button>
-                                <button onclick="switchTab('ramadhan')" id="btn-ramadhan"
-                                    class="tab-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap">Umroh
-                                    Ramadhan</button>
-                                <button onclick="switchTab('haji')" id="btn-haji"
-                                    class="tab-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap">Haji
-                                    Khusus</button>
-                            </div>
+                           <div class="bg-black/40 backdrop-blur-md p-1.5 rounded-full flex gap-1.5 border border-white/10 shadow-lg overflow-x-auto no-scrollbar">
+    <button onclick="filterKategori('all')" id="btn-kategori-all"
+        class="kategori-btn active px-4 py-2 rounded-full text-xs md:text-sm font-bold text-white bg-orange-600 shadow-md transition-all duration-300 whitespace-nowrap hover:bg-orange-700">
+        Semua
+    </button>
+    
+    @foreach($daftarKategori as $kategori)
+        <button onclick="filterKategori('{{ $kategori['id'] }}')" id="btn-kategori-{{ $kategori['id'] }}"
+            class="kategori-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap">
+            {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
+        </button>
+    @endforeach
+</div>
                         </div>
                     </div>
                 </div>
@@ -67,19 +62,20 @@
                             <div class="flex items-center gap-3">
                                 <i
                                     class="ph-duotone ph-airplane-takeoff text-2xl text-slate-400 group-hover:text-orange-500 transition-colors"></i>
-                                <div class="relative w-full">
-                                    <select id="input-departure" required
-                                        class="w-full bg-transparent border-none p-0 text-slate-800 font-bold text-base focus:ring-0 cursor-pointer truncate pr-4 outline-none">
-                                        <option value="" disabled selected>Pilih Kota</option>
-                                        <option value="CGK">Jakarta (CGK)</option>
-                                        <option value="SUB">Surabaya (SUB)</option>
-                                        <option value="KNO">Medan (KNO)</option>
-                                        <option value="UPG">Makassar (UPG)</option>
-                                        <option value="JED">Jeddah (Langsung)</option>
-                                    </select>
-                                    <i
-                                        class="ph-bold ph-caret-down absolute right-0 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none group-hover:text-orange-500 transition"></i>
-                                </div>
+                            <div class="relative w-full">
+    {{-- HAPUS tulisan 'required' biar user bebas nyari --}}
+    <select id="input-departure" 
+        class="w-full bg-transparent border-none p-0 text-slate-800 font-bold text-base focus:ring-0 cursor-pointer truncate pr-4 outline-none">
+        <option value="" selected>Semua Kota</option>
+        {{-- Value disamakan dengan data API (huruf kecil) --}}
+        <option value="jakarta">Jakarta (CGK)</option>
+        <option value="surabaya">Surabaya (SUB)</option>
+        <option value="medan">Medan (KNO)</option>
+        <option value="makassar">Makassar (UPG)</option>
+        <option value="jeddah">Jeddah (Langsung)</option>
+    </select>
+    <i class="ph-bold ph-caret-down absolute right-0 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none group-hover:text-orange-500 transition"></i>
+</div>
                             </div>
                         </div>
 
@@ -142,6 +138,7 @@
                 </div>
 
             </div>
+
         </div>
     </section>
 
@@ -252,39 +249,50 @@
         </h2>
     </div>
 
-    <div class="w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
-        <div class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-2 min-w-max bg-transparent md:bg-white md:p-1.5 md:rounded-full md:shadow-sm md:border md:border-slate-100">
-            
-            <!-- Tombol Statis untuk "Semua" -->
-            <button class="filter-btn active px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 whitespace-nowrap border bg-orange-600 text-white border-transparent shadow-md hover:bg-orange-700"
-                data-filter="all">Semua</button>
+   <div class="w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
+    <div class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-2 min-w-max bg-transparent md:bg-white md:p-1.5 md:rounded-full md:shadow-sm md:border md:border-slate-100">
+        
+        <!-- Tombol Statis untuk "Semua" -->
+        <button onclick="filterKategori('all')" 
+            class="filter-btn active px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 whitespace-nowrap border bg-orange-600 text-white border-transparent shadow-md hover:bg-orange-700"
+            data-filter="all">Semua</button>
 
-            <!-- Looping Tombol dari API Kategori -->
-            @foreach($daftarKategori as $kategori)
-                <button class="filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent"
-                    {{-- Kita pakai ID kategori sebagai filter biar lebih akurat --}}
-                    data-filter="{{ $kategori['id'] }}">
-                    {{-- Antisipasi nama kuncinya antara 'name' atau 'nama_kategori' --}}
-                    {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
-                </button>
-            @endforeach
+        <!-- Looping Tombol dari API Kategori -->
+        @foreach($daftarKategori as $kategori)
+            <button onclick="filterKategori('{{ $kategori['id'] }}')" 
+                class="filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent"
+                data-filter="{{ $kategori['id'] }}">
+                {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
+            </button>
+        @endforeach
 
-          </div>
-       </div>
-     </div>
+      </div>
+   </div>
+</div>
             
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="product-grid">
         
-        @forelse($daftarProduk as $produk)
+       @forelse($daftarProduk as $produk)
+            
+            @php
+                // Ambil harga asli buat filter (dalam bentuk angka full)
+                $hargaAsli = $produk['prices'][0]['harga'] ?? ($produk['prices'][0]['price'] ?? 0);
+            @endphp
+
+            {{-- 2. TAMBAHIN DATA-KOTA, DATA-TANGGAL, DATA-HARGA DI DALAM DIV INI --}}
             <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                data-category="{{ $produk['category_id'] }}" data-aos="fade-up">
+                data-category="{{ $produk['category_id'] }}" 
+                data-kota="{{ strtolower($produk['tmp_keberangkatan'] ?? '') }}"
+                data-tanggal="{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->format('Y-m-d') }}"
+                data-harga="{{ $hargaAsli }}"
+                data-aos="fade-up">
 
                 <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
                     
                    <img src="https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/{{ rawurlencode($produk['thumbnail_url']) }}"
-     class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-     alt="{{ $produk['nama_produk'] }}"
-     onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';">
+         class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+         alt="{{ $produk['nama_produk'] }}"
+         onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';">
 
                     <div class="absolute top-3 right-3 z-10 flex gap-2">
                         <button onclick="addToCompare(this)"

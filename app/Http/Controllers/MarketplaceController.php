@@ -14,7 +14,7 @@ class MarketplaceController extends Controller
         $daftarProduk = [];
         if ($responseProduk->successful()) {
             $dataAsli = $responseProduk->json('data') ?? []; 
-            $daftarProduk = collect($dataAsli)->take(4)->toArray();
+            $daftarProduk = collect($dataAsli)->take(8)->toArray();
         }
 
           // 2. Tembak API Kategori (BARU)
