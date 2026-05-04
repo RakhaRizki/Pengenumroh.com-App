@@ -1,59 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://ui-avatars.com/api/?name=Pengen+Umroh&background=F97316&color=fff&size=150" alt="PengenUmroh Logo" style="border-radius: 20px;">
 </p>
 
-## About Laravel
+<h1 align="center">🕋 PengenUmroh - Marketplace Perjalanan Ibadah</h1>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E" alt="JavaScript">
+  <img src="https://img.shields.io/badge/Status-Katalog_Produk_Selesai-success?style=for-the-badge" alt="Progress">
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📖 Tentang Project
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**PengenUmroh** adalah platform *marketplace* berbasis web yang dirancang untuk memudahkan jamaah dalam mencari, membandingkan, dan memesan paket perjalanan ibadah Umroh dan Haji Khusus. Sistem ini mengintegrasikan berbagai mitra travel (Penyelenggara Perjalanan Ibadah Umrah/PPIU) ke dalam satu etalase digital yang interaktif dan mudah digunakan.
 
-## Learning Laravel
+Aplikasi ini dibangun dengan fokus utama pada **User Experience (UX)**, memastikan jamaah dapat menemukan paket yang sesuai dengan *budget*, jadwal, dan preferensi mereka dengan cepat tanpa waktu tunggu (*loading*) yang lama.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🚀 Current Progress: Katalog Produk & Smart Filtering
 
-## Laravel Sponsors
+Saat ini, pengembangan telah mencapai tahap penyelesaian **Halaman Katalog Produk (Product Discovery)**. Fokus pada fase ini adalah membangun sistem pencarian dan penyaringan data yang terasa instan bagi pengguna.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### ✨ Fitur yang Sudah Terselesaikan:
+- [x] **Hero Section & Quick Search:** Form pencarian cepat di Beranda untuk memilih lokasi keberangkatan dan jadwal.
+- [x] **Real-time In-Page Filtering:** Sistem penyaringan paket menggunakan Vanilla JavaScript yang berjalan instan (DOM manipulation) berdasarkan:
+  - Rentang Harga (*Slider* Min & Max)
+  - Kategori Harga (Hemat, Standar, VIP)
+  - Kategori Paket (Reguler, Plus Wisata, Haji Khusus)
+  - Pencarian Teks (Nama Paket)
+- [x] **Dynamic Product Grid:** Tampilan *card* produk yang bersih, responsif, dan dinamis, menampilkan *Itinerary* singkat, Fasilitas Hotel, Maskapai, dan sisa *Seat/Quota*.
+- [x] **Custom Pagination:** Navigasi halaman yang membatasi tampilan produk (9 per halaman) agar antarmuka tetap rapi dan ringan.
+- [x] **Mobile-Friendly Modal Filter:** Sistem filter khusus layar ponsel yang tersembunyi dengan mulus (*bottom sheet modal*) untuk menjaga *layout* tetap luas di layar kecil.
+- [x] **Interactive UI Components:** Integrasi **SweetAlert2** untuk notifikasi interaktif (Wishlist, Compare) dan **Flatpickr** untuk kalender pintar.
 
-### Premium Partners
+### ⏳ Target Selanjutnya (Upcoming Features):
+- [ ] **Halaman Detail Produk:** Menampilkan *itinerary* lengkap per hari, rincian fasilitas hotel, dan syarat & ketentuan paket.
+- [ ] **Sistem Komparasi (Bandingkan):** Fitur untuk membandingkan 2-3 paket secara berdampingan (*side-by-side*).
+- [ ] **User Authentication:** Login & Register Jamaah.
+- [ ] **Checkout & Payment Gateway:** Alur pemesanan dan pembayaran.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 🛠️ Tech Stack & Tools
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **Backend:** Laravel
+- **Frontend / UI:** Blade Templates, HTML5, Tailwind CSS
+- **Interactivity:** Vanilla JavaScript (ES6)
+- **Libraries/Plugins:**
+  - [Phosphor Icons](https://phosphoricons.com/) (Iconography)
+  - [SweetAlert2](https://sweetalert2.github.io/) (Popups & Toasts)
+  - [Flatpickr](https://flatpickr.js.org/) (Date Picker)
+  - [AOS - Animate On Scroll](https://michalsnik.github.io/aos/) (Scroll Animations)
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 👨‍💻 Pengembang
 
-## Security Vulnerabilities
+Dikembangkan dengan dedikasi untuk memberikan pengalaman pencarian paket ibadah terbaik. 
+*Berjalan pada jalur menuju arsitektur web berskala besar.*
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+<br>
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+> *Readme ini akan terus diperbarui seiring berjalannya proses pengembangan (Development Lifecycle).*
