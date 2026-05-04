@@ -56,9 +56,11 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
 
     // 1. Halaman SEMUA Produk / Katalog (TIDAK PAKE SLUG)
     // URL: domain.com/marketplace/paket
-    Route::get('/produk', function () {
-        return view('marketplace.produk.index'); 
-    })->name('produk.index');
+    // Route::get('/produk', function () {
+    //     return view('marketplace.produk.index'); 
+    // })->name('produk.index');
+
+    Route::get('/produk', [MarketplaceController::class, 'produk'])->name('produk.index');
 
     // KATEGORI
 

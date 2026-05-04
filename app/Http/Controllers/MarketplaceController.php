@@ -36,4 +36,23 @@ class MarketplaceController extends Controller
 
     }
 
+    public function produk()
+    {
+        // 1. Tembak API Produk (Ambil Semua, NGGAK PAKE take(4))
+        $responseProduk = Http::get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products');
+        $daftarProduk = [];
+        if ($responseProduk->successful()) {
+            $daftarProduk = $responseProduk->json('data') ?? []; 
+        }
+
+        // 2. Tembak API Kategori
+        $responseKategori = Http::get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/category');
+        $daftarKategori = [];
+        if ($responseKategori->successful()) {
+            $daftarKategori = $responseKategori->json('data') ?? []; 
+        }
+
+        return view('marketplace.produk.index', compact('daftarProduk', 'daftarKategori'));
+    }
+
 }

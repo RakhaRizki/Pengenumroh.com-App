@@ -1,305 +1,23 @@
-<!doctype html>
-<html lang="id" class="scroll-smooth">
-
-<head>
-    <title>Pilihan Paket Umroh & Haji Terbaik - Pengenumroh</title>
-    <link rel="icon" type="image/png" href="/assets/img/marketplace/favicon.png">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #F8FAFC;
-        }
-
-        /* Custom Checkbox Style */
-        .checkbox-wrapper input:checked+div {
-            background-color: #ea580c;
-            border-color: #ea580c;
-        }
-
-        .checkbox-wrapper input:checked+div svg {
-            display: block;
-        }
-
-        /* Hide scrollbar for clean look */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* seat bar */
-        @keyframes move-stripes {
-            from {
-                background-position: 0 0;
-            }
-
-            to {
-                background-position: 40px 0;
-            }
-        }
-
-        /* Animasi tambahan agar bar terlihat berdenyut cahayanya */
-        @keyframes glow-pulse {
-
-            0%,
-            100% {
-                filter: brightness(1);
-                box-shadow: 0 0 5px rgba(255, 120, 46, 0.4);
-            }
-
-            50% {
-                filter: brightness(1.15);
-                box-shadow: 0 0 15px rgba(255, 120, 46, 0.8);
-            }
-        }
-
-        .progress-orange-animated {
-            /* Warna Dasar Oranye Terang (Lebih Vibrant) */
-            background-color: #ff782e;
-
-            /* Lapisan Garis Putih dengan Opacity yang disesuaikan agar tidak membuat kusam */
-            background-image: linear-gradient(45deg,
-                    rgba(255, 255, 255, 0.4) 25%,
-                    transparent 25%,
-                    transparent 50%,
-                    rgba(255, 255, 255, 0.4) 50%,
-                    rgba(255, 255, 255, 0.4) 75%,
-                    transparent 75%,
-                    transparent);
-            background-size: 40px 40px;
-
-            /* Menggabungkan animasi jalan dan animasi berdenyut */
-            animation: move-stripes 0.8s linear infinite, glow-pulse 2s ease-in-out infinite;
-
-            /* Memberikan efek glossy/licin */
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-    </style>
-
-</head>
-
-<body class="text-slate-800 antialiased selection:bg-orange-500 selection:text-white pb-24 lg:pb-0">
-
-    <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
-        <div class="bg-white border-b border-slate-200 shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-20">
-
-                    <a href="/marketplace/" class="flex items-center gap-2 group">
-                        <div
-                            class="flex-shrink-0 flex items-center cursor-pointer transform hover:scale-105 transition duration-300">
-                            <img src="/assets/img/marketplace/logo.png" alt="Logo PengenUmroh"
-                                class="h-10 w-auto object-contain">
-                        </div>
-                    </a>
-
-                    <div class="hidden lg:flex space-x-8">
-                        <a href="/marketplace/"
-                            class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
-                            Beranda
-                            <span
-                                class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
-                        </a>
-                        <a href="#produk"
-                            class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
-                            Produk
-                            <span
-                                class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
-                        </a>
-                        <a href="#mitra"
-                            class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
-                            Mitra
-                            <span
-                                class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
-                        </a>
-                        <a href="{{ route('marketplace.bandingkan') }}"
-                            class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
-                            Perbandingan
-                            <span
-                                class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
-                        </a>
-                        <a href="{{ route('marketplace.produk.haji-khusus') }}"
-                            class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
-                            Haji Khusus
-                            <span
-                                class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
-                        </a>
-                        <a href="{{ route('company.beranda') }}"
-                            class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
-                            Tentang Kami
-                            <span
-                                class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
-                        </a>
-                    </div>
-
-                    <div class="hidden lg:flex items-center gap-4">
-
-                        <div id="desktop-guest" class="flex items-center gap-4">
-                            <a href="#" onclick="toggleAuth(true)"
-                                class="text-sm font-bold text-slate-500 hover:text-orange-600 transition">
-                                Masuk
-                            </a>
-                            <a href="#" onclick="toggleAuth(true)"
-                                class="px-5 py-2.5 bg-slate-900 hover:bg-orange-600 text-white text-sm font-bold rounded-full transition-all duration-300 shadow-lg hover:shadow-orange-500/30 transform hover:-translate-y-0.5 flex items-center gap-2">
-                                <i class="ph-bold ph-note-pencil"></i> Daftar Sekarang
-                            </a>
-                        </div>
-
-                        <div id="desktop-user" class="hidden relative group">
-                            <button
-                                class="flex items-center gap-3 pl-3 pr-1 py-1 bg-white border border-slate-200 rounded-full hover:shadow-md transition-all group-hover:border-orange-200">
-                                <div class="text-right">
-                                    <p class="text-xs font-bold text-slate-700">Rakha Rizki</p>
-                                    <p class="text-[10px] text-slate-500">Jamaah</p>
-                                </div>
-                                <div class="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
-                                    <img src="https://ui-avatars.com/api/?name=Rakha+Rizki&background=F97316&color=fff"
-                                        alt="Profile" class="w-full h-full object-cover">
-                                </div>
-                                <i
-                                    class="ph-bold ph-caret-down text-slate-400 pr-2 group-hover:text-orange-500 transition"></i>
-                            </button>
-
-                             <div
-                                class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50 overflow-hidden">
-                                <div class="py-2">
-                                    <a href="{{ route('marketplace.profil.index') }}"
-                                        class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
-                                        <i class="ph-bold ph-user mr-3 text-lg"></i> Profil
-                                    </a>
-                                    <a href="{{ route('marketplace.profil.pesanan') }}"
-                                        class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
-                                        <i class="ph-bold ph-ticket mr-3 text-lg"></i> Pesanan
-                                    </a>
-                                    <a href="{{ route('marketplace.profil.wishlist') }}"
-                                        class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
-                                        <i class="ph-bold ph-heart mr-3 text-lg"></i> Wishlist
-                                    </a>
-                                    <div class="border-t border-gray-100 my-1"></div>
-                                    <a href="#" onclick="toggleAuth(false)"
-                                        class="flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
-                                        <i class="ph-bold ph-sign-out mr-3 text-lg"></i> Keluar
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="lg:hidden flex items-center gap-3">
-                        <div id="mobile-user-icon"
-                            class="hidden w-8 h-8 rounded-full bg-orange-100 overflow-hidden border border-orange-200 cursor-pointer"
-                            onclick="toggleMobileMenu()">
-                            <img src="https://ui-avatars.com/api/?name=Rakha+Rizki&background=F97316&color=fff"
-                                class="w-full h-full object-cover">
-                        </div>
-
-                        <button id="mobile-menu-btn" onclick="toggleMobileMenu()"
-                            class="text-slate-700 hover:text-orange-600 focus:outline-none p-1">
-                            <i class="ph ph-list text-3xl"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="mobile-menu"
-                class="hidden lg:hidden bg-white border-t border-slate-100 absolute w-full left-0 shadow-xl max-h-[85vh] overflow-y-auto">
-                <div class="px-4 pt-4 pb-6 space-y-2">
-
-                    <div id="mobile-profile-section"
-                        class="hidden mb-4 p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-full bg-white border border-orange-200 overflow-hidden">
-                            <img src="https://ui-avatars.com/api/?name=Rakha+Rizki&background=F97316&color=fff"
-                                class="w-full h-full object-cover">
-                        </div>
-                        <div>
-                            <p class="font-bold text-slate-800">Rakha Rizki</p>
-                            <p class="text-xs text-slate-500">rakharizki@gmail.com</p>
-                        </div>
-                    </div>
-
-                     <a href="/marketplace/"
-                        class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Beranda</a>
-                    <a href="#produk"
-                        class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Produk</a>
-                    <a href="#mitra"
-                        class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Mitra</a>
-                    <a href="{{ route('marketplace.bandingkan') }}"
-                        class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Perbandingan</a>
-                    <a href="{{ route('marketplace.produk.haji-khusus') }}"
-                        class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Haji
-                        Khusus</a>
-                    <a href="{{ route('company.beranda') }}"
-                        class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Tentang
-                        Kami</a>
-
-                    <div class="border-t border-slate-100 my-2"></div>
-
-                     <div id="mobile-guest-actions" class="space-y-2 pt-2">
-                        <a href="{{ route('login') }}"
-                            class="flex items-center justify-center w-full py-3 rounded-xl font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Masuk</a>
-                        <a href="{{ route('register') }}"
-                            class="flex items-center justify-center w-full py-3 bg-slate-900 text-white font-bold rounded-xl shadow-md active:scale-95 transition">Daftar
-                            Sekarang</a>
-                    </div>
-
-                    <div id="mobile-user-actions" class="hidden space-y-2">
-                        <a href="{{ route('marketplace.profil.pesanan') }}"
-                            class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
-                            <i class="ph-bold ph-ticket mr-3"></i> Pesanan
-                        </a>
-                        <a href="{{ route('marketplace.profil.index') }}"
-                            class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
-                            <i class="ph-bold ph-user mr-3"></i> Profil
-                        </a>
-                        <a href="{{ route('marketplace.profil.wishlist') }}"
-                            class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
-                            <i class="ph-bold ph-heart mr-3"></i> Wishlist
-                        </a>
-                        <a href="#karir"
-                            class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
-                            <i class="ph-bold ph-briefcase mr-3"></i> Karir
-                        </a>
-                        <button onclick="toggleAuth(false)"
-                            class="w-full mt-2 py-3 text-red-600 font-bold hover:bg-red-50 rounded-xl transition">Keluar</button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </nav>
+<x-layouts.products>
 
     <header class="pt-28 pb-6 lg:pt-32 lg:pb-10 bg-white border-b border-slate-100" id="hero">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-end gap-4 md:gap-6">
                 <div class="w-full md:w-auto">
                     <h1 class="text-2xl md:text-4xl font-extrabold text-slate-900 mb-2">Temukan Paket Impian</h1>
-                    <p class="text-slate-500 text-xs md:text-base">Menampilkan <span
-                            class="font-bold text-orange-600">45</span> paket perjalanan ibadah tersedia.</p>
+                    <p class="text-slate-500 text-xs md:text-base">Menampilkan
+                        <span id="product-counter" class="font-bold text-orange-600">{{ count($daftarProduk) }}</span> paket perjalanan ibadah tersedia.
+                    </p>
                 </div>
 
-                <div class="hidden md:block relative w-48">
-                    <select
-                        class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm font-bold rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-orange-500 cursor-pointer hover:bg-slate-100 transition">
+                <div class="hidden md:block relative w-48 group">
+                    <select class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm font-bold rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-orange-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(234,88,12,0.1)] cursor-pointer hover:bg-slate-100 transition-all duration-300">
                         <option>Paling Sesuai</option>
                         <option>Harga Terendah</option>
                         <option>Harga Tertinggi</option>
                         <option>Keberangkatan Terdekat</option>
                     </select>
-                    <i
-                        class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-hover:text-orange-500 transition-colors duration-300"></i>
                 </div>
             </div>
         </div>
@@ -309,817 +27,243 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-                <aside
-                    class="hidden lg:block lg:col-span-1 space-y-8 sticky top-28 h-fit bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-
-                    <div class="relative">
-                        <i
-                            class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                        <input type="text" placeholder="Cari nama paket..."
-                            class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-orange-500 focus:bg-white transition">
-                    </div>
-
-                    <div class="pt-6 border-t border-slate-100">
-                        <h3 class="font-bold text-slate-900 mb-4 text-sm uppercase tracking-wider">Kategori Paket</h3>
-
-                        <div class="grid grid-cols-1 gap-3">
-
-                            <label class="cursor-pointer group relative">
-                                <input type="radio" name="price_category" value="hemat"
-                                    class="hidden peer category-radio">
-
-                                <div class="flex items-center justify-between p-3 rounded-xl border-2 border-slate-100 bg-white 
-                                            hover:border-orange-300 hover:bg-orange-50/30 hover:shadow-md hover:-translate-y-0.5
-                                            peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:shadow-sm
-                                            transition-all duration-200 ease-in-out">
-
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 group-hover:bg-green-50 group-hover:text-green-500 peer-checked:bg-green-100 peer-checked:text-green-600 flex items-center justify-center transition-colors duration-200">
-                                            <i class="ph-bold ph-tag text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p
-                                                class="text-sm font-bold text-slate-800 group-hover:text-orange-700 peer-checked:text-orange-800 transition-colors">
-                                                Paket Hemat</p>
-                                            <p class="text-xs text-slate-500 font-medium">&lt; Rp 28 Juta</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="w-5 h-5 rounded-full border-2 border-slate-300 bg-white 
-                                                group-hover:border-orange-400
-                                                peer-checked:border-orange-500 peer-checked:bg-orange-500 
-                                                flex items-center justify-center transition-all duration-200">
-                                        <div
-                                            class="w-2 h-2 bg-white rounded-full opacity-0 transform scale-0 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-200">
-                                        </div>
-                                    </div>
-                                </div>
-                            </label>
-
-                            <label class="cursor-pointer group relative">
-                                <input type="radio" name="price_category" value="standar"
-                                    class="hidden peer category-radio">
-
-                                <div class="flex items-center justify-between p-3 rounded-xl border-2 border-slate-100 bg-white 
-                                            hover:border-orange-300 hover:bg-orange-50/30 hover:shadow-md hover:-translate-y-0.5
-                                            peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:shadow-sm
-                                            transition-all duration-200 ease-in-out">
-
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 peer-checked:bg-blue-100 peer-checked:text-blue-600 flex items-center justify-center transition-colors duration-200">
-                                            <i class="ph-bold ph-check-circle text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p
-                                                class="text-sm font-bold text-slate-800 group-hover:text-orange-700 peer-checked:text-orange-800 transition-colors">
-                                                Paket Standar</p>
-                                            <p class="text-xs text-slate-500 font-medium">Rp 28 - 35 Juta</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="w-5 h-5 rounded-full border-2 border-slate-300 bg-white 
-                                                group-hover:border-orange-400
-                                                peer-checked:border-orange-500 peer-checked:bg-orange-500 
-                                                flex items-center justify-center transition-all duration-200">
-                                        <div
-                                            class="w-2 h-2 bg-white rounded-full opacity-0 transform scale-0 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-200">
-                                        </div>
-                                    </div>
-                                </div>
-                            </label>
-
-                            <label class="cursor-pointer group relative">
-                                <input type="radio" name="price_category" value="vip"
-                                    class="hidden peer category-radio">
-
-                                <div class="flex items-center justify-between p-3 rounded-xl border-2 border-slate-100 bg-white 
-                                            hover:border-orange-300 hover:bg-orange-50/30 hover:shadow-md hover:-translate-y-0.5
-                                            peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:shadow-sm
-                                            transition-all duration-200 ease-in-out">
-
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 group-hover:bg-purple-50 group-hover:text-purple-500 peer-checked:bg-purple-100 peer-checked:text-purple-600 flex items-center justify-center transition-colors duration-200">
-                                            <i class="ph-bold ph-crown text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p
-                                                class="text-sm font-bold text-slate-800 group-hover:text-orange-700 peer-checked:text-orange-800 transition-colors">
-                                                Paket VIP</p>
-                                            <p class="text-xs text-slate-500 font-medium">&gt; Rp 35 Juta</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="w-5 h-5 rounded-full border-2 border-slate-300 bg-white 
-                                                group-hover:border-orange-400
-                                                peer-checked:border-orange-500 peer-checked:bg-orange-500 
-                                                flex items-center justify-center transition-all duration-200">
-                                        <div
-                                            class="w-2 h-2 bg-white rounded-full opacity-0 transform scale-0 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-200">
-                                        </div>
-                                    </div>
-                                </div>
-                            </label>
-
-                        </div>
-                    </div>
-
-                    <div class="pt-6 border-t border-slate-100">
-                        <h3 class="font-bold text-slate-900 mb-4 text-sm uppercase tracking-wider">Rentang Harga</h3>
-
-                        <div class="mb-4 px-1">
-                            <input type="range" id="price-range" min="20000000" max="100000000" step="500000"
-                                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-600 hover:accent-orange-700">
-                        </div>
-
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="relative w-full">
-                                <span
-                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
-                                <input type="number" id="price-min" placeholder="Min"
-                                    class="w-full pl-8 pr-2 py-2 text-sm font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-orange-500 focus:bg-white transition">
-                            </div>
-                            <div class="w-2 h-0.5 bg-slate-300"></div>
-                            <div class="relative w-full">
-                                <span
-                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
-                                <input type="number" id="price-max" placeholder="Max"
-                                    class="w-full pl-8 pr-2 py-2 text-sm font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-orange-500 focus:bg-white transition">
-                            </div>
-                        </div>
-
-                        <button onclick="alert('Filter diterapkan!')"
-                            class="w-full py-2 text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition">
-                            Terapkan Harga
+                {{-- SIDEBAR DESKTOP --}}
+                <aside class="hidden lg:block lg:col-span-1 space-y-7 sticky top-28 h-fit bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    
+                    {{-- HEADER FILTER & RESET --}}
+                    <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+                        <h2 class="font-extrabold text-slate-900 text-lg">Filter</h2>
+                        <button onclick="resetAllFilters()" class="group flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-orange-600 transition-colors">
+                            <i class="ph-bold ph-arrows-counter-clockwise transition-transform duration-500 group-hover:-rotate-180"></i>
+                            Reset
                         </button>
                     </div>
 
-                    <div class="pt-6 border-t border-slate-100">
-                        <h3 class="font-bold text-slate-900 mb-4 text-sm uppercase tracking-wider">Mitra Travel</h3>
-                        <div class="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
-
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden" checked>
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
-                                </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Haramainku
-                                    Tour</span>
-                            </label>
-
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden">
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
-                                </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Elmarwa
-                                    Travel</span>
-                            </label>
-
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden">
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
-                                </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Namira
-                                    Travel</span>
-                            </label>
-
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden">
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
-                                </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Uhud
-                                    Tour</span>
-                            </label>
-
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden">
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
-                                </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Arsy
-                                    Tour</span>
-                            </label>
-
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden" checked>
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
-                                </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Mutiara
-                                    Sunnah
-                                    Travel</span>
-                            </label>
-
-                        </div>
+                    {{-- SEARCH BAR --}}
+                    <div class="relative group">
+                        <i class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-orange-500 transition-colors duration-300"></i>
+                        <input type="text" id="search-input" placeholder="Cari nama paket..."
+                            class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(234,88,12,0.1)] transition-all duration-300">
                     </div>
 
-                    <div class="pt-6 border-t border-slate-100">
-                        <h3 class="font-bold text-slate-900 mb-4 text-sm uppercase tracking-wider">Jenis Paket</h3>
-                        <div class="space-y-3">
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden" checked>
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
+                    {{-- KATEGORI HARGA (RADIO TANPA BULETAN) --}}
+                    <div>
+                        <h3 class="font-bold text-slate-900 mb-3 text-xs uppercase tracking-wider">Kategori Harga</h3>
+                        <div class="grid grid-cols-1 gap-2.5">
+                            
+                            <label class="cursor-pointer group relative block active:scale-[0.98] transition-transform duration-200">
+                                <input type="radio" name="price_category" value="hemat" class="hidden peer category-radio">
+                                <div class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm peer-checked:border-orange-500 peer-checked:bg-orange-50/50 peer-checked:shadow-[0_0_0_1px_rgba(234,88,12,1)] transition-all duration-300">
+                                    <div class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 peer-checked:bg-orange-100 peer-checked:text-orange-600 flex items-center justify-center transition-colors duration-300">
+                                        <i class="ph-bold ph-tag text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800 peer-checked:text-orange-700 transition-colors">Paket Hemat</p>
+                                        <p class="text-xs text-slate-500 font-medium">&lt; Rp 28 Juta</p>
+                                    </div>
                                 </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Umroh
-                                    Reguler 9
-                                    Hari</span>
                             </label>
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden" checked>
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
+
+                            <label class="cursor-pointer group relative block active:scale-[0.98] transition-transform duration-200">
+                                <input type="radio" name="price_category" value="standar" class="hidden peer category-radio">
+                                <div class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm peer-checked:border-orange-500 peer-checked:bg-orange-50/50 peer-checked:shadow-[0_0_0_1px_rgba(234,88,12,1)] transition-all duration-300">
+                                    <div class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 peer-checked:bg-orange-100 peer-checked:text-orange-600 flex items-center justify-center transition-colors duration-300">
+                                        <i class="ph-bold ph-check-circle text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800 peer-checked:text-orange-700 transition-colors">Paket Standar</p>
+                                        <p class="text-xs text-slate-500 font-medium">Rp 28 - 35 Juta</p>
+                                    </div>
                                 </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Umroh
-                                    Reguler 12
-                                    Hari</span>
                             </label>
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden">
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
+
+                            <label class="cursor-pointer group relative block active:scale-[0.98] transition-transform duration-200">
+                                <input type="radio" name="price_category" value="vip" class="hidden peer category-radio">
+                                <div class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 bg-white hover:border-orange-300 hover:shadow-sm peer-checked:border-orange-500 peer-checked:bg-orange-50/50 peer-checked:shadow-[0_0_0_1px_rgba(234,88,12,1)] transition-all duration-300">
+                                    <div class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 peer-checked:bg-orange-100 peer-checked:text-orange-600 flex items-center justify-center transition-colors duration-300">
+                                        <i class="ph-bold ph-crown text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800 peer-checked:text-orange-700 transition-colors">Paket VIP</p>
+                                        <p class="text-xs text-slate-500 font-medium">&gt; Rp 35 Juta</p>
+                                    </div>
                                 </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Umroh
-                                    Plus
-                                    Wisata</span>
-                            </label>
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden">
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
-                                </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Umroh
-                                    Ramadhan</span>
-                            </label>
-                            <label class="checkbox-wrapper flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" class="hidden" checked>
-                                <div
-                                    class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center transition-colors group-hover:border-orange-400">
-                                    <svg class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                        <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                    </svg>
-                                </div>
-                                <span
-                                    class="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition">Haji
-                                    Khusus</span>
                             </label>
                         </div>
                     </div>
 
+                    {{-- RENTANG HARGA --}}
+                    <div class="pt-6 border-t border-slate-100">
+                        <h3 class="font-bold text-slate-900 mb-4 text-xs uppercase tracking-wider">Rentang Harga (Rp)</h3>
+                        <div class="mb-5 px-1">
+                            <input type="range" id="price-range" min="20000000" max="100000000" step="1000000"
+                                class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-600 hover:accent-orange-700 transition-all">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="relative w-full group">
+                                <input type="number" id="price-min" placeholder="Min"
+                                    class="w-full pl-3 pr-2 py-2.5 text-sm font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-orange-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(234,88,12,0.1)] transition-all duration-300">
+                            </div>
+                            <div class="w-3 h-0.5 bg-slate-300 rounded-full flex-shrink-0"></div>
+                            <div class="relative w-full group">
+                                <input type="number" id="price-max" placeholder="Max"
+                                    class="w-full pl-3 pr-2 py-2.5 text-sm font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-orange-500 focus:bg-white focus:shadow-[0_0_0_3px_rgba(234,88,12,0.1)] transition-all duration-300">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- JENIS PAKET (KATEGORI API) --}}
+                    <div class="pt-6 border-t border-slate-100">
+                        <h3 class="font-bold text-slate-900 mb-3 text-xs uppercase tracking-wider">Jenis Paket</h3>
+                        <div class="space-y-1">
+                            @foreach ($daftarKategori as $kategori)
+                                <label class="flex items-center gap-3 p-2 -ml-2 cursor-pointer group rounded-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-200">
+                                    <div class="relative flex items-center justify-center">
+                                        <input type="checkbox" class="peer hidden filter-category" value="{{ $kategori['id'] }}">
+                                        {{-- Kotak Luar Checkbox --}}
+                                        <div class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200 group-hover:border-orange-400"></div>
+                                        {{-- Logo Centang (SVG) --}}
+                                        <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">
+                                        {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
+                                    </span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
                 </aside>
 
+                {{-- AREA PRODUK --}}
                 <div class="lg:col-span-3">
+                    
+                    {{-- PESAN KOSONG (Disembunyikan default) --}}
+                    <div id="empty-state" class="hidden text-center py-20 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all">
+                        <div class="w-20 h-20 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
+                            <i class="ph-duotone ph-magnifying-glass text-4xl text-slate-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800">Paket Tidak Ditemukan</h3>
+                        <p class="text-sm text-slate-500 mt-2 mb-6 max-w-sm mx-auto">Maaf, kami tidak dapat menemukan paket yang sesuai dengan kriteria filter Anda.</p>
+                        <button onclick="resetAllFilters()" class="px-8 py-3 bg-orange-50 text-orange-600 font-bold rounded-full hover:bg-orange-600 hover:text-white transition-colors duration-300 shadow-sm">Reset Filter</button>
+                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" id="product-container">
+                    {{-- GRID PRODUK (Dikasih min-h biar gak loncat ke footer) --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 min-h-[600px] content-start" id="product-container">
+                        @forelse($daftarProduk as $produk)
+                            @php
+                                $hargaAsli = $produk['prices'][0]['harga'] ?? ($produk['prices'][0]['price'] ?? 0);
+                            @endphp
 
-                        <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                            data-category="umroh-reguler" data-aos="fade-up">
+                            <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col h-full hover:-translate-y-1"
+                                data-category="{{ $produk['category_id'] }}"
+                                data-kota="{{ strtolower($produk['tmp_keberangkatan'] ?? '') }}"
+                                data-tanggal="{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->format('Y-m-d') }}"
+                                data-harga="{{ $hargaAsli }}" 
+                                data-nama="{{ strtolower($produk['nama_produk'] ?? '') }}"> 
 
-                            <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                                <img src="/assets/img/marketplace/produk-dummy.png"
-                                    class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                                    alt="Umroh">
+                                <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
+                                    <img src="https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/{{ rawurlencode($produk['thumbnail_url']) }}"
+                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                                        alt="{{ $produk['nama_produk'] }}"
+                                        onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';">
 
-                                <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                                    <button onclick="addToCompare(this)"
-                                        class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                        title="Bandingkan">
-                                        <i
-                                            class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                                    </button>
-
-                                    <button
-                                        class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                        <i class="ph-fill ph-heart text-lg"></i>
-                                    </button>
-
+                                    <div class="absolute top-3 right-3 z-10 flex gap-2">
+                                        <button onclick="addToCompare(this)" class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-500 hover:text-white transition-colors border border-white/30 group/btn" title="Bandingkan">
+                                            <i class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
+                                        </button>
+                                        <button class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-colors border border-white/30">
+                                            <i class="ph-fill ph-heart text-lg"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="p-5 flex flex-col flex-grow">
-                                <div class="min-h-[3.5rem]">
-                                    <h3
-                                        class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                        Umroh Easy 22 Juni 2026
-                                    </h3>
-                                </div>
+                                <div class="p-5 flex flex-col flex-grow">
+                                    <div class="min-h-[3.5rem]">
+                                        <h3 class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition-colors line-clamp-2 leading-tight">
+                                            {{ $produk['nama_produk'] }}
+                                        </h3>
+                                    </div>
 
-                                <div class="flex-grow space-y-3 mb-6">
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Lemeridien
-                                            Tower ⭐5</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Jiwal Al Saha
-                                            ⭐5
-                                        </p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Oman Air</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i
-                                            class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600">22 Juni 2026</p>
-                                    </div>
-                                    <div class="pt-2">
-                                        <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                            <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                            <span class="text-[#ff782e] font-black">3 / 45</span>
+                                    <div class="flex-grow space-y-3 mb-6 mt-2">
+                                        @if (!empty($produk['hotels'][0]))
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-7 h-7 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
+                                                    <i class="ph-duotone ph-buildings text-orange-500 text-sm"></i>
+                                                </div>
+                                                <p class="text-sm font-semibold text-slate-600 truncate">
+                                                    {{ $produk['hotels'][0]['city'] ?? 'Kota' }}: {{ $produk['hotels'][0]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][0]['rating'] ?? '5' }}
+                                                </p>
+                                            </div>
+                                        @endif
+
+                                        @if (!empty($produk['hotels'][1]))
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-7 h-7 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
+                                                    <i class="ph-duotone ph-buildings text-orange-500 text-sm"></i>
+                                                </div>
+                                                <p class="text-sm font-semibold text-slate-600 truncate">
+                                                    {{ $produk['hotels'][1]['city'] ?? 'Kota' }}: {{ $produk['hotels'][1]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][1]['rating'] ?? '5' }}
+                                                </p>
+                                            </div>
+                                        @endif
+
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-sm"></i>
+                                            </div>
+                                            <p class="text-sm font-semibold text-slate-600 truncate">
+                                                {{ $produk['flights'][0]['airline_name'] ?? 'Maskapai' }}
+                                            </p>
                                         </div>
 
-                                        <div
-                                            class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                                style="width: 88%">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-7 h-7 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                                                <i class="ph-duotone ph-calendar-blank text-green-500 text-sm"></i>
+                                            </div>
+                                            <p class="text-sm font-semibold text-slate-600">
+                                                {{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->translatedFormat('d M Y') }}
+                                            </p>
+                                        </div>
+
+                                        <div class="pt-3">
+                                            <div class="flex justify-between text-[11px] mb-1.5 font-bold">
+                                                <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
+                                                <span class="text-[#ff782e] font-black">{{ $produk['quota'] }} Seat</span>
+                                            </div>
+                                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden shadow-inner p-[1px]">
+                                                <div class="progress-orange-animated h-full rounded-full transition-all duration-700" style="width: {{ rand(30, 90) }}%"></div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                                    <div>
-                                        <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai
-                                            Dari</p>
-                                        <p class="text-xl font-black text-slate-900">Rp 25.9 <span
-                                                class="text-sm">Jt</span></p>
-                                    </div>
-                                    <a href="{{ route('marketplace.produk.easy-22-juni-2026') }}"
-                                        class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                        <i class="ph-bold ph-arrow-right text-lg"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                            data-category="umroh-plus" data-aos="fade-up" data-aos-delay="100">
-                            <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                                <img src="/assets/img/marketplace/produk-dummy2.png"
-                                    class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                                    alt="Umroh Turkey">
-                                <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                                    <button onclick="addToCompare(this)"
-                                        class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                        title="Bandingkan">
-                                        <i
-                                            class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                                    </button>
-
-                                    <button
-                                        class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                        <i class="ph-fill ph-heart text-lg"></i>
-                                    </button>
-
-                                </div>
-                            </div>
-
-                            <div class="p-5 flex flex-col flex-grow">
-                                <div class="min-h-[3.5rem]">
-                                    <h3
-                                        class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                        Umroh Libur Lebaran 23 Maret 2026
-                                    </h3>
-                                </div>
-
-                                <div class="flex-grow space-y-3 mb-6">
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Waha Ajyad ⭐5
-                                        </p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Istanbul: Odst
-                                            Almadinah ⭐5</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Garuda Indonesia</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i
-                                            class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600">23 Maret 2026</p>
-                                    </div>
-                                    <div class="pt-2">
-                                        <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                            <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                            <span class="text-[#ff782e] font-black">12 / 45</span>
+                                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                                        <div>
+                                            <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
+                                            <p class="text-xl font-black text-slate-900">
+                                                @if ($hargaAsli > 0)
+                                                    Rp {{ number_format($hargaAsli / 1000000, 1, ',', '.') }} <span class="text-sm text-slate-500 font-bold">Jt</span>
+                                                @else
+                                                    <span class="text-sm">Hubungi Kami</span>
+                                                @endif
+                                            </p>
                                         </div>
-
-                                        <div
-                                            class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                                style="width: 70%">
-                                            </div>
-                                        </div>
+                                        <a href="/marketplace/produk/{{ $produk['id'] }}" class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-md hover:shadow-orange-500/30">
+                                            <i class="ph-bold ph-arrow-right text-lg"></i>
+                                        </a>
                                     </div>
-                                </div>
-
-                                <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                                    <div>
-                                        <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai
-                                            Dari</p>
-                                        <p class="text-xl font-black text-slate-900">Rp 31.9 <span
-                                                class="text-sm">Jt</span></p>
-                                    </div>
-                                    <a href="{{ route('marketplace.produk.libur-lebaran-23-maret-2026') }}"
-                                        class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                        <i class="ph-bold ph-arrow-right text-lg"></i>
-                                    </a>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                            data-category="umroh-hemat" data-aos="fade-up" data-aos-delay="200">
-                            <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                                <img src="/assets/img/marketplace/produk-dummy3.png"
-                                    class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                                    alt="Umroh Hemat">
-                                <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                                    <button onclick="addToCompare(this)"
-                                        class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                        title="Bandingkan">
-                                        <i
-                                            class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                                    </button>
-
-                                    <button
-                                        class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                        <i class="ph-fill ph-heart text-lg"></i>
-                                    </button>
-
-                                </div>
-                            </div>
-
-                            <div class="p-5 flex flex-col flex-grow">
-                                <div class="min-h-[3.5rem]">
-                                    <h3
-                                        class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                        Pendaftaran Haji Khusus 2026 Program 26 Hari
-                                    </h3>
-                                </div>
-
-                                <div class="flex-grow space-y-3 mb-6">
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Hotel Bintang
-                                            ⭐5</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Hotel Bintang
-                                            ⭐5
-                                        </p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Maskapai Internasional
-                                        </p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i
-                                            class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600">31 Desember 2035</p>
-                                    </div>
-                                    <div class="pt-2">
-                                        <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                            <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                            <span class="text-[#ff782e] font-black">15 / 80</span>
-                                        </div>
-
-                                        <div
-                                            class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                                style="width: 85%">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                                    <div>
-                                        <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai
-                                            Dari</p>
-                                        <p class="text-xl font-black text-slate-900">$ 16.000 <span
-                                                class="text-sm">Usd</span></p>
-                                    </div>
-                                    <a href="{{ route('marketplace.produk.haji-khusus-program-26-hari') }}"
-                                        class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                        <i class="ph-bold ph-arrow-right text-lg"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                            data-category="umroh-hemat" data-aos="fade-up" data-aos-delay="200">
-                            <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                                <img src="/assets/img/marketplace/produk1.jpg"
-                                    class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                                    alt="Umroh Hemat">
-                                <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                                    <button onclick="addToCompare(this)"
-                                        class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                        title="Bandingkan">
-                                        <i
-                                            class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                                    </button>
-
-                                    <button
-                                        class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                        <i class="ph-fill ph-heart text-lg"></i>
-                                    </button>
-
-                                </div>
-                            </div>
-
-                            <div class="p-5 flex flex-col flex-grow">
-                                <div class="min-h-[3.5rem]">
-                                    <h3
-                                        class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                        Paket Umroh Awal Ramadhan 2025 Hemat
-                                    </h3>
-                                </div>
-
-                                <div class="flex-grow space-y-3 mb-6">
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Al Ansar ⭐4</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Concorde ⭐4
-                                        </p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Lion Air</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i
-                                            class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600">05 Mar 2025</p>
-                                    </div>
-                                    <div class="pt-2">
-                                        <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                            <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                            <span class="text-[#ff782e] font-black">12 / 45</span>
-                                        </div>
-
-                                        <div
-                                            class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                                style="width: 70%">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                                    <div>
-                                        <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai
-                                            Dari</p>
-                                        <p class="text-xl font-black text-slate-900">Rp 24.5 <span
-                                                class="text-sm">Jt</span></p>
-                                    </div>
-                                    <a href="#" onclick="showDetail(event)"
-                                        class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                        <i class="ph-bold ph-arrow-right text-lg"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                            data-category="umroh-hemat" data-aos="fade-up" data-aos-delay="200">
-                            <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                                <img src="/assets/img/marketplace/produk1.jpg"
-                                    class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                                    alt="Umroh Hemat">
-                                <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                                    <button onclick="addToCompare(this)"
-                                        class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                        title="Bandingkan">
-                                        <i
-                                            class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                                    </button>
-
-                                    <button
-                                        class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                        <i class="ph-fill ph-heart text-lg"></i>
-                                    </button>
-
-                                </div>
-                            </div>
-
-                            <div class="p-5 flex flex-col flex-grow">
-                                <div class="min-h-[3.5rem]">
-                                    <h3
-                                        class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                        Paket Umroh Awal Ramadhan 2025 Hemat
-                                    </h3>
-                                </div>
-
-                                <div class="flex-grow space-y-3 mb-6">
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Al Ansar ⭐4</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Concorde ⭐4
-                                        </p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Lion Air</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i
-                                            class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600">05 Mar 2025</p>
-                                    </div>
-                                    <div class="pt-2">
-                                        <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                            <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                            <span class="text-[#ff782e] font-black">12 / 45</span>
-                                        </div>
-
-                                        <div
-                                            class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                                style="width: 70%">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                                    <div>
-                                        <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai
-                                            Dari</p>
-                                        <p class="text-xl font-black text-slate-900">Rp 24.5 <span
-                                                class="text-sm">Jt</span></p>
-                                    </div>
-                                    <a href="#" onclick="showDetail(event)"
-                                        class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                        <i class="ph-bold ph-arrow-right text-lg"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                            data-category="umroh-hemat" data-aos="fade-up" data-aos-delay="200">
-                            <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                                <img src="/assets/img/marketplace/produk1.jpg"
-                                    class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                                    alt="Umroh Hemat">
-                                <div class="absolute top-3 right-3 z-10 flex gap-2">
-
-                                    <button onclick="addToCompare(this)"
-                                        class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn"
-                                        title="Bandingkan">
-                                        <i
-                                            class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                                    </button>
-
-                                    <button
-                                        class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                        <i class="ph-fill ph-heart text-lg"></i>
-                                    </button>
-
-                                </div>
-                            </div>
-
-                            <div class="p-5 flex flex-col flex-grow">
-                                <div class="min-h-[3.5rem]">
-                                    <h3
-                                        class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                        Paket Umroh Awal Ramadhan 2025 Hemat
-                                    </h3>
-                                </div>
-
-                                <div class="flex-grow space-y-3 mb-6">
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Makkah: Al Ansar ⭐4</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Madinah: Concorde ⭐4
-                                        </p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600 truncate">Lion Air</p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i
-                                            class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                        <p class="text-sm font-semibold text-slate-600">05 Mar 2025</p>
-                                    </div>
-                                    <div class="pt-2">
-                                        <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                            <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                            <span class="text-[#ff782e] font-black">12 / 45</span>
-                                        </div>
-
-                                        <div
-                                            class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                                style="width: 70%">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                                    <div>
-                                        <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai
-                                            Dari</p>
-                                        <p class="text-xl font-black text-slate-900">Rp 24.5 <span
-                                                class="text-sm">Jt</span></p>
-                                    </div>
-                                    <a href="#" onclick="showDetail(event)"
-                                        class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                        <i class="ph-bold ph-arrow-right text-lg"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        @empty
+                            <div class="col-span-full text-center py-12">Belum ada paket produk dari API.</div>
+                        @endforelse
 
                     </div>
 
-                    <div class="mt-12 flex justify-center gap-2">
-                        <button
-                            class="w-10 h-10 rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 hover:border-slate-900 hover:text-slate-900 transition"><i
-                                class="ph-bold ph-caret-left"></i></button>
-                        <button
-                            class="w-10 h-10 rounded-lg bg-orange-600 text-white font-bold flex items-center justify-center shadow-lg shadow-orange-500/30">1</button>
-                        <button
-                            class="w-10 h-10 rounded-lg border border-slate-200 text-slate-600 font-bold flex items-center justify-center hover:bg-slate-50 transition">2</button>
-                        <button
-                            class="w-10 h-10 rounded-lg border border-slate-200 text-slate-600 font-bold flex items-center justify-center hover:bg-slate-50 transition">3</button>
-                        <button
-                            class="w-10 h-10 rounded-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:border-slate-900 hover:text-slate-900 transition"><i
-                                class="ph-bold ph-caret-right"></i></button>
+                    {{-- PAGINATION CONTAINER --}}
+                    <div class="mt-14 flex justify-center gap-2" id="pagination-container">
+                        {{-- Diisi Otomatis oleh JS --}}
                     </div>
 
                 </div>
@@ -1128,281 +272,251 @@
         </div>
     </main>
 
+    {{-- TOMBOL MOBILE FILTER --}}
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-xs px-4 lg:hidden z-40">
-        <button onclick="toggleMobileFilter()"
-            class="w-full bg-slate-900/90 backdrop-blur-md text-white py-3.5 rounded-full font-bold shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition border border-white/20">
+        <button onclick="toggleMobileFilter()" class="w-full bg-slate-900/90 backdrop-blur-md text-white py-3.5 rounded-full font-bold shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition border border-white/20">
             <i class="ph-bold ph-sliders-horizontal text-lg"></i>
             <span>Filter & Urutkan</span>
         </button>
     </div>
 
+    {{-- MODAL MOBILE FILTER --}}
     <div id="mobile-filter" class="fixed inset-0 z-[60] hidden">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleMobileFilter()"></div>
-        <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl p-6 h-[85vh] overflow-y-auto transform transition-transform duration-300 translate-y-full flex flex-col"
-            id="mobile-filter-content">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="toggleMobileFilter()"></div>
+        <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl p-6 h-[85vh] overflow-y-auto transform transition-transform duration-300 translate-y-full flex flex-col shadow-2xl" id="mobile-filter-content">
             <div class="flex justify-between items-center mb-6 flex-shrink-0">
                 <h3 class="text-xl font-bold text-slate-900">Filter Produk</h3>
-                <button onclick="toggleMobileFilter()"
-                    class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition">
+                <button onclick="toggleMobileFilter()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors active:scale-90">
                     <i class="ph-bold ph-x"></i>
                 </button>
             </div>
 
             <div class="space-y-8 pb-24 overflow-y-auto flex-grow">
                 <div>
-                    <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Urutkan</h4>
-                    <div class="flex flex-wrap gap-2">
-                        <button
-                            class="px-4 py-2 rounded-full bg-orange-50 border border-orange-500 text-orange-700 text-xs font-bold transition">Paling
-                            Sesuai</button>
-                        <button
-                            class="px-4 py-2 rounded-full border border-slate-200 text-slate-600 text-xs font-bold hover:border-orange-500 hover:text-orange-600 transition">Termurah</button>
-                        <button
-                            class="px-4 py-2 rounded-full border border-slate-200 text-slate-600 text-xs font-bold hover:border-orange-500 hover:text-orange-600 transition">Termahal</button>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Kategori</h4>
-                    <div class="space-y-3">
-                        <label
-                            class="checkbox-wrapper flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50 transition">
-                            <input type="checkbox" class="hidden" checked>
-                            <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center"><svg
-                                    class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                    <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                </svg></div>
-                            <span class="text-sm font-medium text-slate-700">Umroh Reguler</span>
-                        </label>
-                        <label
-                            class="checkbox-wrapper flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50 transition">
-                            <input type="checkbox" class="hidden">
-                            <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center"><svg
-                                    class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                    <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                </svg></div>
-                            <span class="text-sm font-medium text-slate-700">Umroh Plus Wisata</span>
-                        </label>
-                        <label
-                            class="checkbox-wrapper flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50 transition">
-                            <input type="checkbox" class="hidden">
-                            <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center"><svg
-                                    class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                    <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                </svg></div>
-                            <span class="text-sm font-medium text-slate-700">Haji Khusus</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Budget</h4>
-                    <div class="space-y-3">
-                        <label
-                            class="checkbox-wrapper flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50 transition">
-                            <input type="checkbox" class="hidden">
-                            <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center"><svg
-                                    class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                    <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                </svg></div>
-                            <span class="text-sm font-medium text-slate-700">
-                                < 28 Juta</span>
-                        </label>
-                        <label
-                            class="checkbox-wrapper flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50 transition">
-                            <input type="checkbox" class="hidden">
-                            <div class="w-5 h-5 rounded border-2 border-slate-300 flex items-center justify-center"><svg
-                                    class="hidden w-3 h-3 text-white fill-current" viewBox="0 0 20 20">
-                                    <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-                                </svg></div>
-                            <span class="text-sm font-medium text-slate-700">> 35 Juta</span>
-                        </label>
+                    <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Kategori Paket</h4>
+                    <div class="space-y-1">
+                        @foreach ($daftarKategori as $kategori)
+                            <label class="flex items-center gap-3 p-3 -ml-3 cursor-pointer group rounded-xl hover:bg-slate-50 active:scale-[0.98] transition-all">
+                                <div class="relative flex items-center justify-center">
+                                    <input type="checkbox" class="peer hidden filter-category-mobile" value="{{ $kategori['id'] }}">
+                                    <div class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200"></div>
+                                    <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <span class="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">{{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}</span>
+                            </label>
+                        @endforeach
                     </div>
                 </div>
             </div>
 
-            <div class="pt-4 border-t border-slate-100 flex-shrink-0">
-                <button onclick="toggleMobileFilter()"
-                    class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3.5 rounded-xl font-bold shadow-lg transition active:scale-95">
-                    Terapkan Filter
+            <div class="pt-4 border-t border-slate-100 flex-shrink-0 flex gap-3">
+                <button onclick="resetAllFilters(); toggleMobileFilter();" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3.5 rounded-xl font-bold transition-colors active:scale-95">
+                    Reset
+                </button>
+                <button onclick="toggleMobileFilter()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-orange-500/30 transition-all active:scale-95">
+                    Terapkan
                 </button>
             </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
+    {{-- SCRIPTS KHUSUS HALAMAN KATALOG --}}
     <script>
+        const ITEMS_PER_PAGE = 9; 
+        let currentPage = 1;
+        let filteredCardsArray = []; 
 
-        // --- WISHLIST BUTTON LOGIC ---
-        document.querySelectorAll('.wishlist-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault(); // Mencegah klik tembus ke card
-                e.stopPropagation(); // Mencegah event bubbling
+        const searchInput = document.getElementById('search-input');
+        const radios = document.querySelectorAll('.category-radio');
+        const minInput = document.getElementById('price-min');
+        const maxInput = document.getElementById('price-max');
+        const rangeInput = document.getElementById('price-range');
+        const categoryCheckboxes = document.querySelectorAll('.filter-category, .filter-category-mobile');
+        
+        const productCards = document.querySelectorAll('.product-card');
+        const counterElement = document.getElementById('product-counter');
+        const emptyState = document.getElementById('empty-state');
+        const paginationContainer = document.getElementById('pagination-container');
 
-                btn.classList.toggle('is-liked');
+        const priceMap = {
+            'hemat': { min: 0, max: 28000000 },
+            'standar': { min: 28000000, max: 35000000 },
+            'vip': { min: 35000000, max: 999999999 } 
+        };
 
-                // Definisi Toast (Bisa dipakai berulang)
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    timerProgressBar: false,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            radios.forEach(radio => {
+                radio.addEventListener('change', function () {
+                    const prices = priceMap[this.value];
+                    if (prices) {
+                        if(minInput) minInput.value = prices.min;
+                        if(maxInput) maxInput.value = prices.max < 999999999 ? prices.max : '';
+                        if(rangeInput) rangeInput.value = prices.max < 999999999 ? prices.max : rangeInput.max;
+                        applyAllFilters();
                     }
                 });
-
-                if (btn.classList.contains('is-liked')) {
-                    // State: LIKED
-                    btn.classList.remove('text-white', 'bg-white/20', 'backdrop-blur-md');
-                    btn.classList.add('text-red-500', 'bg-white', 'shadow-md', 'scale-110');
-
-                    // Notifikasi Sukses
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Ditambahkan ke Wishlist'
-                    });
-
-                } else {
-                    // State: UNLIKED (Kembali ke default HTML)
-                    btn.classList.remove('text-red-500', 'bg-white', 'shadow-md', 'scale-110');
-                    btn.classList.add('text-white', 'bg-white/20', 'backdrop-blur-md');
-
-                    // Notifikasi Hapus (BAGIAN INI YANG DITAMBAHKAN)
-                    Toast.fire({
-                        icon: 'info', // Menggunakan icon info agar beda dengan sukses
-                        title: 'Dihapus dari Wishlist'
-                    });
-                }
             });
+
+            if(minInput) minInput.addEventListener('input', () => { uncheckRadios(); applyAllFilters(); });
+            if(maxInput) maxInput.addEventListener('input', () => { uncheckRadios(); applyAllFilters(); });
+            if(rangeInput) {
+                rangeInput.addEventListener('input', function () {
+                    if(maxInput) maxInput.value = this.value;
+                    uncheckRadios();
+                    applyAllFilters();
+                });
+            }
+
+            if(searchInput) searchInput.addEventListener('input', applyAllFilters); 
+            categoryCheckboxes.forEach(cb => cb.addEventListener('change', applyAllFilters)); 
+
+            applyAllFilters();
         });
 
-        function addToCompare(button) {
-            // Mencegah event bubbling (agar tidak men-trigger klik gambar jika ada)
-            event.stopPropagation();
+        function uncheckRadios() {
+            radios.forEach(radio => radio.checked = false);
+        }
 
-            // Efek visual pada tombol (Ganti warna jadi aktif)
-            // Cek apakah tombol sudah aktif atau belum
-            const isActive = button.classList.contains('bg-teal-600');
+        window.resetAllFilters = function() {
+            if(searchInput) searchInput.value = '';
+            uncheckRadios();
+            if(minInput) minInput.value = '';
+            if(maxInput) maxInput.value = '';
+            if(rangeInput) rangeInput.value = rangeInput.min;
+            categoryCheckboxes.forEach(cb => cb.checked = false);
+            
+            applyAllFilters();
+        };
 
-            if (!isActive) {
-                // -- LOGIKA MENAMBAHKAN --
+        function applyAllFilters() {
+            let query = searchInput ? searchInput.value.toLowerCase() : '';
+            let min = minInput && minInput.value ? parseInt(minInput.value) : 0;
+            let max = maxInput && maxInput.value ? parseInt(maxInput.value) : Infinity;
+            
+            let checkedCategories = Array.from(categoryCheckboxes)
+                                        .filter(cb => cb.checked)
+                                        .map(cb => cb.value);
 
-                // Ubah style tombol jadi "Aktif"
-                button.classList.remove('bg-white/20', 'text-white');
-                button.classList.add('bg-teal-600', 'text-white', 'border-teal-600');
+            filteredCardsArray = [];
 
-                // Tampilkan Notifikasi SweetAlert (Toast Kecil di Pojok)
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    }
-                });
+            // PENTING: Jangan hide semua card di sini biar layout gak kempis ke footer
+            productCards.forEach(card => {
+                let isMatch = true;
+                let namaPaket = (card.getAttribute('data-nama') || '').toLowerCase();
+                let hargaPaket = parseInt(card.getAttribute('data-harga')) || 0;
+                let kategoriPaket = card.getAttribute('data-category');
 
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Ditambahkan ke perbandingan'
-                });
+                if (query && !namaPaket.includes(query)) isMatch = false;
+                if (hargaPaket < min || hargaPaket > max) isMatch = false;
+                if (checkedCategories.length > 0 && !checkedCategories.includes(kategoriPaket)) isMatch = false;
 
+                if (isMatch) {
+                    filteredCardsArray.push(card);
+                }
+            });
+
+            if(counterElement) counterElement.innerText = filteredCardsArray.length;
+
+            if (emptyState) {
+                emptyState.style.display = filteredCardsArray.length === 0 ? 'block' : 'none';
+            }
+
+            currentPage = 1;
+            renderPagination();
+            displayCurrentPage();
+        }
+
+        function displayCurrentPage() {
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIndex = startIndex + ITEMS_PER_PAGE;
+            const cardsToShow = filteredCardsArray.slice(startIndex, endIndex);
+
+            productCards.forEach(card => {
+                if (cardsToShow.includes(card)) {
+                    card.style.display = 'flex';
+                    // Animasi muncul mulus
+                    card.style.animation = 'none';
+                    card.offsetHeight; 
+                    card.style.animation = null; 
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function renderPagination() {
+            if(!paginationContainer) return;
+            
+            const totalPages = Math.ceil(filteredCardsArray.length / ITEMS_PER_PAGE);
+            paginationContainer.innerHTML = ''; 
+
+            if (totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
             } else {
-                // -- LOGIKA MENGHAPUS (Opsional: Jika diklik lagi) --
+                paginationContainer.style.display = 'flex';
+            }
 
-                // Kembalikan style tombol ke awal
-                button.classList.add('bg-white/20', 'text-white');
-                button.classList.remove('bg-teal-600', 'text-white', 'border-teal-600');
+            const prevBtn = document.createElement('button');
+            prevBtn.className = `w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-200 active:scale-95 ${currentPage === 1 ? 'border-slate-100 text-slate-300 cursor-not-allowed bg-slate-50' : 'border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50 bg-white shadow-sm'}`;
+            prevBtn.innerHTML = '<i class="ph-bold ph-caret-left"></i>';
+            prevBtn.onclick = () => {
+                if(currentPage > 1) {
+                    currentPage--;
+                    updateView();
+                }
+            };
+            paginationContainer.appendChild(prevBtn);
 
-                // Tampilkan Notifikasi Hapus
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
+            for(let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                if (i === currentPage) {
+                    pageBtn.className = "w-10 h-10 rounded-xl bg-orange-600 text-white font-bold flex items-center justify-center shadow-[0_8px_20px_rgba(234,88,12,0.3)] transition-all duration-200";
+                } else {
+                    pageBtn.className = "w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-600 font-bold flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm active:scale-95";
+                }
+                pageBtn.innerText = i;
+                pageBtn.onclick = () => {
+                    currentPage = i;
+                    updateView();
+                };
+                paginationContainer.appendChild(pageBtn);
+            }
 
-                Toast.fire({
-                    icon: 'info',
-                    title: 'Dihapus dari perbandingan'
-                });
+            const nextBtn = document.createElement('button');
+            nextBtn.className = `w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-200 active:scale-95 ${currentPage === totalPages ? 'border-slate-100 text-slate-300 cursor-not-allowed bg-slate-50' : 'border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50 bg-white shadow-sm'}`;
+            nextBtn.innerHTML = '<i class="ph-bold ph-caret-right"></i>';
+            nextBtn.onclick = () => {
+                if(currentPage < totalPages) {
+                    currentPage++;
+                    updateView();
+                }
+            };
+            paginationContainer.appendChild(nextBtn);
+        }
+
+        function updateView() {
+            displayCurrentPage();
+            renderPagination();
+            const productSection = document.getElementById('produk');
+            if (productSection) {
+                const offset = productSection.offsetTop - 100;
+                window.scrollTo({ top: offset, behavior: 'smooth' });
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            // 1. Ambil elemen-elemen yang dibutuhkan
-            const radios = document.querySelectorAll('.category-radio');
-            const minInput = document.getElementById('price-min');
-            const maxInput = document.getElementById('price-max');
-            const rangeInput = document.getElementById('price-range');
-
-            // 2. Definisi Harga untuk setiap kategori
-            const priceMap = {
-                'hemat': { min: '', max: 28000000 },
-                'standar': { min: 28000000, max: 35000000 },
-                'vip': { min: 35000000, max: '' } // Kosong artinya tidak ada batas atas
-            };
-
-            // 3. Fungsi saat Radio Button dipilih
-            radios.forEach(radio => {
-                radio.addEventListener('change', function () {
-                    const selectedCategory = this.value;
-                    const prices = priceMap[selectedCategory];
-
-                    if (prices) {
-                        // Update input text Min & Max
-                        minInput.value = prices.min;
-                        maxInput.value = prices.max;
-
-                        // Update range slider (opsional: set ke nilai max kategori tersebut)
-                        if (prices.max) {
-                            rangeInput.value = prices.max;
-                        } else {
-                            rangeInput.value = rangeInput.max; // Mentok kanan untuk VIP
-                        }
-                    }
-                });
-            });
-
-            // 4. Fitur UX: Reset Radio jika user ketik manual
-            // Jika user mengubah angka di input Min/Max, berarti mereka tidak pakai kategori preset lagi
-            function resetRadios() {
-                radios.forEach(radio => radio.checked = false);
-            }
-
-            minInput.addEventListener('input', resetRadios);
-            maxInput.addEventListener('input', resetRadios);
-            rangeInput.addEventListener('input', function () {
-                // Sinkronkan slider dengan input Max (opsional)
-                maxInput.value = this.value;
-                resetRadios();
-            });
-        });
-    </script>
-
-    <script>
-        AOS.init({ duration: 800, once: true });
-
-        // Toggle Mobile Filter
-        function toggleMobileFilter() {
+        window.toggleMobileFilter = function() {
             const modal = document.getElementById('mobile-filter');
             const content = document.getElementById('mobile-filter-content');
 
             if (modal.classList.contains('hidden')) {
-                // Open
                 modal.classList.remove('hidden');
-                setTimeout(() => {
-                    content.classList.remove('translate-y-full');
-                }, 10);
+                setTimeout(() => content.classList.remove('translate-y-full'), 10);
                 document.body.style.overflow = 'hidden';
             } else {
-                // Close
                 content.classList.add('translate-y-full');
                 setTimeout(() => {
                     modal.classList.add('hidden');
@@ -1410,65 +524,5 @@
                 }, 300);
             }
         }
-
-        function showDetail(event) {
-            event.preventDefault();
-            Swal.fire({
-                icon: 'info',
-                title: 'Halaman Detail',
-                text: 'Fitur ini akan mengarah ke halaman detail produk.',
-                confirmButtonColor: '#ea580c'
-            });
-        }
-
-        // --- NEW SCRIPTS FOR NAVBAR ---
-
-        // 1. Toggle Mobile Menu
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        }
-
-        // 2. Simulasi Auth (Login/Logout)
-        // Fungsi ini hanya untuk demo, agar Anda bisa melihat tampilan Guest vs User
-        function toggleAuth(isLoggedIn) {
-            // Desktop Elements
-            const desktopGuest = document.getElementById('desktop-guest');
-            const desktopUser = document.getElementById('desktop-user');
-
-            // Mobile Elements
-            const mobileGuest = document.getElementById('mobile-guest-actions');
-            const mobileUser = document.getElementById('mobile-user-actions');
-            const mobileProfile = document.getElementById('mobile-profile-section');
-            const mobileUserIcon = document.getElementById('mobile-user-icon');
-
-            if (isLoggedIn) {
-                // Tampilkan User, Sembunyikan Guest
-                desktopGuest.classList.add('hidden');
-                desktopUser.classList.remove('hidden');
-
-                mobileGuest.classList.add('hidden');
-                mobileUser.classList.remove('hidden');
-                mobileProfile.classList.remove('hidden');
-                mobileProfile.classList.add('flex'); // Ensure flex
-                mobileUserIcon.classList.remove('hidden');
-            } else {
-                // Tampilkan Guest, Sembunyikan User
-                desktopGuest.classList.remove('hidden');
-                desktopUser.classList.add('hidden');
-
-                mobileGuest.classList.remove('hidden');
-                mobileUser.classList.add('hidden');
-                mobileProfile.classList.add('hidden');
-                mobileProfile.classList.remove('flex');
-                mobileUserIcon.classList.add('hidden');
-            }
-        }
-
-        // Initialize (Default: Belum Login)
-        toggleAuth(false);
     </script>
-
-</body>
-
-</html>
+</x-layouts.products>
