@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
   <img src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E" alt="JavaScript">
-  <img src="https://img.shields.io/badge/Status-Katalog_Produk_Selesai-success?style=for-the-badge" alt="Progress">
+  <img src="https://img.shields.io/badge/Status-Filtering_Produk_Selesai-success?style=for-the-badge" alt="Progress">
 </p>
 
 ## 📖 Tentang Project
