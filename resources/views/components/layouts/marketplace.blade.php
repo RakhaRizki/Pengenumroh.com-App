@@ -161,71 +161,155 @@
 
     <!-- JS SCRIPT -->
 
-    <script>
+<script>
         document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
+</script>
 
 <script>
-    // --- FLATPICKR ---
-    const datePicker = flatpickr("#input-date", {
-        locale: "id",
-        altInput: true,
-        altFormat: "F Y",
-        dateFormat: "Y-m", 
-        minDate: "today",
-        disableMobile: "true",
-        theme: "airbnb",
-        onChange: function(selectedDates, dateStr, instance) {
-            instance.input.classList.add('text-orange-600');
-            setTimeout(() => instance.input.classList.remove('text-orange-600'), 300);
+    let datePicker;
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- FLATPICKR ---
+        if (typeof flatpickr !== 'undefined') {
+            datePicker = flatpickr("#input-date", {
+                locale: "id",
+                altInput: true,
+                altFormat: "j F Y",
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                disableMobile: "true",
+                theme: "airbnb",
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (instance.altInput) {
+                        instance.altInput.classList.add('text-orange-600');
+                        setTimeout(() => instance.altInput.classList.remove('text-orange-600'),
+                            300);
+                    }
+                }
+            });
+        }
+
+        const inputMonth = document.getElementById('input-month');
+        const dateWrapper = document.getElementById('date-wrapper');
+        const monthWrapper = document.getElementById('month-wrapper');
+        const btnClearDate = document.getElementById('btn-clear-date');
+
+        if (inputMonth) {
+            inputMonth.addEventListener('change', function() {
+                if (this.value === 'specific') {
+                    monthWrapper.classList.add('hidden');
+                    dateWrapper.classList.remove('hidden');
+                    dateWrapper.classList.add('flex');
+                    if (datePicker) setTimeout(() => datePicker.open(), 50);
+                }
+            });
+        }
+
+        if (btnClearDate) {
+            btnClearDate.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (datePicker) datePicker.clear();
+
+                dateWrapper.classList.add('hidden');
+                dateWrapper.classList.remove('flex');
+
+                monthWrapper.classList.remove('hidden');
+                inputMonth.value = "";
+            });
         }
     });
 
-    // --- LOGIKA FILTER KATEGORI (ATAS & BAWAH) ---
+    // --- FUNGSI SCROLL OTOMATIS KE PRODUK ---
+    function scrollToProduk() {
+        const produkSection = document.getElementById('produk');
+        if (produkSection) {
+            // Hitung jarak elemen dari atas, dikurangi 100px agar tidak tertutup Navbar
+            const yOffset = produkSection.getBoundingClientRect().top + window.pageYOffset - 100;
+            window.scrollTo({
+                top: yOffset,
+                behavior: 'smooth'
+            });
+        }
+    }
+
+    // --- LOGIKA FILTER KATEGORI ---
     let kategoriAktif = 'all';
 
     function filterKategori(idKategori) {
         kategoriAktif = idKategori;
 
-        // [BARU] RESET FORM SEARCH SETIAP KALI TOMBOL KATEGORI DIKLIK
-        document.getElementById('input-departure').value = "";
-        document.getElementById('input-budget').value = "all";
-        if (typeof datePicker !== 'undefined' && datePicker) {
-            datePicker.clear(); // Bersihin tanggal di Flatpickr
-        } else {
-            document.getElementById('input-date').value = "";
+        let namaKategori = 'Semua Paket';
+        if (idKategori !== 'all') {
+            const btn = document.getElementById('btn-kategori-' + idKategori);
+            if (btn) {
+                namaKategori = btn.innerText.trim();
+            }
         }
 
-        // 1. KEMBALIKAN SEMUA TOMBOL KE WARNA DEFAULT
+        const inputMonth = document.getElementById('input-month');
+        const monthWrapper = document.getElementById('month-wrapper');
+        const dateWrapper = document.getElementById('date-wrapper');
+
+        document.getElementById('input-departure').value = "";
+        document.getElementById('input-budget').value = "all";
+
+        if (datePicker) datePicker.clear();
+        if (dateWrapper) {
+            dateWrapper.classList.add('hidden');
+            dateWrapper.classList.remove('flex');
+        }
+        if (monthWrapper) monthWrapper.classList.remove('hidden');
+        if (inputMonth) inputMonth.value = "";
+
         document.querySelectorAll('.kategori-btn').forEach(btn => {
-            btn.className = "kategori-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap";
-        });
-        
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.className = "filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent";
+            btn.className =
+                "kategori-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap";
         });
 
-        // 2. WARNAIN OREN KHUSUS TOMBOL YANG DIKLIK
-        let tombolDipilih = document.querySelectorAll(`[onclick="filterKategori('${idKategori}')"], [data-filter="${idKategori}"]`);
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.className =
+                "filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent";
+        });
+
+        let tombolDipilih = document.querySelectorAll(
+            `[onclick="filterKategori('${idKategori}')"], [data-filter="${idKategori}"]`);
         tombolDipilih.forEach(btn => {
             if (btn.classList.contains('kategori-btn')) {
-                btn.className = "kategori-btn active px-4 py-2 rounded-full text-xs md:text-sm font-bold text-white bg-orange-600 shadow-md transition-all duration-300 whitespace-nowrap hover:bg-orange-700";
+                btn.className =
+                    "kategori-btn active px-4 py-2 rounded-full text-xs md:text-sm font-bold text-white bg-orange-600 shadow-md transition-all duration-300 whitespace-nowrap hover:bg-orange-700";
             } else {
-                btn.className = "filter-btn active px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 whitespace-nowrap border bg-orange-600 text-white border-transparent shadow-md hover:bg-orange-700";
+                btn.className =
+                    "filter-btn active px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 whitespace-nowrap border bg-orange-600 text-white border-transparent shadow-md hover:bg-orange-700";
             }
         });
 
-        // Langsung filter tanpa popup loading
-        jalankanPencarian(false); 
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Kategori: ' + namaKategori,
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                iconColor: '#ea580c',
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+        }
+
+        // Panggil pencarian, tapi JANGAN kasih parameter `true` (Jangan munculin popup, jangan scroll)
+        jalankanPencarian(false);
     }
 
-    // --- SEARCH HANDLER (TOMBOL CARI) ---
+    // --- SEARCH HANDLER (TOMBOL CARI DI FORM HERO) ---
     function handleSearch(event) {
-        event.preventDefault(); 
-        
+        event.preventDefault();
+
         const btnSearch = document.getElementById('btn-search');
         const originalContent = btnSearch.innerHTML;
-        
+
         btnSearch.innerHTML = '<i class="ph-bold ph-spinner animate-spin text-xl"></i>';
         btnSearch.disabled = true;
         btnSearch.classList.add('opacity-75', 'cursor-not-allowed');
@@ -235,45 +319,46 @@
             btnSearch.disabled = false;
             btnSearch.classList.remove('opacity-75', 'cursor-not-allowed');
 
-            jalankanPencarian(true); 
-        }, 800); 
+            // Panggil pencarian DENGAN param `true` (Akan munculin Alert & Scroll)
+            jalankanPencarian(true);
+            
+            // Langsung panggil fungsi scroll ke bawah setelah klik "Cari Paket Sekarang"
+            scrollToProduk();
+        }, 800);
     }
 
-    // --- MESIN UTAMA PENCARIAN ---
-    function jalankanPencarian(tampilkanPopup = false) {
+    // --- MESIN PENCARIAN ---
+    function jalankanPencarian(isFromSearchButton = false) {
         let kotaBerangkat = document.getElementById('input-departure').value.toLowerCase();
-        let tglBerangkat = document.getElementById('input-date').value; 
         let budget = document.getElementById('input-budget').value;
 
+        let inputMonthEl = document.getElementById('input-month');
+        let inputDateEl = document.getElementById('input-date');
+        let monthVal = inputMonthEl ? inputMonthEl.value : '';
+        let dateVal = inputDateEl ? inputDateEl.value : '';
+        let tglBerangkat = (monthVal === 'specific') ? dateVal : monthVal;
+
         let daftarCard = document.querySelectorAll('.product-card');
-        let jumlahDitemukan = 0; 
+        let jumlahDitemukan = 0;
 
         daftarCard.forEach(card => {
             let tampilkan = true;
 
-            // [BARU] Pake OR (|| '') buat nahan error kalau data API kosong
             let cardKategori = card.getAttribute('data-category') || '';
             let cardKota = (card.getAttribute('data-kota') || '').toLowerCase();
-            let cardTanggal = card.getAttribute('data-tanggal') || ''; 
+            let cardTanggal = card.getAttribute('data-tanggal') || '';
             let cardHarga = parseInt(card.getAttribute('data-harga')) || 0;
 
-            // A. Filter Kategori 
             if (kategoriAktif !== 'all' && cardKategori !== String(kategoriAktif)) tampilkan = false;
-            
-            // B. Filter Kota 
             if (kotaBerangkat !== '' && !cardKota.includes(kotaBerangkat)) tampilkan = false;
-            
-            // C. Filter Tanggal
             if (tglBerangkat !== '' && !cardTanggal.startsWith(tglBerangkat)) tampilkan = false;
 
-            // D. Filter Budget
             if (budget !== 'all') {
                 if (budget === 'hemat' && cardHarga >= 28000000) tampilkan = false;
                 if (budget === 'reguler' && (cardHarga < 28000000 || cardHarga > 35000000)) tampilkan = false;
                 if (budget === 'vip' && cardHarga <= 35000000) tampilkan = false;
             }
 
-            // Eksekusi
             if (tampilkan) {
                 card.style.display = 'flex';
                 jumlahDitemukan++;
@@ -282,22 +367,24 @@
             }
         });
 
-        // Popup Alert
-        if (tampilkanPopup) {
+        // Hanya munculkan SweetAlert jika dipanggil dari Tombol "Cari" di Form
+        if (isFromSearchButton) {
             Swal.fire({
                 icon: jumlahDitemukan > 0 ? 'success' : 'warning',
                 title: jumlahDitemukan > 0 ? 'Pencarian Selesai!' : 'Oops!',
-                text: jumlahDitemukan > 0 ? `Ditemukan ${jumlahDitemukan} paket yang sesuai kriteria.` : 'Maaf, tidak ada paket yang sesuai dengan filter Anda.',
-                confirmButtonText: 'Tutup',
+                text: jumlahDitemukan > 0 ? `Ditemukan ${jumlahDitemukan} paket yang sesuai kriteria.` :
+                    'Maaf, tidak ada paket yang sesuai dengan filter Anda.',
+                confirmButtonText: 'Lihat Paket',
                 confirmButtonColor: '#ea580c'
             }).then(() => {
-                document.getElementById('produk').scrollIntoView({ behavior: 'smooth' });
+                // Scroll ditegaskan lagi setelah nutup alert
+                scrollToProduk();
             });
         }
     }
 </script>
 
-    <script>
+<script>
         // Initialize AOS
         AOS.init({
             duration: 800,
@@ -575,7 +662,7 @@
                 });
             }
         }
-    </script>
+</script>
 
 </body>
 
