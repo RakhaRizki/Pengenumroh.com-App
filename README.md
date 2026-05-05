@@ -35,12 +35,6 @@ Saat ini, pengembangan telah mencapai tahap penyelesaian **Halaman Katalog Produ
 - [x] **Mobile-Friendly Modal Filter:** Sistem filter khusus layar ponsel yang tersembunyi dengan mulus (*bottom sheet modal*) untuk menjaga *layout* tetap luas di layar kecil.
 - [x] **Interactive UI Components:** Integrasi **SweetAlert2** untuk notifikasi interaktif (Wishlist, Compare) dan **Flatpickr** untuk kalender pintar.
 
-### ⏳ Target Selanjutnya (Upcoming Features):
-- [ ] **Halaman Detail Produk:** Menampilkan *itinerary* lengkap per hari, rincian fasilitas hotel, dan syarat & ketentuan paket.
-- [ ] **Sistem Komparasi (Bandingkan):** Fitur untuk membandingkan 2-3 paket secara berdampingan (*side-by-side*).
-- [ ] **User Authentication:** Login & Register Jamaah.
-- [ ] **Checkout & Payment Gateway:** Alur pemesanan dan pembayaran.
-
 ---
 
 ## 🛠️ Tech Stack & Tools
