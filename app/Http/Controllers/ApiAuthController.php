@@ -21,43 +21,47 @@ class ApiAuthController extends Controller
             'password' => $request->password,
         ];
 
-        // Tembak API dan paksa minta JSON
         $response = Http::acceptJson()
             ->post('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/login', $paketLogin);
 
-        // --- LOGIKA SETELAH NEMBAK API ---
-
-        if ($response->successful() && $response->json() === null) {
-            return back()->with('error', 'Sistem Backend belum merespon JSON. Hubungi Developer Back-End.');
-        }
-
         if ($response->successful()) {
             
-            // ========================================================
-            // PERUBAHAN DI SINI: Kita panggil 'user', BUKAN 'data'
-            // ========================================================
-            $dataUser = $response->json('user') ?? [
-                'fullname' => $usernameOtomatis,
-                'username' => $usernameOtomatis,
-                'email'    => $request->email,
-                'id_level' => 3, 
-            ];
+            // 1. Ambil body JSON secara utuh dulu biar gampang debug
+            $resBody = $response->json();
 
-            // SIMPAN KE SESSION!
-            session(['user' => $dataUser]);
+            // TAMBAHKAN BARIS INI UNTUK DEBUG
+            // dd($resBody);
+            
+            // 2. Ambil data user dari key 'user' sesuai struktur API lu
+            $dataUser = $resBody['user'] ?? null;
 
-            // --- LOGIKA REDIRECT BERDASARKAN ID LEVEL ---
-            // Jika yang login adalah Travel (id_level = 4)
-            if (isset($dataUser['id_level']) && $dataUser['id_level'] == 4) {
-                // Lempar ke Dashboard khusus Mitra Travel
-                return redirect('/marketplace/travel')->with('success', 'Selamat datang Mitra Travel!');
+            // 3. AMBIL TOKEN (Sangat Penting!)
+            // Pastikan key-nya 'token' atau 'access_token' sesuai respon API lu
+            $token = $resBody['token'] ?? $resBody['access_token'] ?? null;
+
+            if (!$token) {
+                return back()->with('error', 'Token tidak ditemukan dari API. Hubungi Backend.');
             }
 
-            // Jika yang login adalah Jamaah (id_level = 3 atau default)
-            return redirect('/marketplace')->with('success', 'Berhasil masuk!');
+            // 4. SIMPAN KE SESSION
+            // Gunakan key 'api_token' agar dibaca oleh UserDashboardController
+            session([
+                'user' => $dataUser,
+                'api_token' => $token 
+            ]);
+
+            // 5. LOGIKA REDIRECT (Gunakan Route Name agar lebih aman)
+            
+            // Jika Travel (id_level = 4)
+            if (isset($dataUser['id_level']) && $dataUser['id_level'] == 4) {
+                return redirect()->route('marketplace.travel.profil')->with('success', 'Selamat datang Mitra Travel!');
+            }
+
+            // Jika Jamaah (id_level = 3)
+            // PERBAIKAN: Arahkan ke route index profil yang sudah kita buat
+            return redirect()->route('marketplace.profil.index')->with('success', 'Berhasil masuk!');
         }
 
-        // Skenario 3: Login gagal
         $pesanError = $response->json('message') ?? 'Gagal masuk. Periksa kembali email dan kata sandi Anda.';
         return back()->with('error', $pesanError);
     }
@@ -65,7 +69,7 @@ class ApiAuthController extends Controller
     // =======================================================
     // 2. PROSES REGISTER
     // =======================================================
-   public function prosesRegister(Request $request)
+    public function prosesRegister(Request $request)
     {
         $usernameOtomatis = explode('@', $request->email)[0];
 
@@ -75,8 +79,6 @@ class ApiAuthController extends Controller
             'email'     => $request->email,
             'password'  => $request->password,
             'no_wa'     => $request->no_hp,
-            
-            // Langsung ambil angkanya dari request, nggak perlu ucfirst
             'id_level'  => $request->role, 
             'is_active' => 'Y',
             'app'       => 'N', 
@@ -88,7 +90,9 @@ class ApiAuthController extends Controller
             return redirect()->route('login')->with('success', 'Akun berhasil dibuat! Silakan masuk.');
         } 
         
-        return back()->with('error', 'Gagal mendaftar. Pastikan data benar.');
+        // UPDATE: Tampilkan pesan error asli dari API kalau ada (misal: "Email sudah terdaftar")
+        $pesanError = $response->json('message') ?? 'Gagal mendaftar. Pastikan data benar.';
+        return back()->with('error', $pesanError);
     }
 
     // =======================================================
@@ -96,8 +100,16 @@ class ApiAuthController extends Controller
     // =======================================================
     public function logout(Request $request)
     {
-        // Hapus session 'user' supaya Navbar balik ke mode "Masuk / Daftar"
+        $token = session('api_token');
+
+        // UPDATE: Beritahu backend untuk mematikan token ini (Best Practice Keamanan)
+        if ($token) {
+            Http::withToken($token)->post('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/logout');
+        }
+
+        // Hapus SEMUA session terkait akun
         $request->session()->forget('user');
+        $request->session()->forget('api_token');
         $request->session()->flush();
 
         // Tendang balik ke halaman login

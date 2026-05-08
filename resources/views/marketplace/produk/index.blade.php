@@ -4,11 +4,50 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-end gap-4 md:gap-6">
                 <div class="w-full md:w-auto">
-                    <h1 class="text-2xl md:text-4xl font-extrabold text-slate-900 mb-2">Temukan Paket Impian</h1>
-                    <p class="text-slate-500 text-xs md:text-base">Menampilkan
-                        <span id="product-counter" class="font-bold text-orange-600">{{ count($daftarProduk) }}</span>
-                        paket perjalanan ibadah tersedia.
-                    </p>
+
+                    {{-- LOGIKA JUDUL DINAMIS MITRA & KATEGORI --}}
+                    @if (!empty($namaMitra))
+                        <h1 class="text-2xl md:text-4xl font-extrabold text-slate-900 mb-2">
+                            Paket dari <span class="text-orange-600">{{ ucwords($namaMitra) }}</span>
+                        </h1>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <p class="text-slate-500 text-xs md:text-base">Menampilkan
+                                <span id="product-counter"
+                                    class="font-bold text-orange-600">{{ count($daftarProduk) }}</span> paket
+                                perjalanan.
+                            </p>
+                            <span class="w-1.5 h-1.5 bg-slate-300 rounded-full hidden sm:block"></span>
+                            <a href="{{ route('marketplace.produk.index') }}"
+                                class="text-xs md:text-sm font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all">
+                                <i class="ph-bold ph-x-circle"></i> Lihat Semua Travel
+                            </a>
+                        </div>
+                    @elseif (!empty($kategoriFilter))
+                        {{-- TAMPILAN JIKA FILTER KATEGORI (HAJI) AKTIF --}}
+                        <h1 class="text-2xl md:text-4xl font-extrabold text-slate-900 mb-2">
+                            Kategori <span
+                                class="text-orange-600">{{ ucwords(str_replace('-', ' ', $kategoriFilter)) }}</span>
+                        </h1>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <p class="text-slate-500 text-xs md:text-base">Menampilkan
+                                <span id="product-counter"
+                                    class="font-bold text-orange-600">{{ count($daftarProduk) }}</span> paket tersedia.
+                            </p>
+                            <span class="w-1.5 h-1.5 bg-slate-300 rounded-full hidden sm:block"></span>
+                            <a href="{{ route('marketplace.produk.index') }}"
+                                class="text-xs md:text-sm font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all">
+                                <i class="ph-bold ph-x-circle"></i> Hapus Filter
+                            </a>
+                        </div>
+                    @else
+                        <h1 class="text-2xl md:text-4xl font-extrabold text-slate-900 mb-2">Temukan Paket Impian</h1>
+                        <p class="text-slate-500 text-xs md:text-base">Menampilkan
+                            <span id="product-counter"
+                                class="font-bold text-orange-600">{{ count($daftarProduk) }}</span> paket perjalanan
+                            ibadah tersedia.
+                        </p>
+                    @endif
+
                 </div>
 
                 {{-- DROPDOWN SORTING --}}
@@ -193,30 +232,32 @@
                     <div class="pt-6 border-t border-slate-100">
                         <h3 class="font-bold text-slate-900 mb-3 text-xs uppercase tracking-wider">Jenis Paket</h3>
                         <div class="space-y-1">
-                            @foreach ($daftarKategori as $kategori)
-                                <label
-                                    class="flex items-center gap-3 p-2 -ml-2 cursor-pointer group rounded-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-200">
-                                    <div class="relative flex items-center justify-center">
-                                        <input type="checkbox" class="peer hidden filter-category"
-                                            value="{{ $kategori['id'] }}">
-                                        {{-- Kotak Luar Checkbox --}}
-                                        <div
-                                            class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200 group-hover:border-orange-400">
-                                        </div>
-                                        {{-- Logo Centang (SVG) --}}
-                                        <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none"
-                                            viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <span
-                                        class="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">
-                                        {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
-                                    </span>
-                                </label>
-                            @endforeach
+@foreach ($daftarKategori as $kategori)
+        <label class="flex items-center gap-3 p-2 -ml-2 cursor-pointer group rounded-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-200">
+            <div class="relative flex items-center justify-center">
+                
+                {{-- PERBAIKAN DI SINI: Ditambahin (string) dan ?? '' biar stripos gak crash --}}
+                <input type="checkbox" class="peer hidden filter-category"
+                    value="{{ $kategori['id'] }}"
+                    @if (!empty($kategoriFilter) && stripos((string)($kategori['name'] ?? $kategori['nama_kategori'] ?? ''), $kategoriFilter) !== false) checked @endif>
+                
+                {{-- Kotak Luar Checkbox --}}
+                <div class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200 group-hover:border-orange-400">
+                </div>
+                
+                {{-- Logo Centang (SVG) --}}
+                <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none"
+                    viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+            </div>
+            <span class="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">
+                {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
+            </span>
+        </label>
+    @endforeach
                         </div>
                     </div>
                 </aside>
@@ -239,7 +280,7 @@
                             Filter</button>
                     </div>
 
-                    {{-- GRID PRODUK (Dikasih min-h biar gak loncat ke footer) --}}
+                    {{-- GRID PRODUK --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 min-h-[600px] content-start"
                         id="product-container">
                         @forelse($daftarProduk as $produk)
@@ -248,6 +289,7 @@
                             @endphp
 
                             <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col h-full hover:-translate-y-1"
+                                data-id="{{ $produk['id'] }}" {{-- KUNCI UTAMANYA ADA DI SINI BRO --}}
                                 data-category="{{ $produk['category_id'] }}"
                                 data-kota="{{ strtolower($produk['tmp_keberangkatan'] ?? '') }}"
                                 data-tanggal="{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->format('Y-m-d') }}"
@@ -360,7 +402,7 @@
                                                 @endif
                                             </p>
                                         </div>
-                                        <a href="/marketplace/produk/{{ $produk['id'] }}"
+                                        <a href="{{ route('marketplace.produk.detail', $produk['id']) }}"
                                             class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-md hover:shadow-orange-500/30">
                                             <i class="ph-bold ph-arrow-right text-lg"></i>
                                         </a>
@@ -370,7 +412,6 @@
                         @empty
                             <div class="col-span-full text-center py-12">Belum ada paket produk dari API.</div>
                         @endforelse
-
                     </div>
 
                     {{-- PAGINATION CONTAINER --}}
@@ -424,26 +465,32 @@
                 <div>
                     <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Kategori Paket</h4>
                     <div class="space-y-1">
-                        @foreach ($daftarKategori as $kategori)
-                            <label
-                                class="flex items-center gap-3 p-3 -ml-3 cursor-pointer group rounded-xl hover:bg-slate-50 active:scale-[0.98] transition-all">
-                                <div class="relative flex items-center justify-center">
-                                    <input type="checkbox" class="peer hidden filter-category-mobile"
-                                        value="{{ $kategori['id'] }}">
-                                    <div
-                                        class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200">
-                                    </div>
-                                    <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <span
-                                    class="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors">{{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}</span>
-                            </label>
-                        @endforeach
+                       @foreach ($daftarKategori as $kategori)
+        <label class="flex items-center gap-3 p-2 -ml-2 cursor-pointer group rounded-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-200">
+            <div class="relative flex items-center justify-center">
+                
+                {{-- PERBAIKAN DI SINI: Ditambahin (string) dan ?? '' biar stripos gak crash --}}
+                <input type="checkbox" class="peer hidden filter-category"
+                    value="{{ $kategori['id'] }}"
+                    @if (!empty($kategoriFilter) && stripos((string)($kategori['name'] ?? $kategori['nama_kategori'] ?? ''), $kategoriFilter) !== false) checked @endif>
+                
+                {{-- Kotak Luar Checkbox --}}
+                <div class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200 group-hover:border-orange-400">
+                </div>
+                
+                {{-- Logo Centang (SVG) --}}
+                <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none"
+                    viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clip-rule="evenodd" />
+                </svg>
+            </div>
+            <span class="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">
+                {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
+            </span>
+        </label>
+    @endforeach
                     </div>
                 </div>
             </div>
@@ -612,6 +659,14 @@
         }
 
         window.resetAllFilters = function() {
+            // CEK URL: Kalau ada parameter dari backend, bersihkan URL-nya dengan reload
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('mitra') || urlParams.has('kategori')) {
+                window.location.href = window.location.pathname;
+                return; // Stop JS disini karena halaman akan memuat ulang
+            }
+
+            // Kalau gak ada URL parameter, jalankan reset JS biasa
             if (searchInput) searchInput.value = '';
             uncheckRadios();
             if (minInput) minInput.value = '';
@@ -621,7 +676,7 @@
             if (sortSelect) sortSelect.value = 'default';
             if (sortSelectMobile) sortSelectMobile.value = 'default';
 
-            // Reset Tanggal ke Semua Waktu
+            // Reset Tanggal
             if (datePicker) datePicker.clear();
             if (dateWrapper) {
                 dateWrapper.classList.add('hidden');
@@ -804,6 +859,101 @@
                     modal.classList.add('hidden');
                     document.body.style.overflow = 'auto';
                 }, 300);
+            }
+        }
+
+        // --- FUNGSI PERBANDINGAN (COMPARE) DI HALAMAN KATALOG ---
+        const MAX_COMPARE = 2;
+
+        function getCompareList() {
+            let compareList = localStorage.getItem('compareList');
+            return compareList ? JSON.parse(compareList) : [];
+        }
+
+        function goToComparePage() {
+            let currentList = getCompareList();
+            if (currentList.length === 0) return;
+            window.location.href = `/marketplace/bandingkan?ids=${currentList.join(',')}`;
+        }
+
+        function addToCompare(button) {
+            if (window.event) window.event.stopPropagation();
+
+            const card = button.closest('.product-card');
+            if (!card) return;
+
+            const idProduk = card.getAttribute('data-id');
+            if (!idProduk) {
+                console.error("data-id tidak ditemukan di HTML product-card!");
+                return;
+            }
+
+            let currentList = getCompareList();
+
+            if (currentList.includes(idProduk)) {
+                // Hapus dari array
+                currentList = currentList.filter(id => id !== idProduk);
+                localStorage.setItem('compareList', JSON.stringify(currentList));
+
+                // Kembalikan style tombol ke tidak aktif
+                button.classList.add('bg-white/20', 'text-white');
+                button.classList.remove('bg-teal-500', 'border-teal-500');
+
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Dihapus dari perbandingan',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+                return;
+            }
+
+            if (currentList.length >= MAX_COMPARE) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Batas Maksimal!',
+                    text: 'Anda hanya bisa membandingkan maksimal 2 paket sekaligus.',
+                    confirmButtonColor: '#ea580c',
+                    confirmButtonText: 'Lihat Perbandingan',
+                    showCancelButton: true,
+                    cancelButtonText: 'Tutup'
+                }).then((result) => {
+                    if (result.isConfirmed) goToComparePage();
+                });
+                return;
+            }
+
+            // Tambah ke array
+            currentList.push(idProduk);
+            localStorage.setItem('compareList', JSON.stringify(currentList));
+
+            // Ubah style tombol jadi aktif (Teal)
+            button.classList.remove('bg-white/20');
+            button.classList.add('bg-teal-500', 'border-teal-500');
+
+            if (currentList.length === MAX_COMPARE) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Siap Dibandingkan!',
+                    text: '2 Paket sudah dipilih. Ingin melihat perbandingannya sekarang?',
+                    confirmButtonColor: '#14b8a6',
+                    confirmButtonText: 'Ya, Bandingkan',
+                    showCancelButton: true,
+                    cancelButtonText: 'Pilih Lagi'
+                }).then((result) => {
+                    if (result.isConfirmed) goToComparePage();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Ditambahkan ke perbandingan',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
             }
         }
     </script>

@@ -225,103 +225,105 @@
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="product-grid">
-               @forelse($daftarProduk as $produk)
-                    @php
-                        $hargaAsli = $produk['prices'][0]['harga'] ?? ($produk['prices'][0]['price'] ?? 0);
-                    @endphp
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="product-grid">
+    @forelse($daftarProduk as $produk)
+        @php
+            $hargaAsli = $produk['prices'][0]['harga'] ?? ($produk['prices'][0]['price'] ?? 0);
+        @endphp
 
-                    <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full hover:-translate-y-1"
-                        data-category="{{ $produk['category_id'] }}" 
-                        data-kota="{{ strtolower($produk['tmp_keberangkatan'] ?? '') }}"
-                        data-tanggal="{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->format('Y-m-d') }}"
-                        data-harga="{{ $hargaAsli }}"
-                        data-aos="fade-up">
+        <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full hover:-translate-y-1"
+            data-id="{{ $produk['id'] }}"  {{-- INI YANG PALING PENTING DITAMBAHIN --}}
+            data-category="{{ $produk['category_id'] }}" 
+            data-kota="{{ strtolower($produk['tmp_keberangkatan'] ?? '') }}"
+            data-tanggal="{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->format('Y-m-d') }}"
+            data-harga="{{ $hargaAsli }}"
+            data-aos="fade-up">
 
-                        <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                           <img src="https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/{{ rawurlencode($produk['thumbnail_url']) }}"
-                                class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                                alt="{{ $produk['nama_produk'] }}"
-                                onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';">
+            <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
+               <img src="https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/{{ rawurlencode($produk['thumbnail_url']) }}"
+                   class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                   alt="{{ $produk['nama_produk'] }}"
+                   onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';">
 
-                            <div class="absolute top-3 right-3 z-10 flex gap-2">
-                                <button onclick="addToCompare(this)" class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn" title="Bandingkan">
-                                    <i class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                                </button>
-                                <button class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                                    <i class="ph-fill ph-heart text-lg"></i>
-                                </button>
-                            </div>
+                <div class="absolute top-3 right-3 z-10 flex gap-2">
+                    <button onclick="addToCompare(this)" class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn" title="Bandingkan">
+                        <i class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
+                    </button>
+                    <button class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
+                        <i class="ph-fill ph-heart text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-5 flex flex-col flex-grow">
+                <div class="min-h-[3.5rem]">
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
+                        {{ $produk['nama_produk'] }}
+                    </h3>
+                </div>
+                
+                <div class="flex-grow space-y-3 mb-6">
+                    @if(!empty($produk['hotels'][0]))
+                    <div class="flex items-center gap-3">
+                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
+                        <p class="text-sm font-semibold text-slate-600 truncate">
+                            {{ $produk['hotels'][0]['city'] ?? 'Kota' }}: {{ $produk['hotels'][0]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][0]['rating'] ?? '5' }}
+                        </p>
+                    </div>
+                    @endif
+                    
+                    @if(!empty($produk['hotels'][1]))
+                    <div class="flex items-center gap-3">
+                        <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
+                        <p class="text-sm font-semibold text-slate-600 truncate">
+                            {{ $produk['hotels'][1]['city'] ?? 'Kota' }}: {{ $produk['hotels'][1]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][1]['rating'] ?? '5' }}
+                        </p>
+                    </div>
+                    @endif
+
+                    <div class="flex items-center gap-3">
+                        <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
+                        <p class="text-sm font-semibold text-slate-600 truncate">{{ $produk['flights'][0]['airline_name'] ?? 'Maskapai' }}</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
+                        <p class="text-sm font-semibold text-slate-600">{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->translatedFormat('d M Y') }}</p>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <div class="flex justify-between text-[11px] mb-1.5 font-bold">
+                            <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
+                            <span class="text-[#ff782e] font-black">{{ $produk['quota'] }} Seat</span>
                         </div>
-
-                        <div class="p-5 flex flex-col flex-grow">
-                            <div class="min-h-[3.5rem]">
-                                <h3 class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                    {{ $produk['nama_produk'] }}
-                                </h3>
-                            </div>
-                            
-                            <div class="flex-grow space-y-3 mb-6">
-                                @if(!empty($produk['hotels'][0]))
-                                <div class="flex items-center gap-3">
-                                    <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                    <p class="text-sm font-semibold text-slate-600 truncate">
-                                        {{ $produk['hotels'][0]['city'] ?? 'Kota' }}: {{ $produk['hotels'][0]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][0]['rating'] ?? '5' }}
-                                    </p>
-                                </div>
-                                @endif
-                                
-                                @if(!empty($produk['hotels'][1]))
-                                <div class="flex items-center gap-3">
-                                    <i class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                    <p class="text-sm font-semibold text-slate-600 truncate">
-                                        {{ $produk['hotels'][1]['city'] ?? 'Kota' }}: {{ $produk['hotels'][1]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][1]['rating'] ?? '5' }}
-                                    </p>
-                                </div>
-                                @endif
-
-                                <div class="flex items-center gap-3">
-                                    <i class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                    <p class="text-sm font-semibold text-slate-600 truncate">{{ $produk['flights'][0]['airline_name'] ?? 'Maskapai' }}</p>
-                                </div>
-                                
-                                <div class="flex items-center gap-3">
-                                    <i class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                    <p class="text-sm font-semibold text-slate-600">{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->translatedFormat('d M Y') }}</p>
-                                </div>
-                                
-                                <div class="pt-2">
-                                    <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                        <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                        <span class="text-[#ff782e] font-black">{{ $produk['quota'] }} Seat</span>
-                                    </div>
-                                    <div class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                        <div class="progress-orange-animated h-full rounded-full transition-all duration-700" style="width: {{ rand(30, 90) }}%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                                <div>
-                                    <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
-                                    <p class="text-xl font-black text-slate-900">
-                                        @if($hargaAsli > 0)
-                                            Rp {{ number_format($hargaAsli / 1000000, 1, ',', '.') }} <span class="text-sm">Jt</span>
-                                        @else
-                                            <span class="text-sm">Hubungi Kami</span>
-                                        @endif
-                                    </p>
-                                </div>
-                                <a href="/marketplace/produk/{{ $produk['id'] }}" onclick="showDetail(event)" class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                    <i class="ph-bold ph-arrow-right text-lg"></i>
-                                </a>
-                            </div>
+                        <div class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
+                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700" style="width: {{ rand(30, 90) }}%"></div>
                         </div>
                     </div>
-                @empty
-                    <div class="col-span-full text-center py-12">Belum ada paket produk dari API.</div>
-                @endforelse
+                </div>
+                
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai Dari</p>
+                        <p class="text-xl font-black text-slate-900">
+                            @if($hargaAsli > 0)
+                                Rp {{ number_format($hargaAsli / 1000000, 1, ',', '.') }} <span class="text-sm">Jt</span>
+                            @else
+                                <span class="text-sm">Hubungi Kami</span>
+                            @endif
+                        </p>
+                    </div>
+                    {{-- Hapus onclick="showDetail(event)" biar beneran redirect ke halaman detail --}}
+                    <a href="{{ route('marketplace.produk.detail', $produk['id']) }}" class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
+                        <i class="ph-bold ph-arrow-right text-lg"></i>
+                    </a>
+                </div>
             </div>
+        </div>
+    @empty
+        <div class="col-span-full text-center py-12">Belum ada paket produk dari API.</div>
+    @endforelse
+</div>
             
             <div class="mt-12 text-center">
                 <a href="{{ route('marketplace.produk.index') }}" class="inline-flex items-center justify-center gap-2 text-sm font-semibold text-slate-500 hover:text-orange-600 transition group px-6 py-3 rounded-full hover:bg-orange-50">
@@ -358,8 +360,9 @@
                 </p>
             </div>
             <div id="mitra-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-                <!-- Mitra Item -->
-                <a href="{{ route('marketplace.produk.travel.haramainku-travel') }}" class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="100">
+                
+                <!-- Mitra Item 1: Haramain -->
+                <a href="{{ route('marketplace.produk.index', ['mitra' => 'Haramain']) }}" class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="100">
                     <div class="h-28 flex items-center justify-center mb-6 p-4 bg-slate-50 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
                         <img src="/assets/img/marketplace/travel/haramainku.png" alt="Logo" class="max-h-12 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500 opacity-70 group-hover:opacity-100">
                     </div>
@@ -376,8 +379,9 @@
                         <div class="text-slate-500 font-medium"><span class="text-slate-900 font-bold">5k+</span> Jamaah</div>
                     </div>
                 </a>
-                <!-- Mitra Item -->
-                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="200">
+
+                <!-- Mitra Item 2: Elmarwa -->
+                <a href="{{ route('marketplace.produk.index', ['mitra' => 'Elmarwa']) }}" class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="200">
                     <div class="h-28 flex items-center justify-center mb-6 p-4 bg-slate-50 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
                         <img src="/assets/img/marketplace/travel/elmarwa.png" alt="Logo" class="max-h-12 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500 opacity-70 group-hover:opacity-100">
                     </div>
@@ -390,9 +394,10 @@
                         <div class="flex items-center gap-1.5"><i class="ph-fill ph-star text-yellow-400 text-lg"></i><span class="font-bold text-slate-700">4.8</span></div>
                         <div class="text-slate-500 font-medium"><span class="text-slate-900 font-bold">2.5k+</span> Jamaah</div>
                     </div>
-                </div>
-                <!-- Mitra Item -->
-                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="300">
+                </a>
+
+                <!-- Mitra Item 3: Namira -->
+                <a href="{{ route('marketplace.produk.index', ['mitra' => 'Namira']) }}" class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="300">
                     <div class="h-28 flex items-center justify-center mb-6 p-4 bg-slate-50 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
                         <img src="/assets/img/marketplace/travel/namira.png" alt="Logo" class="max-h-12 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500 opacity-70 group-hover:opacity-100">
                     </div>
@@ -405,9 +410,10 @@
                         <div class="flex items-center gap-1.5"><i class="ph-fill ph-star text-yellow-400 text-lg"></i><span class="font-bold text-slate-700">4.7</span></div>
                         <div class="text-slate-500 font-medium"><span class="text-slate-900 font-bold">8k+</span> Jamaah</div>
                     </div>
-                </div>
-                <!-- Mitra Item -->
-                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="400">
+                </a>
+
+                <!-- Mitra Item 4: Uhud -->
+                <a href="{{ route('marketplace.produk.index', ['mitra' => 'Uhud']) }}" class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="400">
                     <div class="h-28 flex items-center justify-center mb-6 p-4 bg-slate-50 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
                         <img src="/assets/img/marketplace/travel/uhud-tour.png" alt="Logo" class="max-h-10 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500 opacity-70 group-hover:opacity-100">
                     </div>
@@ -420,9 +426,10 @@
                         <div class="flex items-center gap-1.5"><i class="ph-fill ph-star text-yellow-400 text-lg"></i><span class="font-bold text-slate-700">5.0</span></div>
                         <div class="text-slate-500 font-medium"><span class="text-slate-900 font-bold">1k+</span> Jamaah</div>
                     </div>
-                </div>
-                <!-- Mitra Item -->
-                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="400">
+                </a>
+
+                <!-- Mitra Item 5: Arsy -->
+                <a href="{{ route('marketplace.produk.index', ['mitra' => 'Arsy']) }}" class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="400">
                     <div class="h-28 flex items-center justify-center mb-6 p-4 bg-slate-50 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
                         <img src="/assets/img/marketplace/travel/arsy.png" alt="Logo" class="max-h-10 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500 opacity-70 group-hover:opacity-100">
                     </div>
@@ -435,9 +442,10 @@
                         <div class="flex items-center gap-1.5"><i class="ph-fill ph-star text-yellow-400 text-lg"></i><span class="font-bold text-slate-700">5.0</span></div>
                         <div class="text-slate-500 font-medium"><span class="text-slate-900 font-bold">1k+</span> Jamaah</div>
                     </div>
-                </div>
-                <!-- Mitra Item -->
-                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="400">
+                </a>
+
+                <!-- Mitra Item 6: Mutiara Sunnah -->
+                <a href="{{ route('marketplace.produk.index', ['mitra' => 'Mutiara Sunnah']) }}" class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer relative flex flex-col h-full" data-aos="fade-up" data-aos-delay="400">
                     <div class="h-28 flex items-center justify-center mb-6 p-4 bg-slate-50 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
                         <img src="/assets/img/marketplace/travel/mutiara-sunnah.png" alt="Logo" class="max-h-10 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500 opacity-70 group-hover:opacity-100">
                     </div>
@@ -450,7 +458,8 @@
                         <div class="flex items-center gap-1.5"><i class="ph-fill ph-star text-yellow-400 text-lg"></i><span class="font-bold text-slate-700">5.0</span></div>
                         <div class="text-slate-500 font-medium"><span class="text-slate-900 font-bold">1k+</span> Jamaah</div>
                     </div>
-                </div>
+                </a>
+
             </div>
         </div>
     </section>

@@ -608,60 +608,110 @@
         //     }
         // });
 
-        function addToCompare(button) {
-            // Mencegah event bubbling (agar tidak men-trigger klik gambar jika ada)
-            event.stopPropagation();
+       // Konstanta batas maksimal perbandingan (Ditaruh di luar biar terbaca global)
+const MAX_COMPARE = 2;
 
-            // Efek visual pada tombol (Ganti warna jadi aktif)
-            // Cek apakah tombol sudah aktif atau belum
-            const isActive = button.classList.contains('bg-teal-600');
+// Fungsi ngambil array ID dari LocalStorage
+function getCompareList() {
+    let compareList = localStorage.getItem('compareList');
+    return compareList ? JSON.parse(compareList) : [];
+}
 
-            if (!isActive) {
-                // -- LOGIKA MENAMBAHKAN --
+// Fungsi Redirect ke halaman bandingkan
+function goToComparePage() {
+    let currentList = getCompareList();
+    if (currentList.length === 0) return;
+    // Bawa ID di URL, contoh: /marketplace/bandingkan?ids=104,105
+    window.location.href = `/marketplace/bandingkan?ids=${currentList.join(',')}`;
+}
 
-                // Ubah style tombol jadi "Aktif"
-                button.classList.remove('bg-white/20', 'text-white');
-                button.classList.add('bg-teal-600', 'text-white', 'border-teal-600');
+// Fungsi Utama Tombol Perbandingan
+function addToCompare(button) {
+    // Mencegah event bubbling (Biar klik tombol gak ngetrigger klik card)
+    if (window.event) window.event.stopPropagation();
 
-                // Tampilkan Notifikasi SweetAlert (Toast Kecil di Pojok)
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    }
-                });
+    // Cari elemen card terdekat dan ambil data-id
+    const card = button.closest('.product-card');
+    if (!card) return;
+    
+    const idProduk = card.getAttribute('data-id');
+    if (!idProduk) {
+        console.error("Wah, data-id nya belum dipasang di HTML product-card bro!");
+        return;
+    }
 
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Ditambahkan ke perbandingan'
-                });
+    let currentList = getCompareList();
 
-            } else {
-                // -- LOGIKA MENGHAPUS (Opsional: Jika diklik lagi) --
+    // LOGIKA 1: JIKA PRODUK SUDAH ADA, MAKA HAPUS (TOGGLE OFF)
+    if (currentList.includes(idProduk)) {
+        // Buang ID dari array
+        currentList = currentList.filter(id => id !== idProduk);
+        localStorage.setItem('compareList', JSON.stringify(currentList));
 
-                // Kembalikan style tombol ke awal
-                button.classList.add('bg-white/20', 'text-white');
-                button.classList.remove('bg-teal-600', 'text-white', 'border-teal-600');
+        // Kembalikan style tombol ke awal (Tidak aktif)
+        button.classList.add('bg-white/20', 'text-white');
+        button.classList.remove('bg-teal-600', 'border-teal-600');
 
-                // Tampilkan Notifikasi Hapus
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
+        Swal.fire({
+            icon: 'info',
+            title: 'Dihapus dari perbandingan',
+            toast: true, position: 'top-end', showConfirmButton: false, timer: 2000
+        });
+        return;
+    }
 
-                Toast.fire({
-                    icon: 'info',
-                    title: 'Dihapus dari perbandingan'
-                });
+    // LOGIKA 2: CEK LIMIT MAKSIMAL 2 PRODUK
+    if (currentList.length >= MAX_COMPARE) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Batas Maksimal!',
+            text: 'Anda hanya bisa membandingkan maksimal 2 paket sekaligus.',
+            confirmButtonColor: '#ea580c',
+            confirmButtonText: 'Lihat Perbandingan',
+            showCancelButton: true,
+            cancelButtonText: 'Tutup'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                goToComparePage();
             }
-        }
+        });
+        return;
+    }
+
+    // LOGIKA 3: TAMBAHKAN KE PERBANDINGAN
+    currentList.push(idProduk);
+    localStorage.setItem('compareList', JSON.stringify(currentList));
+
+    // Ubah style tombol jadi "Aktif"
+    button.classList.remove('bg-white/20');
+    button.classList.add('bg-teal-600', 'border-teal-600');
+
+    // LOGIKA 4: CEK APAKAH SUDAH PAS 2 PRODUK?
+    if (currentList.length === MAX_COMPARE) {
+        // Kalau sudah 2 produk, tawarkan untuk langsung ke halaman Compare
+        Swal.fire({
+            icon: 'success',
+            title: 'Siap Dibandingkan!',
+            text: '2 Paket sudah dipilih. Ingin melihat perbandingannya sekarang?',
+            confirmButtonColor: '#0d9488', // Warna teal-600
+            confirmButtonText: 'Ya, Bandingkan',
+            showCancelButton: true,
+            cancelButtonText: 'Pilih Lagi'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                goToComparePage();
+            }
+        });
+    } else {
+        // Kalau baru 1 produk, kasih notif toast biasa
+        Swal.fire({
+            icon: 'success',
+            title: 'Ditambahkan ke perbandingan',
+            toast: true, position: 'top-end', showConfirmButton: false, timer: 2000
+        });
+    }
+}
+
 </script>
 
 </body>

@@ -16,11 +16,11 @@
                         Beranda
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                     </a>
-                    <a href="{{ route('marketplace.beranda') }}#produk" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
+                    <a href="{{ request()->routeIs('marketplace.beranda') ? '#produk' : route('marketplace.beranda') . '#produk' }}" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                         Produk
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                     </a>
-                    <a href="{{ route('marketplace.beranda') }}#mitra" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
+                    <a href="{{ request()->routeIs('marketplace.beranda') ? '#mitra' : route('marketplace.beranda') . '#mitra' }}" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                         Mitra
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                     </a>
@@ -28,7 +28,7 @@
                         Perbandingan
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                     </a>
-                    <a href="{{ route('marketplace.produk.haji-khusus') }}" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
+                    <a href="{{ route('marketplace.produk.index', ['kategori' => 'haji']) }}" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                         Haji Khusus
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                     </a>
@@ -154,10 +154,10 @@
 
                 <!-- Mobile Menu Links -->
                 <a href="/marketplace/" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Beranda</a>
-                <a href="#produk" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Produk</a>
-                <a href="#mitra" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Mitra</a>
+                <a href="{{ request()->routeIs('marketplace.beranda') ? '#produk' : route('marketplace.beranda') . '#produk' }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Produk</a>
+                <a href="{{ request()->routeIs('marketplace.beranda') ? '#mitra' : route('marketplace.beranda') . '#mitra' }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Mitra</a>
                 <a href="{{ route('marketplace.bandingkan') }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Perbandingan</a>
-                <a href="{{ route('marketplace.produk.haji-khusus') }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Haji Khusus</a>
+                <a href="{{ route('marketplace.produk.index', ['kategori' => 'haji']) }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Haji Khusus</a>
                 <a href="{{ route('company.beranda') }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Tentang Kami</a>
 
                 <div class="border-t border-slate-100 my-2"></div>

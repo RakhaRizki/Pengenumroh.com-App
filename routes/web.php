@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApiAuthController;
 use App\Http\Controllers\MarketplaceController;
+use App\Http\Controllers\TravelDashboardController;
+use App\Http\Controllers\UserDashboardController;
 use Illuminate\Support\Facades\Route;
 
 // ==========================================================
@@ -54,139 +56,43 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     // GRUP RUTE PRODUK
     // ----------------------------------------------------
 
-    // 1. Halaman SEMUA Produk / Katalog (TIDAK PAKE SLUG)
-    // URL: domain.com/marketplace/paket
-    // Route::get('/produk', function () {
-    //     return view('marketplace.produk.index'); 
-    // })->name('produk.index');
-
     Route::get('/produk', [MarketplaceController::class, 'produk'])->name('produk.index');
 
-    // KATEGORI
-
-     // Kategori Umroh 9 Hari
-    Route::get('/produk/umroh-9-hari', function () {
-        return view('marketplace.produk.umroh-9-hari'); 
-    })->name('produk.umroh-9-hari');
-
-     // Kategori Umroh 12 Hari
-    Route::get('/produk/umroh-12-hari', function () {
-        return view('marketplace.produk.umroh-12-hari'); 
-    })->name('produk.umroh-12-hari');
-
-     // Kategori Umroh Plus Wisata
-    Route::get('/produk/umroh-plus-wisata', function () {
-        return view('marketplace.produk.umroh-plus-wisata'); 
-    })->name('produk.umroh-plus-wisata');
-
-     // Kategori Umroh Ramadhan
-    Route::get('/produk/umroh-ramadhan', function () {
-        return view('marketplace.produk.umroh-ramadhan'); 
-    })->name('produk.umroh-ramadhan');
-
-   // Kategori Haji Khusus
-    Route::get('/produk/haji-khusus', function () {
-        return view('marketplace.produk.haji-khusus'); 
-    })->name('produk.haji-khusus');
-
-   // Kategori Haramainku Travel
-    Route::get('/produk/travel/haramainku-travel', function () {
-        return view('marketplace.produk.travel.haramainku-travel'); 
-    })->name('produk.travel.haramainku-travel');
-
     // DETAIL PAKET
+    Route::get('/produk/{id}', [MarketplaceController::class, 'detail'])->name('produk.detail');
 
-    // {{ route('marketplace.produk.haji-khusus-program-26-hari') }}
-
-    // Detail Paket 1
-    Route::get('/produk/umroh-9-hari/easy-22-juni-2026', function () {
-        return view('marketplace.produk.easy-22-juni-2026'); // Nama file blade
-    })->name('produk.easy-22-juni-2026');
-
-    // Detail Paket 2
-    Route::get('/produk/umroh-15-hari/libur-lebaran-23-maret-2026', function () {
-        return view('marketplace.produk.libur-lebaran-23-maret-2026'); // Nama file blade
-    })->name('produk.libur-lebaran-23-maret-2026');
-
-    // Detail Paket 3
-    Route::get('/produk/haji-khusus/haji-khusus-program-26-hari', function () {
-        return view('marketplace.produk.haji-khusus-program-26-hari'); // Nama file blade
-    })->name('produk.haji-khusus-program-26-hari');
-
-    // ==========================================================
+   // ==========================================================
     // SUB-GRUP: AREA DASHBOARD MITRA TRAVEL
     // ==========================================================
+    // Nanti di sini lu bisa tambahin middleware khusus, misal: ->middleware(['auth', 'role:mitra'])
     Route::prefix('travel')->name('travel.')->group(function () {
         
-        // Nama Route: marketplace.travel.profil
-        Route::get('/', function () {
-            return view('marketplace.travel.index'); 
-        })->name('profil');
-
-        // URL: domain.com/marketplace/travel/pesanan-masuk
-        Route::get('/pesanan-masuk', function () {
-            return view('marketplace.travel.pesanan-masuk'); 
-        })->name('pesanan-masuk');
-
-        // URL: domain.com/marketplace/travel/upload-produk
-        Route::get('/upload-produk', function () {
-            return view('marketplace.travel.upload-produk'); 
-        })->name('upload-produk');
-
-        // URL: domain.com/marketplace/travel/produk/tambah
-        Route::get('/kelola-produk', function () {
-            return view('marketplace.travel.kelola-produk'); 
-        })->name('kelola-produk');
-
-        Route::get('/kelola-produk/edit', function () {
-            return view('marketplace.travel.edit-produk'); 
-        })->name('produk.edit');
-
+        Route::get('/', [TravelDashboardController::class, 'index'])->name('profil');
+        Route::get('/pesanan-masuk', [TravelDashboardController::class, 'pesananMasuk'])->name('pesanan-masuk');
+        Route::get('/kelola-produk', [TravelDashboardController::class, 'kelolaProduk'])->name('kelola-produk');
+        Route::get('/upload-produk', [TravelDashboardController::class, 'uploadProduk'])->name('upload-produk');
+        Route::get('/kelola-produk/edit/{id}', [TravelDashboardController::class, 'editProduk'])->name('produk.edit');
     });
 
-    // ==========================================================
-    // SUB-GRUP: AREA HALAMAN PROFIL MEMBER
+  // ==========================================================
+    // SUB-GRUP: AREA HALAMAN PROFIL MEMBER (JAMAAH)
     // ==========================================================
     Route::prefix('profil')->name('profil.')->group(function () {
-
-        // URL: domain.com/marketplace/profil
-        // Nama Route: marketplace.profil.index
-        Route::get('/', function () {
-            return view('marketplace.profil.index'); 
-        })->name('index');
-
-        // URL: domain.com/marketplace/profil/pesanan
-        Route::get('/pesanan', function () {
-            return view('marketplace.profil.pesanan'); 
-        })->name('pesanan');
-
-        // URL: domain.com/marketplace/profil/wishlist
-        Route::get('/wishlist', function () {
-            return view('marketplace.profil.wishlist'); 
-        })->name('wishlist');
+        // Halaman Akun / Biodata
+        Route::get('/', [UserDashboardController::class, 'index'])->name('index');
+        // Halaman Daftar Pesanan
+        Route::get('/pesanan', [UserDashboardController::class, 'pesanan'])->name('pesanan');
+        // Halaman Wishlist
+        Route::get('/wishlist', [UserDashboardController::class, 'wishlist'])->name('wishlist');
+        // Update Profile
+        Route::post('/update', [UserDashboardController::class, 'updateProfile'])->name('update');
     });
 
-    // ----------------------------------------------------
-    // GRUP RUTE PERBANDINGAN
-    // ----------------------------------------------------
-
     // Halaman Perbandingan
-    // URL Akhir: domain.com/marketplace/bandingkan
-    // Nama Route: marketplace.bandingkan
-    Route::get('/bandingkan', function () {
-        return view('marketplace.bandingkan'); 
-    })->name('bandingkan');
+    Route::get('/bandingkan', [MarketplaceController::class, 'bandingkan'])->name('bandingkan');
 
 });
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-// });
-
-// require __DIR__.'/auth.php';

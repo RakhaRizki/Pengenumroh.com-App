@@ -16,11 +16,11 @@
                         Beranda
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                     </a>
-                    <a href="#produk" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
+                    <a href="{{ request()->routeIs('marketplace.beranda') ? '#produk' : route('marketplace.beranda') . '#produk' }}" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                         Produk
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                     </a>
-                    <a href="#mitra" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
+                    <a href="{{ request()->routeIs('marketplace.beranda') ? '#mitra' : route('marketplace.beranda') . '#mitra' }}" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                         Mitra
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                     </a>
@@ -28,7 +28,7 @@
                         Perbandingan
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                     </a>
-                    <a href="{{ route('marketplace.produk.haji-khusus') }}" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
+                    <a href="{{ route('marketplace.produk.index', ['kategori' => 'haji']) }}" class="group relative text-sm font-bold text-slate-500 hover:text-orange-600 transition duration-300">
                         Haji Khusus
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-full"></span>
                     </a>
@@ -67,7 +67,7 @@
                                 <div class="py-2">
                                     <!-- LOGIKA MENU DROPDOWN (BEDA ROLE BEDA MENU) -->
                                     @if(session('user.id_level') == 4)
-                                        <a href="/travel/dashboard" class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
+                                        <a href="{{ route('marketplace.travel.profil') }}" class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                             <i class="ph-bold ph-squares-four mr-3 text-lg"></i> Dashboard Travel
                                         </a>
                                     @endif
@@ -154,10 +154,10 @@
 
                 <!-- Mobile Menu Links -->
                 <a href="/marketplace/" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Beranda</a>
-                <a href="#produk" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Produk</a>
-                <a href="#mitra" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Mitra</a>
+                <a href="{{ request()->routeIs('marketplace.beranda') ? '#produk' : route('marketplace.beranda') . '#produk' }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Produk</a>
+                <a href="{{ request()->routeIs('marketplace.beranda') ? '#mitra' : route('marketplace.beranda') . '#mitra' }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Mitra</a>
                 <a href="{{ route('marketplace.bandingkan') }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Perbandingan</a>
-                <a href="{{ route('marketplace.produk.haji-khusus') }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Haji Khusus</a>
+                <a href="{{ route('marketplace.produk.index', ['kategori' => 'haji']) }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Haji Khusus</a>
                 <a href="{{ route('company.beranda') }}" class="block px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">Tentang Kami</a>
 
                 <div class="border-t border-slate-100 my-2"></div>
@@ -167,7 +167,7 @@
                     <div class="space-y-2 pt-2">
                         
                         @if(session('user.id_level') == 4)
-                            <a href="/travel/dashboard" class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
+                            <a href="{{ route('marketplace.travel.profil') }}" class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                                 <i class="ph-bold ph-squares-four mr-3"></i> Dashboard Travel
                             </a>
                         @endif
