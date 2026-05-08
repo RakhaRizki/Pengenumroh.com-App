@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
   <img src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E" alt="JavaScript">
-  <img src="https://img.shields.io/badge/Status-Katalog_Produk_Selesai-success?style=for-the-badge" alt="Progress">
+  <img src="https://img.shields.io/badge/Status-Filtering_Produk_Selesai-success?style=for-the-badge" alt="Progress">
 </p>
 
 ## 📖 Tentang Project
@@ -34,12 +34,6 @@ Saat ini, pengembangan telah mencapai tahap penyelesaian **Halaman Katalog Produ
 - [x] **Custom Pagination:** Navigasi halaman yang membatasi tampilan produk (9 per halaman) agar antarmuka tetap rapi dan ringan.
 - [x] **Mobile-Friendly Modal Filter:** Sistem filter khusus layar ponsel yang tersembunyi dengan mulus (*bottom sheet modal*) untuk menjaga *layout* tetap luas di layar kecil.
 - [x] **Interactive UI Components:** Integrasi **SweetAlert2** untuk notifikasi interaktif (Wishlist, Compare) dan **Flatpickr** untuk kalender pintar.
-
-### ⏳ Target Selanjutnya (Upcoming Features):
-- [ ] **Halaman Detail Produk:** Menampilkan *itinerary* lengkap per hari, rincian fasilitas hotel, dan syarat & ketentuan paket.
-- [ ] **Sistem Komparasi (Bandingkan):** Fitur untuk membandingkan 2-3 paket secara berdampingan (*side-by-side*).
-- [ ] **User Authentication:** Login & Register Jamaah.
-- [ ] **Checkout & Payment Gateway:** Alur pemesanan dan pembayaran.
 
 ---
 
