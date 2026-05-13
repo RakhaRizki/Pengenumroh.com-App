@@ -498,51 +498,100 @@
             });
         });
 
-        // --- WISHLIST BUTTON LOGIC ---
-        document.querySelectorAll('.wishlist-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault(); // Mencegah klik tembus ke card
-                e.stopPropagation(); // Mencegah event bubbling
+        // --- WISHLIST BUTTON LOGIC (VERSI BARU TERINTEGRASI API) ---
+        async function toggleWishlist(button, productId) {
+            // Mencegah klik tembus ke card detail produk
+            if (window.event) {
+                window.event.preventDefault();
+                window.event.stopPropagation();
+            }
 
-                btn.classList.toggle('is-liked');
+            const icon = button.querySelector('i');
+            const originalIconClass = icon.className;
+            
+            // Cek apakah tombol lagi posisi aktif (merah) atau nggak dari class-nya
+            const isWishlisted = button.classList.contains('bg-white'); 
 
-                // Definisi Toast (Bisa dipakai berulang)
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    timerProgressBar: false,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    }
+            // 1. Ubah icon jadi muter (Loading State) biar user tau lagi proses
+            icon.className = 'ph-bold ph-spinner animate-spin text-lg pointer-events-none';
+            button.disabled = true;
+
+            try {
+                // 2. Tembak API Backend Laravel
+                const response = await fetch('{{ route("marketplace.profil.wishlist.toggle") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Wajib biar request gak ditolak Laravel
+                    },
+                    body: JSON.stringify({ product_id: productId })
                 });
 
-                if (btn.classList.contains('is-liked')) {
-                    // State: LIKED
-                    btn.classList.remove('text-white', 'bg-white/20', 'backdrop-blur-md');
-                    btn.classList.add('text-red-500', 'bg-white', 'shadow-md', 'scale-110');
+                const result = await response.json();
 
-                    // Notifikasi Sukses
-                    Toast.fire({
-                        icon: 'success',
-                        title: 'Ditambahkan ke Wishlist'
+                // 3. Handle kalau user belum Login
+                if (response.status === 401 || result.message === 'Unauthenticated') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Harap Login',
+                        text: 'Anda harus masuk ke akun untuk menyimpan paket impian.',
+                        confirmButtonText: 'Login Sekarang',
+                        confirmButtonColor: '#ea580c',
+                        showCancelButton: true,
+                        cancelButtonText: 'Batal'
+                    }).then((res) => {
+                        if (res.isConfirmed) window.location.href = '/login';
                     });
-
-                } else {
-                    // State: UNLIKED (Kembali ke default HTML)
-                    btn.classList.remove('text-red-500', 'bg-white', 'shadow-md', 'scale-110');
-                    btn.classList.add('text-white', 'bg-white/20', 'backdrop-blur-md');
-
-                    // Notifikasi Hapus (BAGIAN INI YANG DITAMBAHKAN)
-                    Toast.fire({
-                        icon: 'info', // Menggunakan icon info agar beda dengan sukses
-                        title: 'Dihapus dari Wishlist'
-                    });
+                    throw new Error('Unauthenticated');
                 }
+
+                if (!response.ok) throw new Error(result.message || 'Gagal menyimpan wishlist');
+
+                // 4. Update Warna Tombol & Notif Sesuai Hasil dari Database
+                if (result.action === 'added' || !isWishlisted) {
+                    // State: LIKED
+                    button.classList.remove('bg-white/20', 'text-white');
+                    button.classList.add('bg-white', 'text-red-500', 'border-red-500');
+                    showToast('success', 'Ditambahkan ke Wishlist');
+                } else {
+                    // State: UNLIKED
+                    button.classList.remove('bg-white', 'text-red-500', 'border-red-500');
+                    button.classList.add('bg-white/20', 'text-white');
+                    showToast('info', 'Dihapus dari Wishlist');
+                }
+
+                // Balikin icon ke bentuk hati standar
+                icon.className = 'ph-fill ph-heart text-lg pointer-events-none transition-transform group-active/wishlist:scale-75';
+
+            } catch (error) {
+                // Kalau error jaringan/server, balikin UI ke semula
+                icon.className = originalIconClass;
+                if (error.message !== 'Unauthenticated') {
+                    showToast('error', 'Terjadi kesalahan sistem.');
+                    console.error('Wishlist Error:', error);
+                }
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        // Definisi Toast (dipisah biar rapi dan bisa dipakai berulang)
+        function showToast(iconType, message) {
+            Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: false,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            }).fire({
+                icon: iconType,
+                title: message
             });
-        });
+        }
 
         // --- LIGHTBOX LOGIC ---
         const lightboxModal = document.getElementById('lightbox-modal');

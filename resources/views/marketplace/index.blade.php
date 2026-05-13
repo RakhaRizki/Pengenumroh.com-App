@@ -249,9 +249,16 @@
                     <button onclick="addToCompare(this)" class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-600 hover:text-white transition border border-white/30 group/btn" title="Bandingkan">
                         <i class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
                     </button>
-                    <button class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition border border-white/30">
-                        <i class="ph-fill ph-heart text-lg"></i>
-                    </button>
+                                        @php
+                                            $isWishlisted = in_array($produk['id'], $wishlistIds ?? []);
+                                        @endphp
+
+                                        <button onclick="toggleWishlist(this, '{{ $produk['id'] }}')"
+                                            class="wishlist-btn w-8 h-8 rounded-full backdrop-blur-md flex items-center justify-center transition-colors border group/wishlist 
+                                            {{ $isWishlisted ? 'bg-white text-red-500 border-red-500' : 'bg-white/20 text-white hover:bg-white hover:text-red-500 border-white/30' }}"
+                                            title="Simpan ke Wishlist">
+                                            <i class="ph-fill ph-heart text-lg pointer-events-none transition-transform group-active/wishlist:scale-75"></i>
+                                        </button>
                 </div>
             </div>
 
@@ -292,14 +299,22 @@
                     </div>
                     
                     <div class="pt-2">
+                        @php
+                            $kuota = intval($produk['quota'] ?? 0);
+                            $maxSeat = ($kuota > 45) ? 100 : 45; 
+                            $persenSeat = $maxSeat > 0 ? round(($kuota / $maxSeat) * 100) : 0;
+                            if ($persenSeat > 100) $persenSeat = 100;
+                        @endphp
+
                         <div class="flex justify-between text-[11px] mb-1.5 font-bold">
                             <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                            <span class="text-[#ff782e] font-black">{{ $produk['quota'] }} Seat</span>
+                            <span class="text-[#ff782e] font-black">{{ $kuota }} Seat</span>
                         </div>
                         <div class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700" style="width: {{ rand(30, 90) }}%"></div>
+                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700" style="width: {{ $persenSeat }}%; min-width: 5%;"></div>
                         </div>
                     </div>
+
                 </div>
                 
                 <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">

@@ -119,7 +119,7 @@
                             <span class="text-sm font-bold text-gray-800 line-clamp-1" title="{{ $kotaBerangkat }}">{{ $kotaBerangkat }}</span>
                         </div>
                         <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
-                            <i class="ph-duotone ph-airplane-right text-2xl text-orange-500 mb-1"></i>
+                            <i class="ph-duotone ph-airplane-tilt text-2xl text-orange-500 mb-1"></i>
                             <span class="text-[10px] text-gray-500">Maskapai</span>
                             <span class="text-sm font-bold text-gray-800 line-clamp-1" title="{{ $maskapai }}">{{ $maskapai }}</span>
                         </div>
@@ -370,9 +370,15 @@
 
                         <div class="hidden md:block">
                             <div class="flex gap-2">
-                                <button onclick="toggleFavorite()" id="btn-fav-desktop" class="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all duration-300 flex items-center justify-center group">
-                                    <i id="icon-fav-desktop" class="ph-bold ph-heart text-2xl transform group-hover:scale-110 transition-transform"></i>
-                                </button>
+                               @php
+    // Deteksi apakah ID produk ini ada di dalam array wishlist user
+    $isWishlisted = in_array($produk['id'], $wishlistIds ?? []);
+@endphp
+<button onclick="toggleWishlistDetail('{{ $produk['id'] }}')" id="btn-fav-desktop" 
+    class="flex-shrink-0 w-14 h-14 rounded-xl border-2 transition-all duration-300 flex items-center justify-center group 
+    {{ $isWishlisted ? 'border-red-200 text-red-500 bg-red-50' : 'border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50' }}">
+    <i id="icon-fav-desktop" class="text-2xl transform group-hover:scale-110 transition-transform {{ $isWishlisted ? 'ph-fill ph-heart' : 'ph-bold ph-heart' }}"></i>
+</button>
                                 <button onclick="toggleCompareDetail()" id="btn-compare-detail" class="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-gray-200 text-gray-400 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 transition-all duration-300 flex items-center justify-center group">
                                     <i id="icon-compare-detail" class="ph-bold ph-arrows-left-right text-2xl transform group-hover:rotate-180 transition-transform duration-500"></i>
                                 </button>
@@ -410,9 +416,11 @@
         <button onclick="toggleCompareDetail()" id="btn-compare-mobile" class="flex-shrink-0 w-11 h-11 rounded-xl border border-gray-200 text-gray-400 active:scale-95 transition-all flex items-center justify-center relative">
             <i id="icon-compare-mobile" class="ph-bold ph-arrows-left-right text-xl"></i>
         </button>
-        <button onclick="toggleFavorite()" id="btn-fav-mobile" class="flex-shrink-0 w-11 h-11 rounded-xl border border-gray-200 text-gray-400 active:scale-95 transition-all flex items-center justify-center">
-            <i id="icon-fav-mobile" class="ph-bold ph-heart text-xl"></i>
-        </button>
+<button onclick="toggleWishlistDetail('{{ $produk['id'] }}')" id="btn-fav-mobile" 
+    class="flex-shrink-0 w-11 h-11 rounded-xl border active:scale-95 transition-all flex items-center justify-center 
+    {{ $isWishlisted ? 'border-red-200 text-red-500 bg-red-50' : 'border-gray-200 text-gray-400' }}">
+    <i id="icon-fav-mobile" class="text-xl {{ $isWishlisted ? 'ph-fill ph-heart' : 'ph-bold ph-heart' }}"></i>
+</button>
         <button onclick="Swal.fire('Segera Hadir!', 'Sedang dalam pengembangan', 'info')" class="flex-shrink-0 bg-orange-500 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-lg shadow-orange-500/20 active:scale-95 transition flex items-center gap-2">
             <i class="ph-bold ph-chat-teardrop-text"></i> Pesan
         </button>
@@ -537,27 +545,109 @@
             });
         }
 
-        function toggleFavorite() {
-            isFavorited = !isFavorited;
-            const dtBtn = document.getElementById('btn-fav-desktop');
-            const mbBtn = document.getElementById('btn-fav-mobile');
-            const dtIcon = document.getElementById('icon-fav-desktop');
-            const mbIcon = document.getElementById('icon-fav-mobile');
+        // --- FUNGSI WISHLIST KHUSUS HALAMAN DETAIL ---
+async function toggleWishlistDetail(productId) {
+    const dtBtn = document.getElementById('btn-fav-desktop');
+    const mbBtn = document.getElementById('btn-fav-mobile');
+    const dtIcon = document.getElementById('icon-fav-desktop');
+    const mbIcon = document.getElementById('icon-fav-mobile');
 
-            if (isFavorited) {
-                if(dtBtn) dtBtn.classList.replace('text-gray-400', 'text-red-500');
-                if(dtIcon) dtIcon.classList.replace('ph-bold', 'ph-fill');
-                if(mbBtn) mbBtn.classList.replace('text-gray-400', 'text-red-500');
-                if(mbIcon) mbIcon.classList.replace('ph-bold', 'ph-fill');
-                showSweetAlertToast('Disimpan ke Wishlist', 'success');
-            } else {
-                if(dtBtn) dtBtn.classList.replace('text-red-500', 'text-gray-400');
-                if(dtIcon) dtIcon.classList.replace('ph-fill', 'ph-bold');
-                if(mbBtn) mbBtn.classList.replace('text-red-500', 'text-gray-400');
-                if(mbIcon) mbIcon.classList.replace('ph-fill', 'ph-bold');
-                showSweetAlertToast('Dihapus dari Wishlist', 'info');
-            }
+    // Cek status saat ini berdasarkan class di tombol desktop
+    const isCurrentlyWishlisted = dtBtn.classList.contains('text-red-500');
+
+    // 1. Loading State UI (Ganti icon jadi spinner)
+    if(dtBtn) dtBtn.disabled = true;
+    if(mbBtn) mbBtn.disabled = true;
+    
+    // Simpan class icon asli
+    const originalDtIconClass = dtIcon.className;
+    const originalMbIconClass = mbIcon.className;
+    
+    if(dtIcon) dtIcon.className = 'ph-bold ph-spinner animate-spin text-2xl text-slate-400';
+    if(mbIcon) mbIcon.className = 'ph-bold ph-spinner animate-spin text-xl text-slate-400';
+
+    try {
+        // 2. Tembak API Laravel
+        const response = await fetch('{{ route("marketplace.profil.wishlist.toggle") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ product_id: productId })
+        });
+
+        const result = await response.json();
+
+        // Handle kalau user belum login
+        if (response.status === 401 || result.message === 'Unauthenticated') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Harap Login',
+                text: 'Anda harus masuk ke akun untuk menyimpan paket impian.',
+                confirmButtonText: 'Login Sekarang',
+                confirmButtonColor: '#ea580c',
+                showCancelButton: true,
+                cancelButtonText: 'Batal'
+            }).then((res) => {
+                if (res.isConfirmed) window.location.href = '/login';
+            });
+            throw new Error('Unauthenticated');
         }
+
+        if (!response.ok) throw new Error(result.message || 'Gagal menyimpan wishlist');
+
+        // 3. Update UI Jika Sukses
+        if (result.action === 'added' || !isCurrentlyWishlisted) {
+            // Aktifin Tombol Desktop
+            if(dtBtn) dtBtn.className = 'flex-shrink-0 w-14 h-14 rounded-xl border-2 transition-all duration-300 flex items-center justify-center group border-red-200 text-red-500 bg-red-50';
+            if(dtIcon) dtIcon.className = 'ph-fill ph-heart text-2xl transform group-hover:scale-110 transition-transform';
+            
+            // Aktifin Tombol Mobile
+            if(mbBtn) mbBtn.className = 'flex-shrink-0 w-11 h-11 rounded-xl border active:scale-95 transition-all flex items-center justify-center border-red-200 text-red-500 bg-red-50';
+            if(mbIcon) mbIcon.className = 'ph-fill ph-heart text-xl';
+
+            showSweetAlertToast('Disimpan ke Wishlist', 'success');
+        } else {
+            // Nonaktifin Tombol Desktop
+            if(dtBtn) dtBtn.className = 'flex-shrink-0 w-14 h-14 rounded-xl border-2 transition-all duration-300 flex items-center justify-center group border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50';
+            if(dtIcon) dtIcon.className = 'ph-bold ph-heart text-2xl transform group-hover:scale-110 transition-transform';
+            
+            // Nonaktifin Tombol Mobile
+            if(mbBtn) mbBtn.className = 'flex-shrink-0 w-11 h-11 rounded-xl border active:scale-95 transition-all flex items-center justify-center border-gray-200 text-gray-400';
+            if(mbIcon) mbIcon.className = 'ph-bold ph-heart text-xl';
+
+            showSweetAlertToast('Dihapus dari Wishlist', 'info');
+        }
+
+    } catch (error) {
+        // Kalau error (selain belum login), balikin icon ke semula
+        if(dtIcon) dtIcon.className = originalDtIconClass;
+        if(mbIcon) mbIcon.className = originalMbIconClass;
+        
+        if (error.message !== 'Unauthenticated') {
+            showSweetAlertToast('Terjadi kesalahan sistem', 'error');
+            console.error(error);
+        }
+    } finally {
+        if(dtBtn) dtBtn.disabled = false;
+        if(mbBtn) mbBtn.disabled = false;
+    }
+}
+
+// Fungsi Toast-nya (Gue biarin nama fungsinya sesuai punya lu)
+function showSweetAlertToast(message, iconType) {
+    Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true
+    }).fire({
+        icon: iconType,
+        title: message
+    });
+}
 
        // ==========================================================
         // LOGIKA PERBANDINGAN (COMPARE) DI HALAMAN DETAIL

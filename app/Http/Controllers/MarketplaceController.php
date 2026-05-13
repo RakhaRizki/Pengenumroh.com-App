@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 class MarketplaceController extends Controller
 {
-   public function index()
+    public function index()
     {
         // 1. Tembak API Produk
         $responseProduk = Http::get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products');
@@ -24,11 +24,28 @@ class MarketplaceController extends Controller
             $daftarKategori = $responseKategori->json('data') ?? []; 
         }
 
-        // Lempar dua-duanya (Produk & Kategori) ke Blade
-        return view('marketplace.index', compact('daftarProduk', 'daftarKategori'));
+        // 👇 TAMBAHAN BARU: NGAMBIL DATA WISHLIST BUAT BERANDA 👇
+        $wishlistIds = [];
+        $token = session('api_token');
+        
+        if ($token) {
+            $responseWishlist = Http::withToken($token)->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
+            if ($responseWishlist->successful()) {
+                $dataApi = $responseWishlist->json('data') ?? $responseWishlist->json() ?? [];
+                foreach ($dataApi as $w) {
+                    $productData = $w['product'] ?? $w; 
+                    if (isset($productData['id'])) {
+                        $wishlistIds[] = $productData['id'];
+                    }
+                }
+            }
+        }
+        // 👆 AKHIR TAMBAHAN WISHLIST 👆
+
+        // Lempar Produk, Kategori, dan wishlistIds ke Blade Beranda
+        return view('marketplace.index', compact('daftarProduk', 'daftarKategori', 'wishlistIds'));
     }
 
-  
     public function produk(Request $request)
     {
         // 1. Tangkap parameter dari URL
@@ -54,12 +71,26 @@ class MarketplaceController extends Controller
             $daftarProduk = array_values($daftarProduk); 
         }
 
-        // --- FILTER KATEGORI DIHAPUS DARI PHP ---
-        // Semua produk kita lempar ke HTML. 
-        // Nanti HTML & Javascript yang bakal nyentang otomatis kotak 'Haji' dan nyembunyiin produk lainnya.
+        // AMBIL DATA WISHLIST BUAT HALAMAN KATALOG 
+        $wishlistIds = [];
+        $token = session('api_token');
+        
+        if ($token) {
+            $responseWishlist = Http::withToken($token)->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
+            
+            if ($responseWishlist->successful()) {
+                $dataApi = $responseWishlist->json('data') ?? $responseWishlist->json() ?? [];
+                foreach ($dataApi as $w) {
+                    $productData = $w['product'] ?? $w; 
+                    if (isset($productData['id'])) {
+                        $wishlistIds[] = $productData['id'];
+                    }
+                }
+            }
+        }
 
-        // 4. Lempar data ke Blade
-        return view('marketplace.produk.index', compact('daftarProduk', 'daftarKategori', 'namaMitra', 'kategoriFilter'));
+        // Lempar data ke Blade 
+        return view('marketplace.produk.index', compact('daftarProduk', 'daftarKategori', 'namaMitra', 'kategoriFilter', 'wishlistIds'));
     }
 
     public function detail($id)
@@ -72,8 +103,26 @@ class MarketplaceController extends Controller
             // Ambil data spesifik dari object 'data'
             $produk = $response->json('data');
 
-            // Return ke view 'marketplace.produk.detail' sambil bawa variabel $produk
-            return view('marketplace.produk.detail', compact('produk'));
+            // 👇 TAMBAHAN BARU: NGAMBIL DATA WISHLIST BUAT HALAMAN DETAIL 👇
+            $wishlistIds = [];
+            $token = session('api_token');
+            
+            if ($token) {
+                $responseWishlist = Http::withToken($token)->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
+                if ($responseWishlist->successful()) {
+                    $dataApi = $responseWishlist->json('data') ?? $responseWishlist->json() ?? [];
+                    foreach ($dataApi as $w) {
+                        $productData = $w['product'] ?? $w; 
+                        if (isset($productData['id'])) {
+                            $wishlistIds[] = $productData['id'];
+                        }
+                    }
+                }
+            }
+            // 👆 AKHIR TAMBAHAN WISHLIST 👆
+
+            // Return ke view 'marketplace.produk.detail' sambil bawa variabel $produk & $wishlistIds
+            return view('marketplace.produk.detail', compact('produk', 'wishlistIds'));
         }
 
         // Jika API gagal atau ID produk gak valid, lempar user ke halaman 404 (Not Found)

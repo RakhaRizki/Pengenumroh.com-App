@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 // ==========================================================
 // AUTHENTICATION
-// ==========================================================
+// ========================================================== 
 
 // A. Halaman UI Login
 Route::get('/login', function () {
@@ -74,7 +74,7 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/kelola-produk/edit/{id}', [TravelDashboardController::class, 'editProduk'])->name('produk.edit');
     });
 
-  // ==========================================================
+ // ==========================================================
     // SUB-GRUP: AREA HALAMAN PROFIL MEMBER (JAMAAH)
     // ==========================================================
     Route::prefix('profil')->name('profil.')->group(function () {
@@ -84,10 +84,14 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/pesanan', [UserDashboardController::class, 'pesanan'])->name('pesanan');
         // Halaman Wishlist
         Route::get('/wishlist', [UserDashboardController::class, 'wishlist'])->name('wishlist');
+        // Ajax Wishlist
+        Route::post('/wishlist/toggle', [UserDashboardController::class, 'toggleWishlist'])->name('wishlist.toggle');
         // Update Profile
         Route::post('/update', [UserDashboardController::class, 'updateProfile'])->name('update');
+        // Update Ubah Password
+        Route::put('/password', [UserDashboardController::class, 'updatePassword'])->name('password');
     });
-
+    
     // Halaman Perbandingan
     Route::get('/bandingkan', [MarketplaceController::class, 'bandingkan'])->name('bandingkan');
 

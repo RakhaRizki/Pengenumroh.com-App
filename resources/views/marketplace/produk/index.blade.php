@@ -232,32 +232,37 @@
                     <div class="pt-6 border-t border-slate-100">
                         <h3 class="font-bold text-slate-900 mb-3 text-xs uppercase tracking-wider">Jenis Paket</h3>
                         <div class="space-y-1">
-@foreach ($daftarKategori as $kategori)
-        <label class="flex items-center gap-3 p-2 -ml-2 cursor-pointer group rounded-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-200">
-            <div class="relative flex items-center justify-center">
-                
-                {{-- PERBAIKAN DI SINI: Ditambahin (string) dan ?? '' biar stripos gak crash --}}
-                <input type="checkbox" class="peer hidden filter-category"
-                    value="{{ $kategori['id'] }}"
-                    @if (!empty($kategoriFilter) && stripos((string)($kategori['name'] ?? $kategori['nama_kategori'] ?? ''), $kategoriFilter) !== false) checked @endif>
-                
-                {{-- Kotak Luar Checkbox --}}
-                <div class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200 group-hover:border-orange-400">
-                </div>
-                
-                {{-- Logo Centang (SVG) --}}
-                <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none"
-                    viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd" />
-                </svg>
-            </div>
-            <span class="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">
-                {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
-            </span>
-        </label>
-    @endforeach
+                            @foreach ($daftarKategori as $kategori)
+                                <label
+                                    class="flex items-center gap-3 p-2 -ml-2 cursor-pointer group rounded-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-200">
+                                    <div class="relative flex items-center justify-center">
+
+                                        {{-- PERBAIKAN DI SINI: Ditambahin (string) dan ?? '' biar stripos gak crash --}}
+                                        <input type="checkbox" class="peer hidden filter-category"
+                                            value="{{ $kategori['id'] }}"
+                                            @if (
+                                                !empty($kategoriFilter) &&
+                                                    stripos((string) ($kategori['name'] ?? ($kategori['nama_kategori'] ?? '')), $kategoriFilter) !== false) checked @endif>
+
+                                        {{-- Kotak Luar Checkbox --}}
+                                        <div
+                                            class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200 group-hover:border-orange-400">
+                                        </div>
+
+                                        {{-- Logo Centang (SVG) --}}
+                                        <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none"
+                                            viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <span
+                                        class="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">
+                                        {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
+                                    </span>
+                                </label>
+                            @endforeach
                         </div>
                     </div>
                 </aside>
@@ -303,17 +308,30 @@
                                         onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';">
 
                                     <div class="absolute top-3 right-3 z-10 flex gap-2">
+                                        {{-- Tombol Bandingkan --}}
                                         <button onclick="addToCompare(this)"
                                             class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-500 hover:text-white transition-colors border border-white/30 group/btn"
                                             title="Bandingkan">
                                             <i
                                                 class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
                                         </button>
-                                        <button
-                                            class="wishlist-btn w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-colors border border-white/30">
-                                            <i class="ph-fill ph-heart text-lg"></i>
+
+                                        {{-- 👇 PERBAIKAN TOMBOL WISHLIST 👇 --}}
+                                        @php
+                                            // Cek apakah ID produk ini ada di dalam array $wishlistIds (dikirim dari Controller)
+                                            // Kalau user belum login atau array kosong, defaultnya false
+                                            $isWishlisted = in_array($produk['id'], $wishlistIds ?? []);
+                                        @endphp
+
+                                        <button onclick="toggleWishlist(this, '{{ $produk['id'] }}')"
+                                            class="wishlist-btn w-8 h-8 rounded-full backdrop-blur-md flex items-center justify-center transition-colors border group/wishlist 
+                                            {{ $isWishlisted ? 'bg-white text-red-500 border-red-500' : 'bg-white/20 text-white hover:bg-white hover:text-red-500 border-white/30' }}"
+                                            title="Simpan ke Wishlist">
+                                            <i
+                                                class="ph-fill ph-heart text-lg pointer-events-none transition-transform group-active/wishlist:scale-75"></i>
                                         </button>
                                     </div>
+
                                 </div>
 
                                 <div class="p-5 flex flex-col flex-grow">
@@ -373,19 +391,32 @@
                                             </p>
                                         </div>
 
-                                        <div class="pt-3">
+                                       <div class="pt-3">
+                                            @php
+                                                // 1. Ambil data quota asli dari API
+                                                $kuota = intval($produk['quota'] ?? 0);
+                                                
+                                                // 2. Logika Progress Bar Pintar (Samain kayak Wishlist)
+                                                // Asumsi: 45 (bus) atau 100 (pesawat) adalah kapasitas wajar.
+                                                $maxSeat = ($kuota > 45) ? 100 : 45; 
+                                                
+                                                $persenSeat = $maxSeat > 0 ? round(($kuota / $maxSeat) * 100) : 0;
+                                                
+                                                // Cegah bar lebih dari 100%
+                                                if ($persenSeat > 100) $persenSeat = 100;
+                                            @endphp
+
                                             <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                                <span class="text-slate-500 uppercase tracking-tighter">Seat
-                                                    Tersisa</span>
-                                                <span class="text-[#ff782e] font-black">{{ $produk['quota'] }}
-                                                    Seat</span>
+                                                <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
+                                                <span class="text-[#ff782e] font-black">{{ $kuota }} Seat</span>
                                             </div>
-                                            <div
-                                                class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden shadow-inner p-[1px]">
+                                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden shadow-inner p-[1px]">
+                                                {{-- Pakai variabel $persenSeat dan kasih min-width 5% biar aman kalau 0 --}}
                                                 <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                                    style="width: {{ rand(30, 90) }}%"></div>
+                                                    style="width: {{ $persenSeat }}%; min-width: 5%;"></div>
                                             </div>
                                         </div>
+                                        
                                     </div>
 
                                     <div
@@ -465,32 +496,37 @@
                 <div>
                     <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Kategori Paket</h4>
                     <div class="space-y-1">
-                       @foreach ($daftarKategori as $kategori)
-        <label class="flex items-center gap-3 p-2 -ml-2 cursor-pointer group rounded-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-200">
-            <div class="relative flex items-center justify-center">
-                
-                {{-- PERBAIKAN DI SINI: Ditambahin (string) dan ?? '' biar stripos gak crash --}}
-                <input type="checkbox" class="peer hidden filter-category"
-                    value="{{ $kategori['id'] }}"
-                    @if (!empty($kategoriFilter) && stripos((string)($kategori['name'] ?? $kategori['nama_kategori'] ?? ''), $kategoriFilter) !== false) checked @endif>
-                
-                {{-- Kotak Luar Checkbox --}}
-                <div class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200 group-hover:border-orange-400">
-                </div>
-                
-                {{-- Logo Centang (SVG) --}}
-                <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none"
-                    viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clip-rule="evenodd" />
-                </svg>
-            </div>
-            <span class="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">
-                {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
-            </span>
-        </label>
-    @endforeach
+                        @foreach ($daftarKategori as $kategori)
+                            <label
+                                class="flex items-center gap-3 p-2 -ml-2 cursor-pointer group rounded-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-200">
+                                <div class="relative flex items-center justify-center">
+
+                                    {{-- PERBAIKAN DI SINI: Ditambahin (string) dan ?? '' biar stripos gak crash --}}
+                                    <input type="checkbox" class="peer hidden filter-category"
+                                        value="{{ $kategori['id'] }}"
+                                        @if (
+                                            !empty($kategoriFilter) &&
+                                                stripos((string) ($kategori['name'] ?? ($kategori['nama_kategori'] ?? '')), $kategoriFilter) !== false) checked @endif>
+
+                                    {{-- Kotak Luar Checkbox --}}
+                                    <div
+                                        class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200 group-hover:border-orange-400">
+                                    </div>
+
+                                    {{-- Logo Centang (SVG) --}}
+                                    <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none"
+                                        viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <span
+                                    class="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">
+                                    {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
+                                </span>
+                            </label>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -553,6 +589,8 @@
         let datePicker; // Inisialisasi nanti
 
         document.addEventListener('DOMContentLoaded', function() {
+
+            syncCompareState();
 
             // Inisialisasi Flatpickr
             if (typeof flatpickr !== 'undefined') {
@@ -653,6 +691,25 @@
 
             applyAllFilters();
         });
+
+        function syncCompareState() {
+            let currentList = getCompareList(); // Ambil dari localStorage
+
+            // Cari semua kartu produk di halaman
+            const productCards = document.querySelectorAll('.product-card');
+
+            productCards.forEach(card => {
+                const idProduk = card.getAttribute('data-id');
+                // Cari tombol bandingkan di dalam kartu ini
+                const compareBtn = card.querySelector('button[onclick="addToCompare(this)"]');
+
+                if (compareBtn && currentList.includes(idProduk)) {
+                    // Kalau ID-nya ada di localStorage, nyalain tombolnya!
+                    compareBtn.classList.remove('bg-white/20');
+                    compareBtn.classList.add('bg-teal-500', 'border-teal-500');
+                }
+            });
+        }
 
         function uncheckRadios() {
             radios.forEach(radio => radio.checked = false);
@@ -957,4 +1014,100 @@
             }
         }
     </script>
+
+    <script>
+        // --- FUNGSI WISHLIST DINAMIS (AJAX) ---
+        async function toggleWishlist(button, productId) {
+            // Mencegah klik nyasar ke link detail produk kalau tombolnya ditindih
+            if (window.event) window.event.stopPropagation();
+
+            const icon = button.querySelector('i');
+
+            // Simpan class asli buat jaga-jaga kalau gagal
+            const originalIconClass = icon.className;
+            const isWishlisted = button.classList.contains('bg-white'); // Cek apakah udah merah/aktif
+
+            // 1. UI Loading State (Ganti icon heart jadi spinner loading)
+            icon.className = 'ph-bold ph-spinner animate-spin text-lg pointer-events-none';
+            button.disabled = true;
+
+            try {
+                // 👇 PERBAIKAN 1: PAKAI ROUTE LARAVEL BIAR GAK NYASAR 👇
+                const response = await fetch('{{ route('marketplace.profil.wishlist.toggle') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Wajib bawa CSRF Token biar gak ditolak Laravel
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        product_id: productId
+                    })
+                });
+
+                const result = await response.json();
+
+                // 3. Handle kalau belum Login (Session Habis / Gak Punya Token)
+                if (response.status === 401 || result.message === 'Unauthenticated') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Harap Login',
+                        text: 'Anda harus masuk ke akun untuk menyimpan paket impian.',
+                        confirmButtonText: 'Login Sekarang',
+                        confirmButtonColor: '#ea580c',
+                        showCancelButton: true,
+                        cancelButtonText: 'Batal'
+                    }).then((res) => {
+                        // 👇 PERBAIKAN 2: TYPO VARIABEL 'res' 👇
+                        if (res.isConfirmed) window.location.href = '/login';
+                    });
+                    throw new Error('Unauthenticated');
+                }
+
+                if (!response.ok) throw new Error(result.message || 'Gagal menyimpan wishlist');
+
+                // 4. Update UI Berdasarkan Hasil (Aktif / Non-aktif)
+                if (result.action === 'added' || !isWishlisted) {
+                    button.classList.remove('bg-white/20', 'text-white');
+                    button.classList.add('bg-white', 'text-red-500', 'border-red-500');
+                    showToast('success', 'Disimpan ke Wishlist!');
+                } else {
+                    button.classList.remove('bg-white', 'text-red-500', 'border-red-500');
+                    button.classList.add('bg-white/20', 'text-white');
+                    showToast('info', 'Dihapus dari Wishlist');
+                }
+
+                // Kembalikan Icon Heart
+                icon.className =
+                    'ph-fill ph-heart text-lg pointer-events-none transition-transform group-active/wishlist:scale-75';
+
+            } catch (error) {
+                // Kalau gagal/error, kembalikan tombol seperti semula
+                button.disabled = false;
+                icon.className = originalIconClass;
+
+                if (error.message !== 'Unauthenticated') {
+                    showToast('error', 'Terjadi kesalahan sistem.');
+                    console.error('Wishlist Error:', error);
+                }
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        // Fungsi pembantu buat manggil Toast SweetAlert
+        function showToast(iconType, message) {
+            Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true
+            }).fire({
+                icon: iconType,
+                title: message
+            });
+        }
+    </script>
+
 </x-layouts.products>

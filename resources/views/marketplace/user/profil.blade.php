@@ -91,19 +91,25 @@
                                     src="{{ $userProfile['avatar'] }}"
                                     class="w-full h-full object-cover">
                             </div>
-                            <h2 class="text-lg font-bold text-slate-900 line-clamp-1">{{ $userProfile['nama'] ?? 'Nama User' }}</h2>
-                            <p class="text-sm text-slate-500">Bergabung sejak {{ $userProfile['bergabung'] ?? '2024' }}</p>
 
-                            <div class="mt-4 text-left">
-                                <div class="flex justify-between text-xs mb-1">
-                                    <span class="font-semibold text-slate-600">Kelengkapan Data</span>
-                                    <span class="font-bold text-orange-600">80%</span>
-                                </div>
-                                <div class="w-full bg-slate-100 rounded-full h-2">
-                                    <div class="bg-orange-500 h-2 rounded-full transition-all duration-1000 w-[80%]"></div>
-                                </div>
-                                <p class="text-[10px] text-slate-400 mt-1 italic">*Lengkapi data untuk kemudahan Umroh.</p>
-                            </div>
+                            <h2 class="text-lg font-bold text-slate-900 line-clamp-1">{{ $userProfile['nama'] ?? 'Nama User' }}</h2>
+
+<!-- 1. Tanggal bergabung otomatis ngambil dari Controller -->
+<p class="text-sm text-slate-500">Bergabung sejak {{ $userProfile['bergabung'] ?? 'Baru bergabung' }}</p>
+
+<div class="mt-4 text-left">
+    <div class="flex justify-between text-xs mb-1">
+        <span class="font-semibold text-slate-600">Kelengkapan Data</span>
+        <!-- 2. Angka persentase jadi dinamis -->
+        <span class="font-bold text-orange-600">{{ $userProfile['kelengkapan'] ?? 0 }}%</span>
+    </div>
+    <div class="w-full bg-slate-100 rounded-full h-2">
+        <!-- 3. Panjang bar pakai inline CSS (style="width: ...%") biar bisa baca angka dari Laravel -->
+        <div class="bg-orange-500 h-2 rounded-full transition-all duration-1000" style="width: {{ $userProfile['kelengkapan'] ?? 0 }}%;"></div>
+    </div>
+    <p class="text-[10px] text-slate-400 mt-1 italic">*Lengkapi data untuk kemudahan Umroh.</p>
+</div>
+
                         </div>
                     </div>
 
@@ -239,19 +245,6 @@
                 </div>
             </div>
 
-            {{-- Field Tanggal Lahir (Ganti type ke date jika tidak pake JS picker) --}}
-            <div class="space-y-2">
-    <label class="text-sm font-bold text-slate-700">Tanggal Lahir</label>
-    <div class="relative">
-        <i class="ph-bold ph-calendar absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-        <input type="date" 
-               id="birth-date" 
-               name="tanggal_lahir" 
-               value="{{ $userProfile['tanggal_lahir'] ?? '' }}"
-               class="form-input w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none transition cursor-pointer">
-    </div>
-</div>
-
             {{-- Field JK --}}
             <div class="space-y-2">
                 <label class="text-sm font-bold text-slate-700">Jenis Kelamin</label>
@@ -318,6 +311,74 @@
     </div>
 </form>
 
+<div class="border rounded-2xl p-5 md:p-8 bg-white border-slate-200 mt-8 shadow-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 pb-5 border-b border-slate-100">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500">
+                <i class="ph-fill ph-lock-key text-xl"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-slate-900">Keamanan Akun</h4>
+                <p class="text-xs text-slate-500 mt-0.5">Ubah kata sandi secara berkala</p>
+            </div>
+        </div>
+        <button type="button" onclick="togglePasswordForm()" id="btn-toggle-password"
+            class="mt-4 sm:mt-0 px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-bold rounded-lg transition border border-slate-200">
+            Ubah Password
+        </button>
+    </div>
+
+    <div id="password-form-container" class="hidden">
+        {{-- Form khusus untuk ubah password (Action-nya beda) --}}
+        <form action="{{ route('marketplace.profil.password') }}" method="POST" class="space-y-4">
+            @csrf
+            @method('PUT')
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {{-- Password Lama --}}
+                <div class="space-y-2 md:col-span-2">
+                    <label class="text-sm font-bold text-slate-700">Password Saat Ini</label>
+                    <div class="relative">
+                        <i class="ph-bold ph-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input type="password" name="current_password" required
+                            class="form-input w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-orange-500 transition"
+                            placeholder="Masukkan password saat ini">
+                    </div>
+                </div>
+
+                {{-- Password Baru --}}
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-slate-700">Password Baru</label>
+                    <div class="relative">
+                        <i class="ph-bold ph-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input type="password" name="new_password" required minlength="6"
+                            class="form-input w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-orange-500 transition"
+                            placeholder="Minimal 6 karakter">
+                    </div>
+                </div>
+
+                {{-- Konfirmasi Password --}}
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-slate-700">Konfirmasi Password Baru</label>
+                    <div class="relative">
+                        <i class="ph-bold ph-check-circle absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input type="password" name="new_password_confirmation" required minlength="6"
+                            class="form-input w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-orange-500 transition"
+                            placeholder="Ulangi password baru">
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 flex justify-end">
+                <button type="submit"
+                    class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold shadow-md transition">
+                    <i class="ph-bold ph-check"></i> Simpan Password Baru
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
                 </div>
 
             </div>
@@ -329,39 +390,68 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
 
     <script>
-        AOS.init({ duration: 800, once: true });
+       AOS.init({
+            duration: 800,
+            once: true
+        });
 
-        // Date Picker
+        // Date Picker flatpickr
         flatpickr("#birth-date", {
             locale: "id",
             altInput: true,
             altFormat: "j F Y",
             dateFormat: "Y-m-d",
-            disableMobile: "true",
-            theme: "airbnb"
+            disableMobile: true,
+            theme: "airbnb",
+            defaultDate: "{{ $userProfile['tanggal_lahir'] ?? '' }}"
         });
 
-        // Image Preview
+        // Fungsi untuk buka-tutup form password
+        function togglePasswordForm() {
+            const form = document.getElementById('password-form-container');
+            const btn = document.getElementById('btn-toggle-password');
+            if (form.classList.contains('hidden')) {
+                form.classList.remove('hidden');
+                form.classList.add('block');
+                btn.innerHTML = 'Batal Ubah';
+                btn.classList.add('bg-red-50', 'text-red-600', 'border-red-100');
+            } else {
+                form.classList.add('hidden');
+                form.classList.remove('block');
+                btn.innerHTML = 'Ubah Password';
+                btn.classList.remove('bg-red-50', 'text-red-600', 'border-red-100');
+            }
+        }
+
+        // Image Preview (Visual Doang, pas di-submit file tetep kekirim via form)
         function previewImage(event) {
             const input = event.target;
             if (input.files && input.files[0]) {
+                // Validasi ukuran max 2MB di frontend
+                if (input.files[0].size > 2 * 1024 * 1024) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'File Terlalu Besar',
+                        text: 'Maksimal ukuran foto adalah 2MB.',
+                        confirmButtonColor: '#ea580c'
+                    });
+                    input.value = ''; // Reset pilihan
+                    return;
+                }
+
                 const reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     document.getElementById('preview-avatar').src = e.target.result;
-                    document.getElementById('sidebar-avatar').src = e.target.result;
-                    document.getElementById('nav-avatar').src = e.target.result;
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // Reset Avatar 
+        // Reset Avatar
         function resetAvatar() {
             const defaultAvatar = "{{ $userProfile['avatar'] }}";
             document.getElementById('preview-avatar').src = defaultAvatar;
-            document.getElementById('sidebar-avatar').src = defaultAvatar;
-            document.getElementById('nav-avatar').src = defaultAvatar;
-            document.getElementById('file-input').value = ""; 
+            document.getElementById('file-input').value = "";
         }
 
         // Toggle Passport Section
@@ -377,40 +467,22 @@
             }
         }
 
-        // Save Profile Simulation
-        function saveProfile(e) {
-            e.preventDefault();
+        // Fungsi Simulasi Loading pas Submit (Biar Kelihatan Keren tapi tetep ke-submit)
+        document.getElementById('profileForm').addEventListener('submit', function() {
             const btnDesktop = document.getElementById('btn-save-desktop');
             const btnMobile = document.getElementById('btn-save-mobile');
-            const originalContent = '<i class="ph-bold ph-floppy-disk"></i> Simpan Perubahan';
             const loadingContent = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...';
-
+            
             if (window.innerWidth >= 768) {
                 btnDesktop.innerHTML = loadingContent;
-                btnDesktop.disabled = true;
+                btnDesktop.classList.add('opacity-75', 'cursor-not-allowed');
             } else {
                 btnMobile.innerHTML = loadingContent;
-                btnMobile.disabled = true;
+                btnMobile.classList.add('opacity-75', 'cursor-not-allowed');
             }
+        });
 
-            setTimeout(() => {
-                btnDesktop.innerHTML = originalContent;
-                btnDesktop.disabled = false;
-                btnMobile.innerHTML = originalContent;
-                btnMobile.disabled = false;
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Profil Diperbarui!',
-                    text: 'Data diri Anda berhasil disimpan (Simulasi UI).',
-                    confirmButtonColor: '#ea580c',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            }, 1500);
-        }
-
-        // --- UPDATE LOGIC LOGOUT ---
+        // Logika Logout
         function confirmLogout() {
             Swal.fire({
                 title: 'Keluar dari Akun?',
@@ -425,7 +497,6 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Memicu form submit ke route /logout Laravel
                     document.getElementById('logout-form').submit();
                 }
             });
