@@ -1,4 +1,22 @@
 <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
+  
+    @php
+        $navUserName = session('user.fullname', 'Jamaah');
+        if (isset($userProfile['nama'])) {
+            $navUserName = $userProfile['nama'];
+        }
+
+        $defaultAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($navUserName) . '&background=F97316&color=fff';
+
+        // 1. Ambil foto dari memori yang disimpen sama Controller tadi
+        $navAvatarUrl = session('foto_global_navbar', $defaultAvatar);
+
+        // 2. Kalau pas lagi di halaman Profil, pastikan pake yang paling fresh
+        if (isset($userProfile['avatar']) && !empty($userProfile['avatar'])) {
+            $navAvatarUrl = $userProfile['avatar'];
+        }
+    @endphp
+
     <div class="bg-white border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
@@ -45,7 +63,7 @@
                         <div class="relative group">
                             <button class="flex items-center gap-3 pl-3 pr-1 py-1 bg-white border border-slate-200 rounded-full hover:shadow-md transition-all group-hover:border-orange-200">
                                 <div class="text-right">
-                                    <p class="text-xs font-bold text-slate-700">{{ session('user.fullname', 'Jamaah') }}</p>
+                                    <p class="text-xs font-bold text-slate-700">{{ $navUserName }}</p>
                                     
                                     <!-- LOGIKA TAMPILAN JABATAN BERDASARKAN ID LEVEL -->
                                     <p class="text-[10px] text-slate-500">
@@ -55,17 +73,18 @@
                                             Jamaah
                                         @endif
                                     </p>
-
                                 </div>
+                                
+                                <!-- 👇 FOTO PROFIL DESKTOP 👇 -->
                                 <div class="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user.fullname', 'User')) }}&background=F97316&color=fff" alt="Profile" class="w-full h-full object-cover">
+                                    <img src="{{ $navAvatarUrl }}" alt="Profile" class="w-full h-full object-cover">
                                 </div>
+                                
                                 <i class="ph-bold ph-caret-down text-slate-400 pr-2 group-hover:text-orange-500 transition"></i>
                             </button>
 
                             <div class="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right z-50 overflow-hidden">
                                 <div class="py-2">
-                                    <!-- LOGIKA MENU DROPDOWN (BEDA ROLE BEDA MENU) -->
                                     @if(session('user.id_level') == 4)
                                         <a href="{{ route('marketplace.travel.profil') }}" class="flex items-center px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600 transition">
                                             <i class="ph-bold ph-squares-four mr-3 text-lg"></i> Dashboard Travel
@@ -109,8 +128,9 @@
                 <!-- Mobile Hamburger Icon -->
                 <div class="lg:hidden flex items-center gap-3">
                     @if(session()->has('user'))
+                        <!-- 👇 FOTO PROFIL ICON MOBILE 👇 -->
                         <div class="w-8 h-8 rounded-full bg-orange-100 overflow-hidden border border-orange-200 cursor-pointer" onclick="toggleMobileMenu()">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user.fullname', 'User')) }}&background=F97316&color=fff" class="w-full h-full object-cover">
+                            <img src="{{ $navAvatarUrl }}" class="w-full h-full object-cover">
                         </div>
                     @endif
                     <button id="mobile-menu-btn" class="text-slate-700 hover:text-orange-600 focus:outline-none p-1" onclick="toggleMobileMenu()">
@@ -135,12 +155,14 @@
                 @if(session()->has('user'))
                     <!-- TAMPILAN PROFIL JIKA SUDAH LOGIN (MOBILE) -->
                     <div class="mb-4 p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center gap-3">
+                        
+                        <!-- 👇 FOTO PROFIL MENU MOBILE 👇 -->
                         <div class="w-12 h-12 rounded-full bg-white border border-orange-200 overflow-hidden">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user.fullname', 'User')) }}&background=F97316&color=fff" class="w-full h-full object-cover">
+                            <img src="{{ $navAvatarUrl }}" class="w-full h-full object-cover">
                         </div>
+                        
                         <div>
-                            <p class="font-bold text-slate-800">{{ session('user.fullname') }}</p>
-                            <!-- TAMPILAN JABATAN DI MOBILE -->
+                            <p class="font-bold text-slate-800">{{ $navUserName }}</p>
                             <p class="text-xs text-orange-600 font-bold">
                                 @if(session('user.id_level') == 4)
                                     Mitra Travel
@@ -163,9 +185,7 @@
                 <div class="border-t border-slate-100 my-2"></div>
 
                 @if(session()->has('user'))
-                    <!-- MENU USER JIKA SUDAH LOGIN (MOBILE) -->
                     <div class="space-y-2 pt-2">
-                        
                         @if(session('user.id_level') == 4)
                             <a href="{{ route('marketplace.travel.profil') }}" class="flex items-center px-3 py-3 rounded-md text-sm font-bold text-slate-500 hover:bg-orange-50 hover:text-orange-600">
                                 <i class="ph-bold ph-squares-four mr-3"></i> Dashboard Travel
@@ -193,7 +213,6 @@
                         </form>
                     </div>
                 @else
-                    <!-- TOMBOL AUTH JIKA BELUM LOGIN (MOBILE) -->
                     <div class="space-y-2 pt-2">
                         <a href="{{ route('login') }}" class="flex items-center justify-center w-full py-3 rounded-xl font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Masuk</a>
                         <a href="{{ route('register') }}" class="flex items-center justify-center w-full py-3 bg-slate-900 text-white font-bold rounded-xl shadow-md active:scale-95 transition">Daftar Sekarang</a>

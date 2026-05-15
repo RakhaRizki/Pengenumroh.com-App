@@ -1,4 +1,22 @@
 <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
+
+     @php
+        $navUserName = session('user.fullname', 'Jamaah');
+        if (isset($userProfile['nama'])) {
+            $navUserName = $userProfile['nama'];
+        }
+
+        $defaultAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($navUserName) . '&background=F97316&color=fff';
+
+        // 1. Ambil foto dari memori yang disimpen sama Controller tadi
+        $navAvatarUrl = session('foto_global_navbar', $defaultAvatar);
+
+        // 2. Kalau pas lagi di halaman Profil, pastikan pake yang paling fresh
+        if (isset($userProfile['avatar']) && !empty($userProfile['avatar'])) {
+            $navAvatarUrl = $userProfile['avatar'];
+        }
+    @endphp
+
     <div class="bg-white border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
@@ -55,11 +73,13 @@
                                             Jamaah
                                         @endif
                                     </p>
+                                </div>
 
-                                </div>
+                                 <!-- 👇 FOTO PROFIL DESKTOP 👇 -->
                                 <div class="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user.fullname', 'User')) }}&background=F97316&color=fff" alt="Profile" class="w-full h-full object-cover">
+                                    <img src="{{ $navAvatarUrl }}" alt="Profile" class="w-full h-full object-cover">
                                 </div>
+
                                 <i class="ph-bold ph-caret-down text-slate-400 pr-2 group-hover:text-orange-500 transition"></i>
                             </button>
 
@@ -109,8 +129,9 @@
                 <!-- Mobile Hamburger Icon -->
                 <div class="lg:hidden flex items-center gap-3">
                     @if(session()->has('user'))
+                       <!-- 👇 FOTO PROFIL ICON MOBILE 👇 -->
                         <div class="w-8 h-8 rounded-full bg-orange-100 overflow-hidden border border-orange-200 cursor-pointer" onclick="toggleMobileMenu()">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(session('user.fullname', 'User')) }}&background=F97316&color=fff" class="w-full h-full object-cover">
+                            <img src="{{ $navAvatarUrl }}" class="w-full h-full object-cover">
                         </div>
                     @endif
                     <button id="mobile-menu-btn" class="text-slate-700 hover:text-orange-600 focus:outline-none p-1" onclick="toggleMobileMenu()">

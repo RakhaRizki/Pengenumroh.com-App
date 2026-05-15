@@ -136,7 +136,7 @@
                         <!-- WAJIB CSRF -->
                         @csrf
 
-                        <input type="hidden" name="role" id="roleInput" value="jamaah">
+                        <input type="hidden" name="role" id="roleInput" value="3">
 
                         <div
                             class="grid grid-cols-2 gap-1 p-1.5 bg-slate-100/80 border border-slate-200 rounded-2xl mb-6 relative">

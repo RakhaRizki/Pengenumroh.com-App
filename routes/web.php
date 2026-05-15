@@ -61,6 +61,9 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     // DETAIL PAKET
     Route::get('/produk/{id}', [MarketplaceController::class, 'detail'])->name('produk.detail');
 
+    // CHECKOUT PAKET
+    Route::post('/checkout', [UserDashboardController::class, 'processCheckout'])->name('produk.checkout');
+
    // ==========================================================
     // SUB-GRUP: AREA DASHBOARD MITRA TRAVEL
     // ==========================================================
@@ -90,6 +93,8 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::post('/update', [UserDashboardController::class, 'updateProfile'])->name('update');
         // Update Ubah Password
         Route::put('/password', [UserDashboardController::class, 'updatePassword'])->name('password');
+        // 👇 UPDATE DI SINI: Ganti PUT jadi MATCH (biar bisa nerima POST atau PUT)
+        Route::match(['put', 'post'], '/password', [UserDashboardController::class, 'updatePassword'])->name('password');
     });
     
     // Halaman Perbandingan

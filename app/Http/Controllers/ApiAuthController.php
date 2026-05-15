@@ -28,12 +28,11 @@ class ApiAuthController extends Controller
             
             // 1. Ambil body JSON secara utuh dulu biar gampang debug
             $resBody = $response->json();
-
-            // TAMBAHKAN BARIS INI UNTUK DEBUG
-            // dd($resBody);
             
             // 2. Ambil data user dari key 'user' sesuai struktur API lu
             $dataUser = $resBody['user'] ?? null;
+
+            // dd('DATA USER DARI BACKEND: ', $dataUser);
 
             // 3. AMBIL TOKEN (Sangat Penting!)
             // Pastikan key-nya 'token' atau 'access_token' sesuai respon API lu
@@ -43,11 +42,36 @@ class ApiAuthController extends Controller
                 return back()->with('error', 'Token tidak ditemukan dari API. Hubungi Backend.');
             }
 
+            // 👇 AWAL TAMBAHAN LOGIKA PINTAR BUAT NGAMBIL FOTO PP 👇
+            $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($dataUser['fullname'] ?? 'User') . '&background=F97316&color=fff';
+            $userId = $dataUser['id'] ?? $dataUser['id_user'] ?? null;
+
+            if ($userId) {
+                try {
+                    // Tembak API secara rahasia pas login buat narik foto
+                    $profileRes = Http::withToken($token)->timeout(3)->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/user/' . $userId);
+                    
+                    if ($profileRes->successful()) {
+                        $apiData = $profileRes->json('data') ?? $profileRes->json();
+                        if (isset($apiData[0])) $apiData = $apiData[0];
+                        $profileData = $apiData['profile'][0] ?? $apiData['profile'] ?? [];
+                        
+                        // Kalau ternyata user punya foto di database, kita ubah linknya!
+                        if (!empty($profileData['image'])) {
+                            $foto = ltrim($profileData['image'], '/');
+                            $avatarUrl = str_starts_with($foto, 'http') ? $foto : 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/profiles/' . $foto;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Kalau API gagal, tetep aman pakai avatar inisial
+                }
+            }
+
             // 4. SIMPAN KE SESSION
-            // Gunakan key 'api_token' agar dibaca oleh UserDashboardController
             session([
                 'user' => $dataUser,
-                'api_token' => $token 
+                'api_token' => $token,
+                'user_avatar' => $avatarUrl 
             ]);
 
             // 5. LOGIKA REDIRECT (Gunakan Route Name agar lebih aman)

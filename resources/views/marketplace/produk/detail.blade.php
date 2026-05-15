@@ -382,10 +382,10 @@
                                 <button onclick="toggleCompareDetail()" id="btn-compare-detail" class="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-gray-200 text-gray-400 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 transition-all duration-300 flex items-center justify-center group">
                                     <i id="icon-compare-detail" class="ph-bold ph-arrows-left-right text-2xl transform group-hover:rotate-180 transition-transform duration-500"></i>
                                 </button>
-                                <button onclick="Swal.fire('Segera Hadir!', 'Fitur pemesanan langsung sedang dalam tahap pengembangan.', 'info')" class="flex-1 bg-orange-500 text-white font-bold py-3.5 rounded-xl hover:bg-orange-600 transition shadow-lg shadow-orange-500/30 flex justify-center items-center gap-2">
-                                    <i class="ph-bold ph-chat-teardrop-text text-xl"></i>
-                                    <span>Pesan Sekarang</span>
-                                </button>
+                                <button onclick="handleCheckout()" class="flex-1 bg-orange-600 text-white font-bold py-3.5 rounded-xl hover:bg-orange-700 transition shadow-lg shadow-orange-500/30 flex justify-center items-center gap-2 group">
+    <i class="ph-bold ph-shopping-cart-simple text-xl group-hover:scale-110 transition"></i>
+    <span>Pesan Sekarang</span>
+</button>
                             </div>
                         </div>
 
@@ -421,9 +421,9 @@
     {{ $isWishlisted ? 'border-red-200 text-red-500 bg-red-50' : 'border-gray-200 text-gray-400' }}">
     <i id="icon-fav-mobile" class="text-xl {{ $isWishlisted ? 'ph-fill ph-heart' : 'ph-bold ph-heart' }}"></i>
 </button>
-        <button onclick="Swal.fire('Segera Hadir!', 'Sedang dalam pengembangan', 'info')" class="flex-shrink-0 bg-orange-500 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-lg shadow-orange-500/20 active:scale-95 transition flex items-center gap-2">
-            <i class="ph-bold ph-chat-teardrop-text"></i> Pesan
-        </button>
+        <button onclick="handleCheckout()" class="flex-shrink-0 bg-orange-600 text-white px-5 py-3 rounded-xl font-bold text-sm shadow-lg shadow-orange-500/20 active:scale-95 transition flex items-center gap-2">
+    <i class="ph-bold ph-shopping-cart-simple"></i> Pesan
+</button>
     </div>
 
     {{-- LIGHTBOX IMAGE --}}
@@ -752,5 +752,102 @@ function showSweetAlertToast(message, iconType) {
             const message = `Assalamu'alaikum CS pengenumroh.com, saya ingin bertanya mengenai *${packageName}* yang saya lihat di website: ${currentUrl}`;
             window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
         }
+
+        async function handleCheckout() {
+    // 1. CEK LOGIN (Security Check)
+    const isLoggedIn = {{ session('api_token') ? 'true' : 'false' }};
+    
+    if (!isLoggedIn) {
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Harap Login Terlebih Dahulu',
+            text: 'Silakan masuk ke akun Anda untuk melanjutkan pemesanan paket Umroh.',
+            showCancelButton: true,
+            confirmButtonText: 'Login Sekarang',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#ea580c',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) window.location.href = "{{ route('login') }}";
+        });
+    }
+
+    // 2. AMBIL DATA PRODUK & KAMAR
+    const inputs = document.querySelectorAll('.qty-input');
+    let selectedRooms = [];
+    let totalPax = 0;
+
+    inputs.forEach(input => {
+        const qty = parseInt(input.value);
+        if (qty > 0) {
+            totalPax += qty;
+            // Kita kumpulkan data kamar yang dipilih
+            selectedRooms.push({
+                product_id: "{{ $produk['id'] }}",
+                room_type: input.getAttribute('data-name'),
+                quantity: qty,
+                price: parseInt(input.getAttribute('data-price'))
+            });
+        }
+    });
+
+    if (totalPax === 0) {
+        return Swal.fire('Opps!', 'Mohon pilih minimal 1 Pax kamar.', 'warning');
+    }
+
+    // 3. KONFIRMASI FINAL (Profesional Touch)
+    const { isConfirmed } = await Swal.fire({
+        title: 'Konfirmasi Pemesanan',
+        text: `Anda akan memesan ${totalPax} Pax untuk paket ini. Lanjutkan?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Pesan Sekarang',
+        cancelButtonText: 'Cek Lagi',
+        confirmButtonColor: '#ea580c'
+    });
+
+    if (!isConfirmed) return;
+
+    // 4. KIRIM KE CONTROLLER (PROSES BACKEND)
+    Swal.fire({
+        title: 'Sedang Memproses...',
+        html: 'Mohon tunggu sebentar, kami sedang membuat pesanan Anda.',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+
+    try {
+        const response = await fetch("{{ route('marketplace.produk.checkout') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                product_id: "{{ $produk['id'] }}",
+                items: selectedRooms
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.status === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Pemesanan Berhasil!',
+                text: 'Pesanan Anda telah dicatat. Silakan lakukan pembayaran.',
+                confirmButtonText: 'Lihat Pesanan Saya',
+                confirmButtonColor: '#ea580c'
+            }).then(() => {
+                window.location.href = "{{ route('marketplace.profil.pesanan') }}";
+            });
+        } else {
+            throw new Error(result.message || 'Gagal memproses pesanan');
+        }
+    } catch (error) {
+        Swal.fire('Gagal!', error.message, 'error');
+    }
+}
+       
     </script>
 </x-layouts.marketplace>

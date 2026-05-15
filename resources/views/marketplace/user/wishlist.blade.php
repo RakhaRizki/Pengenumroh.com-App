@@ -102,6 +102,7 @@
                                 class="w-full h-full object-cover">
                         </div>
                     </div>
+                    
                 </div>
 
                 <div class="lg:hidden">
@@ -135,17 +136,18 @@
                             </p>
 
                             <div class="mt-4 text-left">
-                                <div class="flex justify-between text-xs mb-1">
-                                    <span class="font-semibold text-slate-600">Kelengkapan Data</span>
-                                    <span class="font-bold text-orange-600">80%</span>
-                                </div>
-                                <div class="w-full bg-slate-100 rounded-full h-2">
-                                    <div class="bg-orange-500 h-2 rounded-full w-[80%] transition-all duration-1000">
-                                    </div>
-                                </div>
-                                <p class="text-[10px] text-slate-400 mt-1 italic">*Lengkapi data untuk kemudahan Umroh.
-                                </p>
-                            </div>
+    <div class="flex justify-between text-xs mb-1">
+        <span class="font-semibold text-slate-600">Kelengkapan Data</span>
+        <!-- 2. Angka persentase jadi dinamis -->
+        <span class="font-bold text-orange-600">{{ $userProfile['kelengkapan'] ?? 0 }}%</span>
+    </div>
+    <div class="w-full bg-slate-100 rounded-full h-2">
+        <!-- 3. Panjang bar pakai inline CSS (style="width: ...%") biar bisa baca angka dari Laravel -->
+        <div class="bg-orange-500 h-2 rounded-full transition-all duration-1000" style="width: {{ $userProfile['kelengkapan'] ?? 0 }}%;"></div>
+    </div>
+    <p class="text-[10px] text-slate-400 mt-1 italic">*Lengkapi data untuk kemudahan Umroh.</p>
+</div>
+
                         </div>
                     </div>
 
@@ -164,12 +166,12 @@
                                 <i class="ph-bold ph-heart text-xl"></i> Wishlist
                             </a>
                         </nav>
-                        <div class="mt-auto border-t border-slate-100 p-2 bg-slate-50">
+                        {{-- <div class="mt-auto border-t border-slate-100 p-2 bg-slate-50">
                             <button onclick="confirmLogout()"
                                 class="flex w-full items-center justify-center gap-2 px-5 py-3 text-red-600 hover:bg-red-100/50 hover:text-red-700 font-bold transition rounded-xl text-sm border border-transparent hover:border-red-100">
                                 <i class="ph-bold ph-sign-out text-lg"></i> Keluar Akun
                             </button>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 

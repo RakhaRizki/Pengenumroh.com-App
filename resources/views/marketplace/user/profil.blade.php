@@ -245,6 +245,19 @@
                 </div>
             </div>
 
+           {{-- Field Tanggal Lahir --}}
+            <div class="space-y-2">
+                <label class="text-sm font-bold text-slate-700">Tanggal Lahir</label>
+                <div class="relative">
+                    <i class="ph-bold ph-calendar absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                    <input type="text"
+                           id="birth-date"
+                           name="tanggal_lahir"
+                           value="{{ $userProfile['tanggal_lahir'] ?? '' }}"
+                           class="form-input w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none transition cursor-pointer">
+                </div>
+            </div>
+
             {{-- Field JK --}}
             <div class="space-y-2">
                 <label class="text-sm font-bold text-slate-700">Jenis Kelamin</label>
@@ -332,7 +345,6 @@
         {{-- Form khusus untuk ubah password (Action-nya beda) --}}
         <form action="{{ route('marketplace.profil.password') }}" method="POST" class="space-y-4">
             @csrf
-            @method('PUT')
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Password Lama --}}
@@ -502,6 +514,7 @@
             });
         }
     </script>
+
 </body>
 
 </html>
