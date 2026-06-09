@@ -756,7 +756,6 @@ function showSweetAlertToast(message, iconType) {
         async function handleCheckout() {
     // 1. CEK LOGIN (Security Check)
     const isLoggedIn = {{ session('api_token') ? 'true' : 'false' }};
-    
     if (!isLoggedIn) {
         return Swal.fire({
             icon: 'warning',
@@ -781,13 +780,18 @@ function showSweetAlertToast(message, iconType) {
         const qty = parseInt(input.value);
         if (qty > 0) {
             totalPax += qty;
-            // Kita kumpulkan data kamar yang dipilih
-            selectedRooms.push({
-                product_id: "{{ $produk['id'] }}",
-                room_type: input.getAttribute('data-name'),
-                quantity: qty,
-                price: parseInt(input.getAttribute('data-price'))
-            });
+            
+            // 👇 INI KUNCI FIX-NYA! 👇
+            // Kita pecah quantity jadi baris terpisah (Push berulang kali sesuai Qty)
+            // Biar backend Darda ngebaca ini sebagai pesanan terpisah walau jenis kamarnya sama.
+            for (let i = 0; i < qty; i++) {
+                selectedRooms.push({
+                    product_id: "{{ $produk['id'] }}",
+                    room_type: input.getAttribute('data-name'), // Note: diubah jadi room_types biar aman
+                    quantity: 1, // Kita paksa 1 per baris
+                    price: parseInt(input.getAttribute('data-price'))
+                });
+            }
         }
     });
 
@@ -813,7 +817,9 @@ function showSweetAlertToast(message, iconType) {
         title: 'Sedang Memproses...',
         html: 'Mohon tunggu sebentar, kami sedang membuat pesanan Anda.',
         allowOutsideClick: false,
-        didOpen: () => { Swal.showLoading(); }
+        didOpen: () => {
+            Swal.showLoading();
+        }
     });
 
     try {

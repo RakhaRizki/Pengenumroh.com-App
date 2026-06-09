@@ -42,6 +42,10 @@ class UserDashboardController extends Controller
                 if (isset($apiData[0])) {
                     $apiData = $apiData[0];
                 }
+
+                // dd([
+                //     'Data_Asli_Dari_Darda' => $apiData
+                // ]);
                 
                 // Ambil bungkus 'profile'
                 $profileData = $apiData['profile'][0] ?? $apiData['profile'] ?? [];
@@ -104,7 +108,7 @@ class UserDashboardController extends Controller
                 return [
                     'nama'          => $nama, 
                     'email'         => $apiData['email'] ?? 'Belum ada email',
-                    'telepon'       => $apiData['no_wa'] ?? '-',
+                    'telepon'       => $apiData['no_wa'] ?? '',
                     
                     // 👇 Variabel Avatar diubah manggil $avatarUrl
                     'avatar'        => $avatarUrl,
@@ -119,6 +123,7 @@ class UserDashboardController extends Controller
                     'nama_paspor'   => $profileData['nama_paspor'] ?? '',
                     'jk'            => $profileData['jk'] ?? '',
                 ];
+
             }
         } catch (\Exception $e) {
             // Kalau koneksi putus / error
@@ -146,54 +151,110 @@ class UserDashboardController extends Controller
         return view('marketplace.user.profil', compact('userProfile'));
     }
 
-    /**
-     * 2. Halaman Riwayat Pesanan
-     */
-
-   public function pesanan(Request $request) 
-{ 
-    // 1. Ambil data profil & proteksi session
-    $userProfile = $this->getProfileData(); 
-    if (!$userProfile) { 
-        return redirect()->route('login')->with('error', 'Sesi Anda telah habis, silakan login kembali.'); 
-    } 
-
-    // 2. Ambil Identitas User & Token
-    $token = session('api_token'); 
-    $sessionUser = session('user');
-    // Ambil ID user dari session untuk filter keamanan
-    $myUserId = $sessionUser['id'] ?? $sessionUser['id_user'] ?? null;
-
-    try {
-        // 3. Tembak API Transactions dengan Timeout (Biar web gak lemot kalo API down)
-        $response = Http::withToken($token)
-            ->timeout(10)
-            ->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions'); 
-        
-        $allTransactions = []; 
-        if ($response->successful()) { 
-            $allTransactions = $response->json('data') ?? $response->json() ?? []; 
+   /** 
+     * 2. Halaman Riwayat Pesanan 
+     */ 
+    public function pesanan(Request $request) 
+    { 
+        $userProfile = $this->getProfileData(); 
+        if (!$userProfile) { 
+            return redirect()->route('login')->with('error', 'Sesi Anda telah habis, silakan login kembali.'); 
         } 
 
-        // 4. JURUS PROFESIONAL: FILTER & SORTING
-        $transactions = collect($allTransactions)
-            // FILTER: Hanya ambil pesanan milik user yang sedang login (Security)
-            ->filter(function ($trx) use ($myUserId) {
-                return isset($trx['user_id']) && $trx['user_id'] == $myUserId;
-            })
-            // SORTING: Urutkan dari yang terbaru (Terakhir beli ada di paling atas)
-            ->sortByDesc('created_at') 
-            ->values()
-            ->toArray();
+        $token = session('api_token'); 
+        $sessionUser = session('user'); 
+        $myUserId = $sessionUser['id'] ?? $sessionUser['id_user'] ?? null; 
 
-    } catch (\Exception $e) {
-        // Jika API error/down, kirim array kosong agar UI tidak error
-        $transactions = [];
-        session()->now('error', 'Gagal memuat riwayat pesanan. Silakan coba lagi nanti.');
+        try { 
+            // 3. Tembak API Transactions Utama 
+            $responseTrx = Http::withToken($token) 
+                ->timeout(10) 
+                ->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions'); 
+                
+            $allTransactions = []; 
+            if ($responseTrx->successful()) { 
+                $allTransactions = $responseTrx->json('data') ?? $responseTrx->json() ?? []; 
+            } 
+
+            // 4. FILTER, SECURITY, SORTING & SUNTIK GAMBAR (PAKAI KEY BARU)
+            $transactions = collect($allTransactions) 
+                ->filter(function ($trx) use ($myUserId) { 
+                    return isset($trx['user_id']) && $trx['user_id'] == $myUserId; 
+                }) 
+                ->map(function ($trx) { 
+                    $gambarFinal = null;
+                    $detailUtama = $trx['details'][0] ?? [];
+
+                    // NAH INI DIA TERSANGKANYA! Kita ambil pakai key 'thumbnail_product'
+                    $gambarSmentara = $detailUtama['thumbnail_product'] ?? $detailUtama['thumbnail_url'] ?? null;
+
+                    // Format URL gambarnya biar siap pakai di HTML
+                    if ($gambarSmentara) {
+                        if (str_starts_with($gambarSmentara, 'http')) {
+                            $gambarFinal = $gambarSmentara; // Udah full URL dari sana
+                        } else {
+                            // Gabungin URL domain sama nama filenya
+                            $gambarFinal = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/' . rawurlencode(ltrim($gambarSmentara, '/'));
+                        }
+                    } else {
+                        // Fallback terakhir (Dummy) kalau Darda emang beneran gak ngirim data gambarnya
+                        $gambarFinal = '/assets/img/marketplace/produk-dummy.png';
+                    }
+
+                    // SUNTIKKAN KE DALAM VARIABEL TRX DENGAN NAMA BARU
+                    $trx['gambar_paket_final'] = $gambarFinal;
+                    
+                    return $trx; 
+                }) 
+                ->sortByDesc('created_at') 
+                ->values() 
+                ->toArray(); 
+
+        } catch (\Exception $e) { 
+            $transactions = []; 
+            session()->now('error', 'Gagal memuat riwayat pesanan. Silakan coba lagi nanti.'); 
+        } 
+
+        return view('marketplace.user.pesanan', compact('userProfile', 'transactions')); 
     }
 
-    // 5. Lempar ke View
-    return view('marketplace.user.pesanan', compact('userProfile', 'transactions')); 
+   public function uploadBukti(Request $request) 
+{ 
+    $token = session('api_token'); 
+    if (!$token) return response()->json(['status' => 'error', 'message' => 'Sesi berakhir.']);
+
+    try { 
+        $foto = $request->file('bukti_bayar'); 
+        $idTransaksi = $request->id_transaksi;
+        
+        // 1. URL BERDASARKAN ID (Sesuai request backend)
+        $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/' . $idTransaksi; 
+
+        // 2. METHOD PUT MURNI 
+        $response = Http::withToken($token) 
+            ->attach(
+                'evidence_url', // Pakai key 'evidence_url' sesuai data dari backend sebelumnya
+                file_get_contents($foto->getPathname()), 
+                $foto->getClientOriginalName()
+            )
+            ->put($urlApi, [ 
+                'status' => 'PENDING' // Update status sekalian (kalau backend butuh)
+            ]); 
+
+        // Kalau Sukses
+        if ($response->successful()) { 
+            return response()->json(['status' => 'success']); 
+        } 
+
+        // Kalau Gagal, kita keluarin pesan errornya
+        return response()->json([
+            'status' => 'error', 
+            'message' => 'Status: ' . $response->status() . ' | ' . $response->body() 
+        ]); 
+
+    } catch (\Exception $e) { 
+        return response()->json(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]); 
+    } 
 }
 
 public function processCheckout(Request $request)
@@ -347,14 +408,14 @@ public function processCheckout(Request $request)
         return response()->json(['message' => $pesan ?: 'Gagal terhubung ke server backend'], $response->status());
     }
 
- public function updateProfile(Request $request)
+public function updateProfile(Request $request)
     {
         $token = session('api_token');
         if (!$token) {
             return redirect()->route('login')->with('error', 'Silakan login ulang.');
         }
 
-        // 1. Siapkan data teks
+        // 1. Siapkan data teks (Bentuk Paling Bersih)
         $payloadData = [
             'fullname'    => $request->nama,
             'address'     => $request->address,
@@ -362,16 +423,14 @@ public function processCheckout(Request $request)
             'nama_paspor' => $request->nama_paspor,
             'jk'          => $request->jk,
             'no_nik'      => $request->no_nik,
-            'no_wa'       => $request->telepon,
+            'no_wa'       => $request->telepon, // <-- Balikin normal gini aja
             'tgl_lahir'   => $request->tanggal_lahir,
         ];
 
         $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/my-profile';
 
-      
-        
-        // LANGKAH A: Kita coba tembak pake "PUT" dulu (Anggap dia akun lama)
         $apiRequest = Http::withToken($token);
+
         if ($request->hasFile('avatar')) {
             $foto = $request->file('avatar');
             $response = $apiRequest->attach(
@@ -381,41 +440,30 @@ public function processCheckout(Request $request)
             $response = $apiRequest->put($urlApi, $payloadData);
         }
 
-        // LANGKAH B: Kalau Backend nolak (404/Tidak ditemukan), berarti dia Akun Baru!
-        // Langsung kita ganti senjata, tembak ulang pake "POST" secara diam-diam.
+        // Fallback POST kalau PUT ditolak (404)
         if ($response->status() == 404 || stripos($response->json('message') ?? '', 'tidak ditemukan') !== false) {
-            
-            $apiRequestRetry = Http::withToken($token); // Bikin request baru biar bersih
-            
+            $apiRequestRetry = Http::withToken($token);
             if ($request->hasFile('avatar')) {
                 $foto = $request->file('avatar');
                 $response = $apiRequestRetry->attach(
                     'image', file_get_contents($foto->getPathname()), $foto->getClientOriginalName()
-                )->post($urlApi, $payloadData); // <-- INI JADI POST
+                )->post($urlApi, $payloadData);
             } else {
-                $response = $apiRequestRetry->post($urlApi, $payloadData); // <-- INI JADI POST
+                $response = $apiRequestRetry->post($urlApi, $payloadData);
             }
         }
-        // =========================================================
 
         // 3. Cek Hasil Akhirnya
         if ($response->successful()) {
             return back()->with('success', 'Data profil berhasil disimpan!');
         }
 
-        // Kalau masih error juga (misal server down atau salah validasi)
+        // Kalau masih error
         $pesanError = $response->json('message') ?? 'Gagal memperbarui profil.';
         return back()->with('error', $pesanError);
     }
 
-      // dd([
-        //     '1. Status HTTP' => $response->status(),
-        //     '2. Balasan Server' => $response->json(),
-        //     '3. Data Yang Kita Kirim' => $payloadData,
-        //     '4. Apakah Ada File?' => $request->hasFile('avatar')
-        // ]);
-
-    public function updatePassword(Request $request)
+ public function updatePassword(Request $request)
     {
         $token = session('api_token');
         if (!$token) {
@@ -431,25 +479,14 @@ public function processCheckout(Request $request)
             'new_password.min' => 'Password baru minimal 6 karakter!'
         ]);
 
-        // 2. Tembak API Backend Temen Lu
-        $response = Http::withToken($token)->put('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/change-password', [
-            'old_password' => $request->current_password,
-            'new_password' => $request->new_password
+        // 2. Tembak API Backend pakai "MANTRA RAHASIA" dari Darda
+        $response = Http::withToken($token)->post('https://mediumspringgreen-meerkat-585223.hostingersite.com/changePassword', [
+            'oldPassword'     => $request->current_password,
+            'newPassword'     => $request->new_password,
+            'confirmPassword' => $request->new_password // Laravel udah ngecek konfirmasinya, jadi kita lempar data yang sama aja
         ]);
 
-        // =======================================================
-        // BUKA KOMENTAR DD() INI KALAU MASIH GAGAL / MAU RONTGEN
-        // =======================================================
-        // dd([
-        //     'Status HTTP' => $response->status(),
-        //     'Pesan Asli Server' => $response->json(),
-        //     'Data yang dikirim' => [
-        //         'old_password' => $request->current_password,
-        //         'new_password' => $request->new_password
-        //     ]
-        // ]);
-
-        // 3. Cek kalau SUKSES
+        // 3. Cek kalau SUKSES (Status 200)
         if ($response->successful()) {
             return back()->with('success', 'Password berhasil diubah!');
         }
@@ -458,19 +495,18 @@ public function processCheckout(Request $request)
         $statusHTTP = $response->status();
         $pesanAsliServer = strtolower($response->json('message') ?? '');
 
-        // Kalau statusnya 400/401/403, ATAU ada kata-kata "salah/wrong/incorrect/match" dari backend
+        // Kalau ada kata-kata dari backend yang nunjukin password lamanya salah
         if (
-            $statusHTTP == 400 || 
-            $statusHTTP == 401 || 
             str_contains($pesanAsliServer, 'wrong') || 
             str_contains($pesanAsliServer, 'incorrect') || 
             str_contains($pesanAsliServer, 'match') || 
-            str_contains($pesanAsliServer, 'salah')
+            str_contains($pesanAsliServer, 'salah') ||
+            str_contains($pesanAsliServer, 'lama')
         ) {
             return back()->with('error', 'Password lama yang Anda masukkan salah!');
         }
 
-        // Kalau errornya hal lain (misal server down)
+        // Kalau errornya hal lain (misal dari Darda nya emang ngasih pesan error lain)
         $pesanError = $response->json('message') ?? 'Gagal mengubah password. Silakan coba lagi nanti.';
         return back()->with('error', $pesanError);
     }

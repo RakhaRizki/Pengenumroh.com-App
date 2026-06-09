@@ -5,6 +5,10 @@ use App\Http\Controllers\ApiAuthController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\TravelDashboardController;
 use App\Http\Controllers\UserDashboardController;
+
+use App\Http\Middleware\CheckRoleJamaah;
+use App\Http\Middleware\CheckRoleTravel;
+
 use Illuminate\Support\Facades\Route;
 
 // ==========================================================
@@ -64,36 +68,46 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     // CHECKOUT PAKET
     Route::post('/checkout', [UserDashboardController::class, 'processCheckout'])->name('produk.checkout');
 
-   // ==========================================================
+  // ==========================================================
     // SUB-GRUP: AREA DASHBOARD MITRA TRAVEL
     // ==========================================================
-    // Nanti di sini lu bisa tambahin middleware khusus, misal: ->middleware(['auth', 'role:mitra'])
-    Route::prefix('travel')->name('travel.')->group(function () {
-        
+    // 👇 UPDATE: Tambah middleware CheckRoleTravel
+   Route::middleware([CheckRoleTravel::class])->group(function () {
+   Route::prefix('travel')->name('travel.')->group(function () {
         Route::get('/', [TravelDashboardController::class, 'index'])->name('profil');
+        Route::post('/update-profil', [App\Http\Controllers\TravelDashboardController::class, 'updateProfile'])->name('profil.update');
         Route::get('/pesanan-masuk', [TravelDashboardController::class, 'pesananMasuk'])->name('pesanan-masuk');
+        Route::put('/pesanan-masuk/{id}/verifikasi', [TravelDashboardController::class, 'verifikasiPembayaran'])->name('pesanan.verifikasi');
         Route::get('/kelola-produk', [TravelDashboardController::class, 'kelolaProduk'])->name('kelola-produk');
         Route::get('/upload-produk', [TravelDashboardController::class, 'uploadProduk'])->name('upload-produk');
         Route::get('/kelola-produk/edit/{id}', [TravelDashboardController::class, 'editProduk'])->name('produk.edit');
     });
+});
 
- // ==========================================================
+    // ==========================================================
     // SUB-GRUP: AREA HALAMAN PROFIL MEMBER (JAMAAH)
     // ==========================================================
-    Route::prefix('profil')->name('profil.')->group(function () {
+    // 👇 UPDATE: Tambah middleware CheckRoleJamaah
+    Route::prefix('profil')
+        ->name('profil.')
+        ->middleware([\App\Http\Middleware\CheckRoleJamaah::class]) 
+        ->group(function () {
+            
         // Halaman Akun / Biodata
         Route::get('/', [UserDashboardController::class, 'index'])->name('index');
         // Halaman Daftar Pesanan
         Route::get('/pesanan', [UserDashboardController::class, 'pesanan'])->name('pesanan');
+        // Upload Bukti
+        Route::post('/pesanan/upload-bukti', [UserDashboardController::class, 'uploadBukti'])->name('upload_bukti');
         // Halaman Wishlist
         Route::get('/wishlist', [UserDashboardController::class, 'wishlist'])->name('wishlist');
         // Ajax Wishlist
         Route::post('/wishlist/toggle', [UserDashboardController::class, 'toggleWishlist'])->name('wishlist.toggle');
         // Update Profile
         Route::post('/update', [UserDashboardController::class, 'updateProfile'])->name('update');
+        
+        // 👇 UPDATE: Hapus yang PUT biasa, sisakan yang MATCH aja biar rapi
         // Update Ubah Password
-        Route::put('/password', [UserDashboardController::class, 'updatePassword'])->name('password');
-        // 👇 UPDATE DI SINI: Ganti PUT jadi MATCH (biar bisa nerima POST atau PUT)
         Route::match(['put', 'post'], '/password', [UserDashboardController::class, 'updatePassword'])->name('password');
     });
     

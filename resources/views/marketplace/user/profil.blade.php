@@ -144,20 +144,31 @@
 
                 <div class="lg:col-span-3" data-aos="fade-up" data-aos-delay="100">
 
-                 {{-- 1. Tambahkan blok alert di atas form --}}
-@if(session('success'))
-    <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-2xl flex items-center gap-3">
-        <i class="ph-bold ph-check-circle text-xl"></i>
-        <p class="font-bold text-sm">{{ session('success') }}</p>
-    </div>
-@endif
+                @if(session('success'))
+                    <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-2xl flex items-center gap-3">
+                        <i class="ph-bold ph-check-circle text-xl"></i>
+                        <p class="font-bold text-sm">{{ session('success') }}</p>
+                    </div>
+                @endif
 
-@if(session('error'))
-    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-center gap-3">
-        <i class="ph-bold ph-warning-circle text-xl"></i>
-        <p class="font-bold text-sm">{{ session('error') }}</p>
-    </div>
-@endif
+                {{-- Alert Error --}}
+                @if(session('error'))
+                    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-center gap-3">
+                        <i class="ph-bold ph-warning-circle text-xl"></i>
+                        <p class="font-bold text-sm">{{ session('error') }}</p>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-start gap-3">
+                        <i class="ph-bold ph-warning-circle text-xl mt-0.5"></i>
+                        <ul class="text-sm font-bold list-disc pl-4">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
 {{-- 2. Tambahkan enctype di tag form --}}
 <form id="profileForm" action="{{ route('marketplace.profil.update') }}" method="POST" enctype="multipart/form-data">
@@ -341,58 +352,88 @@
         </button>
     </div>
 
-    <div id="password-form-container" class="hidden">
-        {{-- Form khusus untuk ubah password (Action-nya beda) --}}
-        <form action="{{ route('marketplace.profil.password') }}" method="POST" class="space-y-4">
-            @csrf
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {{-- Password Lama --}}
-                <div class="space-y-2 md:col-span-2">
-                    <label class="text-sm font-bold text-slate-700">Password Saat Ini</label>
-                    <div class="relative">
-                        <i class="ph-bold ph-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                        <input type="password" name="current_password" required
-                            class="form-input w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-orange-500 transition"
-                            placeholder="Masukkan password saat ini">
+            <div id="password-form-container" class="hidden mt-8 border-t border-slate-200 pt-8">
+                <form id="passwordForm" action="{{ route('marketplace.profil.password') }}" method="POST">
+                    @csrf
+                    
+                    {{-- STEP 1: Password Lama --}}
+                    <div id="step-1-password" class="max-w-md">
+                        <div class="mb-5">
+                            <h3 class="text-base font-bold text-slate-800">Verifikasi Identitas</h3>
+                            <p class="text-sm text-slate-500 mt-1">Masukkan password Anda saat ini untuk melanjutkan.</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="relative">
+                                <i class="ph-bold ph-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                <input type="password" id="current_password" name="current_password" required 
+                                    class="form-input w-full pl-11 pr-12 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition shadow-sm" 
+                                    placeholder="Password saat ini">
+                                
+                                {{-- Tombol Show/Hide --}}
+                                <button type="button" onclick="togglePassword('current_password', 'icon-eye-current')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-orange-500 transition focus:outline-none">
+                                    <i id="icon-eye-current" class="ph-bold ph-eye text-lg"></i>
+                                </button>
+                            </div>
+                            
+                            <button type="button" id="btn-next-password" onclick="goToNextStep()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md shadow-slate-900/10 transition active:scale-95">
+                                Lanjut <i class="ph-bold ph-arrow-right"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                {{-- Password Baru --}}
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-700">Password Baru</label>
-                    <div class="relative">
-                        <i class="ph-bold ph-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                        <input type="password" name="new_password" required minlength="6"
-                            class="form-input w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-orange-500 transition"
-                            placeholder="Minimal 6 karakter">
-                    </div>
-                </div>
+                    {{-- STEP 2: Password Baru (Awalnya Disembunyikan) --}}
+                    {{-- Catatan: Javascript bakal otomatis nambahin class 'grid' ke div ini pas dipanggil --}}
+                    <div id="step-2-password" class="hidden opacity-0 transition-opacity duration-500 mt-8 pt-8 border-t border-dashed border-slate-200 gap-6 md:grid-cols-2">
+                        
+                        {{-- Judul Step 2 (Span 2 kolom di Desktop) --}}
+                        <div class="md:col-span-2 mb-1">
+                            <h3 class="text-base font-bold text-slate-800">Buat Password Baru</h3>
+                            <p class="text-sm text-slate-500 mt-1">Pastikan password baru Anda terdiri dari minimal 6 karakter.</p>
+                        </div>
 
-                {{-- Konfirmasi Password --}}
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-700">Konfirmasi Password Baru</label>
-                    <div class="relative">
-                        <i class="ph-bold ph-check-circle absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                        <input type="password" name="new_password_confirmation" required minlength="6"
-                            class="form-input w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-orange-500 transition"
-                            placeholder="Ulangi password baru">
+                        {{-- Password Baru --}}
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700">Password Baru</label>
+                            <div class="relative">
+                                <i class="ph-bold ph-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                <input type="password" id="new_password" name="new_password" required minlength="6" 
+                                    class="form-input w-full pl-11 pr-12 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition shadow-sm" 
+                                    placeholder="Minimal 6 karakter">
+                                
+                                <button type="button" onclick="togglePassword('new_password', 'icon-eye-new')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-orange-500 transition focus:outline-none">
+                                    <i id="icon-eye-new" class="ph-bold ph-eye text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {{-- Konfirmasi Password --}}
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700">Konfirmasi Password Baru</label>
+                            <div class="relative">
+                                <i class="ph-bold ph-check-circle absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                <input type="password" id="confirm_password" name="new_password_confirmation" required minlength="6" 
+                                    class="form-input w-full pl-11 pr-12 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition shadow-sm" 
+                                    placeholder="Ulangi password baru">
+                                
+                                <button type="button" onclick="togglePassword('confirm_password', 'icon-eye-confirm')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-orange-500 transition focus:outline-none">
+                                    <i id="icon-eye-confirm" class="ph-bold ph-eye text-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Tombol Simpan (Span 2 kolom di Desktop) --}}
+                        <div class="md:col-span-2 mt-4 flex justify-start">
+                            <button type="submit" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-8 py-3.5 rounded-xl font-bold shadow-lg shadow-orange-500/20 transition transform active:scale-95">
+                                <i class="ph-bold ph-floppy-disk text-lg"></i> Simpan Password Baru
+                            </button>
+                        </div>
                     </div>
-                </div>
+
+                </form>
             </div>
-
-            <div class="pt-4 flex justify-end">
-                <button type="submit"
-                    class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold shadow-md transition">
-                    <i class="ph-bold ph-check"></i> Simpan Password Baru
-                </button>
-            </div>
-        </form>
-    </div>
 </div>
-
                 </div>
-
             </div>
         </div>
     </main>
@@ -402,6 +443,57 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
 
     <script>
+
+        // 1. Fungsi Show/Hide Password
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('ph-eye');
+                icon.classList.add('ph-eye-closed', 'text-orange-500'); // Ganti warna pas lagi ngintip
+            } else {
+                input.type = 'password';
+                icon.classList.remove('ph-eye-closed', 'text-orange-500');
+                icon.classList.add('ph-eye');
+            }
+        }
+
+        // 2. Fungsi Ilusi 2-Step Verification
+        function goToNextStep() {
+            const currentPwInput = document.getElementById('current_password');
+            const step2Wrapper = document.getElementById('step-2-password');
+            const btnNext = document.getElementById('btn-next-password');
+
+            // Cek kalau user belum ngisi password lama
+            if (currentPwInput.value.trim() === '') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Tunggu Dulu',
+                    text: 'Silakan masukkan password saat ini terlebih dahulu.',
+                    confirmButtonColor: '#ea580c'
+                });
+                currentPwInput.focus();
+                return;
+            }
+
+            // Kalau udah diisi, munculin form password baru
+            btnNext.classList.add('hidden'); // Sembunyiin tombol lanjut
+            
+            step2Wrapper.classList.remove('hidden');
+            step2Wrapper.classList.add('grid');
+            
+            // Dikasih delay dikit biar animasi opacity jalan mulus
+            setTimeout(() => {
+                step2Wrapper.classList.remove('opacity-0');
+                step2Wrapper.classList.add('opacity-100');
+            }, 50);
+            
+            // Otomatis arahin kursor ke form password baru
+            document.getElementById('new_password').focus();
+        }
+
        AOS.init({
             duration: 800,
             once: true
@@ -513,6 +605,30 @@
                 }
             });
         }
+
+        // Validasi Cepat Frontend: Cek Password Baru & Konfirmasi
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            const newPw = document.getElementById('new_password').value;
+            const confirmPw = document.getElementById('confirm_password').value;
+
+            // Kalau isinya beda, stop formnya & kasih peringatan
+            if (newPw !== confirmPw) {
+                e.preventDefault(); // Stop proses submit
+                
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Password Tidak Cocok',
+                    text: 'Konfirmasi password baru tidak sama dengan password baru yang Anda masukkan. Silakan periksa kembali.',
+                    confirmButtonColor: '#ea580c'
+                });
+                
+                // Otomatis bersihin kolom konfirmasi biar user gampang ngetik ulang
+                document.getElementById('confirm_password').value = '';
+                document.getElementById('confirm_password').focus();
+            }
+        });
+
     </script>
 
 </body>

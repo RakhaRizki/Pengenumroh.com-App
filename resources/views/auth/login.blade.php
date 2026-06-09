@@ -29,13 +29,6 @@
             width: 0px;
             background: transparent;
         }
-
-        /* Custom Checkbox */
-        .custom-checkbox:checked {
-            background-color: #F97316;
-            border-color: #F97316;
-            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
-        }
     </style>
 </head>
 
@@ -81,31 +74,31 @@
                     </div>
 
                     <!-- Tampilkan Pesan Error Jika Login Gagal -->
-                    @if(session('error'))
-                        <div class="bg-red-50 text-red-600 border border-red-200 p-4 rounded-xl text-sm font-bold flex items-center gap-2 mb-5">
+                    @if (session('error'))
+                        <div
+                            class="bg-red-50 text-red-600 border border-red-200 p-4 rounded-xl text-sm font-bold flex items-center gap-2 mb-5">
                             <i class="ph-fill ph-warning-circle text-lg"></i>
                             {{ session('error') }}
                         </div>
                     @endif
 
-                    <!-- FORM SUDAH DIUBAH MENGARAH KE ROUTE LARAVEL -->
-                    <form id="loginForm" class="space-y-5" action="{{ route('login.proses') }}" method="POST" onsubmit="handleLogin()">
-                        
+                    <form id="loginForm" class="space-y-5" action="{{ route('login.proses') }}" method="POST"
+                        onsubmit="handleLogin()">
+
                         <!-- WAJIB UNTUK LARAVEL -->
                         @csrf
 
                         <div class="space-y-1.5">
                             <label class="text-xs font-bold text-slate-700 ml-1 uppercase tracking-wide">Email atau
-                                WhatsApp</label>
+                                Username</label>
                             <div class="relative group">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <i
                                         class="ph-duotone ph-user-circle text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors"></i>
                                 </div>
-                                <!-- Ditambah name="email" -->
                                 <input type="text" name="email" required
                                     class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
-                                    placeholder="nama@email.com / 0812...">
+                                    placeholder="nama@email.com / Fulan...">
                             </div>
                         </div>
 
@@ -119,37 +112,18 @@
                                     <i
                                         class="ph-duotone ph-key text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors"></i>
                                 </div>
-                                <!-- Ditambah name="password" -->
                                 <input type="password" id="password" name="password" required
                                     class="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
                                     placeholder="Masukkan kata sandi">
                                 <button type="button" onclick="togglePassword('password', this)"
-                                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none transition-colors cursor-pointer z-10">
+                                    class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-orange-500 focus:outline-none transition-colors cursor-pointer z-10">
                                     <i class="ph-bold ph-eye-slash text-xl"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <div
-                            class="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100">
-                            <div class="flex items-center">
-                                <input id="remember-me" type="checkbox"
-                                    class="w-4 h-4 border-slate-300 rounded text-orange-600 focus:ring-orange-500 custom-checkbox cursor-pointer transition-all">
-                                <label for="remember-me"
-                                    class="ml-2 block text-xs font-medium text-slate-600 cursor-pointer select-none">
-                                    Ingat Saya
-                                </label>
-                            </div>
-                            <div class="text-xs">
-                                <a href="#"
-                                    class="font-bold text-orange-600 hover:text-orange-700 hover:underline">
-                                    Lupa Kata Sandi?
-                                </a>
-                            </div>
-                        </div>
-
                         <button type="submit" id="loginBtn"
-                            class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-slate-900/20 transition-all duration-300 transform active:scale-[0.98] flex items-center justify-center gap-2 mt-4">
+                            class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg shadow-slate-900/20 transition-all duration-300 transform active:scale-[0.98] flex items-center justify-center gap-2 mt-8">
                             <span>Masuk Sekarang</span>
                             <i class="ph-bold ph-sign-in"></i>
                         </button>
@@ -159,8 +133,7 @@
                     <p class="text-center text-sm text-slate-500 mt-8">
                         Belum memiliki akun?
                         <a href="{{ route('register') }}"
-                            class="text-orange-600 font-bold hover:underline transition-all">Daftar
-                            sekarang</a>
+                            class="text-orange-600 font-bold hover:underline transition-all">Daftar sekarang</a>
                     </p>
                 </div>
             </div>

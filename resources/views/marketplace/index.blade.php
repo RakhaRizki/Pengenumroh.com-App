@@ -334,6 +334,7 @@
                     </a>
                 </div>
             </div>
+            
         </div>
     @empty
         <div class="col-span-full text-center py-12">Belum ada paket produk dari API.</div>
