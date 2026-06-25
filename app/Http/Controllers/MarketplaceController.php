@@ -7,29 +7,46 @@ use Illuminate\Support\Facades\Http;
 
 class MarketplaceController extends Controller
 {
-    public function index()
+   public function index()
     {
-        // 1. Tembak API Produk
-        $responseProduk = Http::get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products');
+        $signature = config('app.api_signature');
+
+        $responseProduk = Http::withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products');
+
+        // dd([
+        //     'Status Code' => $responseProduk->status(),
+        //     'Signature_yg_dikirim' => $signature,
+        //     'Balasan_Server' => $responseProduk->json()
+        // ]);
+
         $daftarProduk = [];
         if ($responseProduk->successful()) {
             $dataAsli = $responseProduk->json('data') ?? []; 
             $daftarProduk = collect($dataAsli)->take(8)->toArray();
         }
 
-        // 2. Tembak API Kategori
-        $responseKategori = Http::get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/category');
+        $responseKategori = Http::withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/category');
+
         $daftarKategori = [];
         if ($responseKategori->successful()) {
             $daftarKategori = $responseKategori->json('data') ?? []; 
         }
 
-        // 👇 TAMBAHAN BARU: NGAMBIL DATA WISHLIST BUAT BERANDA 👇
         $wishlistIds = [];
         $token = session('api_token');
         
         if ($token) {
-            $responseWishlist = Http::withToken($token)->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
+            $responseWishlist = Http::withToken($token)->withHeaders([
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json'
+            ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
+
             if ($responseWishlist->successful()) {
                 $dataApi = $responseWishlist->json('data') ?? $responseWishlist->json() ?? [];
                 foreach ($dataApi as $w) {
@@ -40,24 +57,33 @@ class MarketplaceController extends Controller
                 }
             }
         }
-        // 👆 AKHIR TAMBAHAN WISHLIST 👆
 
-        // Lempar Produk, Kategori, dan wishlistIds ke Blade Beranda
         return view('marketplace.index', compact('daftarProduk', 'daftarKategori', 'wishlistIds'));
     }
 
     public function produk(Request $request)
     {
+        // 0. Ambil Signature Keamanan
+        $signature = config('app.api_signature');
+
         // 1. Tangkap parameter dari URL
         $namaMitra = $request->query('mitra');
         $kategoriFilter = $request->query('kategori'); 
 
-        // 2. Tembak API Kategori
-        $responseKategori = Http::get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/category');
+        // 2. Tembak API Kategori dengan Header
+        $responseKategori = Http::withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/category');
+        
         $daftarKategori = $responseKategori->successful() ? ($responseKategori->json('data') ?? []) : [];
 
-        // 3. Tembak API Produk (Ambil Semua)
-        $responseProduk = Http::get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products');
+        // 3. Tembak API Produk (Ambil Semua) dengan Header
+        $responseProduk = Http::withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products');
+        
         $daftarProduk = $responseProduk->successful() ? ($responseProduk->json('data') ?? []) : [];
 
         // --- FILTER MITRA TRAVEL (Tetap butuh di PHP) ---
@@ -71,12 +97,15 @@ class MarketplaceController extends Controller
             $daftarProduk = array_values($daftarProduk); 
         }
 
-        // AMBIL DATA WISHLIST BUAT HALAMAN KATALOG 
+        // 4. AMBIL DATA WISHLIST BUAT HALAMAN KATALOG dengan Token & Header
         $wishlistIds = [];
         $token = session('api_token');
         
         if ($token) {
-            $responseWishlist = Http::withToken($token)->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
+            $responseWishlist = Http::withToken($token)->withHeaders([
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json'
+            ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
             
             if ($responseWishlist->successful()) {
                 $dataApi = $responseWishlist->json('data') ?? $responseWishlist->json() ?? [];
@@ -95,8 +124,14 @@ class MarketplaceController extends Controller
 
     public function detail($id)
     {
-        // 1. Tembak API spesifik berdasarkan ID produk yang dilempar dari URL
-        $response = Http::get("https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/{$id}");
+        // 0. Ambil Signature Keamanan
+        $signature = config('app.api_signature');
+
+        // 1. Tembak API spesifik berdasarkan ID produk yang dilempar dari URL (Bawa Header)
+        $response = Http::withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->get("https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/{$id}");
 
         // 2. Cek apakah request sukses dan datanya ada
         if ($response->successful() && $response->json('data')) {
@@ -108,7 +143,12 @@ class MarketplaceController extends Controller
             $token = session('api_token');
             
             if ($token) {
-                $responseWishlist = Http::withToken($token)->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
+                // Tembak API Wishlist (Bawa Token dan Header)
+                $responseWishlist = Http::withToken($token)->withHeaders([
+                    'X-App-Signature' => $signature,
+                    'Accept'          => 'application/json'
+                ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
+                
                 if ($responseWishlist->successful()) {
                     $dataApi = $responseWishlist->json('data') ?? $responseWishlist->json() ?? [];
                     foreach ($dataApi as $w) {
@@ -129,8 +169,11 @@ class MarketplaceController extends Controller
         abort(404, 'Paket perjalanan tidak ditemukan atau sedang tidak tersedia.');
     }
 
-    public function bandingkan(Request $request)
+   public function bandingkan(Request $request)
     {
+        // 0. Ambil Signature Keamanan
+        $signature = config('app.api_signature');
+
         // 1. Tangkap parameter 'ids' dari URL (Misal: ?ids=104,105)
         $idsParam = $request->query('ids');
         $produkPerbandingan = [];
@@ -145,7 +188,12 @@ class MarketplaceController extends Controller
 
             // Looping untuk nembak API satu-satu berdasarkan ID yang dipilih
             foreach ($idsArray as $id) {
-                $response = Http::get("https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/{$id}");
+                // Tembak API detail dengan membawa Header Signature & Accept
+                $response = Http::withHeaders([
+                    'X-App-Signature' => $signature,
+                    'Accept'          => 'application/json'
+                ])->get("https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/{$id}");
+
                 if ($response->successful() && $response->json('data')) {
                     $produkPerbandingan[] = $response->json('data');
                 }

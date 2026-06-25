@@ -34,26 +34,28 @@
 <body class="text-slate-800 antialiased selection:bg-orange-500 selection:text-white">
 
     @php
-        // =========================================================
-        // 1. LOGIKA PROFIL TRAVEL
-        // =========================================================
+        // 1. Ambil data user dari session
         $userData = session('user') ?? [];
         $namaTravel = $userData['fullname'] ?? ($userData['username'] ?? 'Biro Travel');
-        $defaultAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($namaTravel) . '&background=F97316&color=fff';
-        $avatar = session('user_avatar', session('foto_global_navbar', $defaultAvatar));
-        $bergabung = isset($userData['created_at'])
-            ? \Carbon\Carbon::parse($userData['created_at'])->translatedFormat('Y')
-            : date('Y');
-
-        // =========================================================
-        // 2. LOGIKA HITUNG PENDING FIX (Dihitung kalau status UNPAID atau PENDING)
-        // =========================================================
-        $countPending = collect($pesanan)
-            ->filter(function ($trx) {
-                $status = strtoupper($trx['status'] ?? '');
-                return in_array($status, ['UNPAID', 'PENDING']);
-            })
-            ->count();
+        
+        // 2. Variabel buat ngisi input Email di Profil biar gak Undefined
+        $emailTravel = $userData['email'] ?? 'Belum ada email';
+        
+        // 3. KEMBALI KE LOGIKA AWAL: Ambil URL avatar langsung dari session/API tanpa modifikasi path
+        $avatar = $userData['avatar_url'] ?? session('user_avatar') ?? 'https://ui-avatars.com/api/?name=' . urlencode($namaTravel) . '&background=F97316&color=fff';
+        
+        // 4. Format Tanggal Perjalanan/Bergabung Dinamis
+        $bergabung = isset($userData['created_at']) ? \Carbon\Carbon::parse($userData['created_at'])->translatedFormat('F Y') : date('Y');
+        
+        // 5. Status Akun Dinamis biar aman di sidebar
+        $statusRaw = $userData['status'] ?? 'aktif'; 
+        $isAktif = strtolower($statusRaw) === 'aktif' || $statusRaw == 1;
+        
+        // 6. Notif Badge Pesanan Masuk
+        $pesanan = $pesanan ?? [];
+        $countPending = collect($pesanan)->filter(function ($trx) {
+            return in_array(strtoupper($trx['status'] ?? ''), ['UNPAID', 'PENDING']);
+        })->count();
     @endphp
 
     <nav class="fixed w-full z-50 bg-white border-b border-slate-200 shadow-sm">
@@ -142,8 +144,8 @@
                                 <i class="ph-bold ph-upload text-xl"></i> Upload Produk
                             </a>
                             <a href="{{ route('marketplace.travel.kelola-produk') }}"
-                                class="flex items-center gap-3 px-5 py-4 font-bold transition border-l-4 {{ request()->routeIs('marketplace.travel.kelola-produk') ? 'bg-orange-50 text-orange-700 border-orange-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-transparent' }}">
-                                <i class="ph-bold ph-package text-xl"></i> Kelola Produk
+                            class="flex items-center gap-3 px-5 py-4 font-bold transition border-l-4 {{ request()->routeIs('marketplace.travel.kelola-produk', 'marketplace.travel.produk.edit') ? 'bg-orange-50 text-orange-700 border-orange-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-transparent' }}">
+                            <i class="ph-bold ph-package text-xl"></i> Kelola Produk
                             </a>
                         </nav>
                     </div>

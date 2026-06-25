@@ -154,7 +154,7 @@ class UserDashboardController extends Controller
    /** 
      * 2. Halaman Riwayat Pesanan 
      */ 
-    public function pesanan(Request $request) 
+   public function pesanan(Request $request) 
     { 
         $userProfile = $this->getProfileData(); 
         if (!$userProfile) { 
@@ -165,9 +165,15 @@ class UserDashboardController extends Controller
         $sessionUser = session('user'); 
         $myUserId = $sessionUser['id'] ?? $sessionUser['id_user'] ?? null; 
 
+        // 0. Ambil Signature Keamanan
+        $signature = config('app.api_signature');
+
         try { 
-            // 3. Tembak API Transactions Utama 
-            $responseTrx = Http::withToken($token) 
+            // 3. Tembak API Transactions Utama (BAWA TOKEN + SIGNATURE)
+            $responseTrx = Http::withToken($token)->withHeaders([
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json'
+            ])
                 ->timeout(10) 
                 ->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions'); 
                 
@@ -218,44 +224,51 @@ class UserDashboardController extends Controller
         return view('marketplace.user.pesanan', compact('userProfile', 'transactions')); 
     }
 
-   public function uploadBukti(Request $request) 
-{ 
-    $token = session('api_token'); 
-    if (!$token) return response()->json(['status' => 'error', 'message' => 'Sesi berakhir.']);
+  public function uploadBukti(Request $request) 
+    { 
+        $token = session('api_token'); 
+        if (!$token) return response()->json(['status' => 'error', 'message' => 'Sesi berakhir.']);
 
-    try { 
-        $foto = $request->file('bukti_bayar'); 
-        $idTransaksi = $request->id_transaksi;
-        
-        // 1. URL BERDASARKAN ID (Sesuai request backend)
-        $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/' . $idTransaksi; 
+        // 0. Ambil Signature Keamanan
+        $signature = config('app.api_signature');
 
-        // 2. METHOD PUT MURNI 
-        $response = Http::withToken($token) 
-            ->attach(
-                'evidence_url', // Pakai key 'evidence_url' sesuai data dari backend sebelumnya
-                file_get_contents($foto->getPathname()), 
-                $foto->getClientOriginalName()
-            )
-            ->put($urlApi, [ 
-                'status' => 'PENDING' // Update status sekalian (kalau backend butuh)
+        try { 
+            $foto = $request->file('bukti_bayar'); 
+            $idTransaksi = $request->id_transaksi;
+            
+            // 1. URL BERDASARKAN ID (Sesuai request backend)
+            $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/' . $idTransaksi; 
+
+            // 2. METHOD PUT MURNI + SIGNATURE + TOKEN
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'X-App-Signature' => $signature,
+                    'Accept'          => 'application/json'
+                ])
+                ->attach(
+                    'evidence_url', // Pakai key 'evidence_url' sesuai data dari backend sebelumnya
+                    file_get_contents($foto->getPathname()), 
+                    $foto->getClientOriginalName()
+                )
+                ->put($urlApi, [ 
+                    'status' => 'PENDING' // Update status sekalian (kalau backend butuh)
+                ]); 
+
+            // Kalau Sukses
+            if ($response->successful()) { 
+                return response()->json(['status' => 'success']); 
+            } 
+
+            // Kalau Gagal, kita keluarin pesan errornya
+            return response()->json([
+                'status' => 'error', 
+                'message' => 'Status: ' . $response->status() . ' | ' . $response->body() 
             ]); 
 
-        // Kalau Sukses
-        if ($response->successful()) { 
-            return response()->json(['status' => 'success']); 
+        } catch (\Exception $e) { 
+            return response()->json(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]); 
         } 
-
-        // Kalau Gagal, kita keluarin pesan errornya
-        return response()->json([
-            'status' => 'error', 
-            'message' => 'Status: ' . $response->status() . ' | ' . $response->body() 
-        ]); 
-
-    } catch (\Exception $e) { 
-        return response()->json(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]); 
-    } 
-}
+    }
 
 public function processCheckout(Request $request)
 {
@@ -263,6 +276,9 @@ public function processCheckout(Request $request)
     if (!$token) {
         return response()->json(['status' => 'error', 'message' => 'Sesi login berakhir.'], 401);
     }
+
+    // 0. Ambil Signature Keamanan
+    $signature = config('app.api_signature');
 
     try {
         $sessionUser = session('user');
@@ -288,11 +304,12 @@ public function processCheckout(Request $request)
             'payment_method' => 'TRANSFER',
         ];
 
-        // 3. TEMBAK API DARDA SEBAGAI JSON MURNI
+        // 3. TEMBAK API DARDA SEBAGAI JSON MURNI (BAWA TOKEN + SIGNATURE)
         $response = Http::withToken($token)
             ->withHeaders([
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json'
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json',
+                'Content-Type'    => 'application/json'
             ])
             ->post('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions', $payload);
 
@@ -316,10 +333,7 @@ public function processCheckout(Request $request)
     }
 }
 
-    /**
-     * 3. Halaman Wishlist
-     */
-   public function wishlist(Request $request)
+  public function wishlist(Request $request)
     {
         $userProfile = $this->getProfileData();
 
@@ -327,20 +341,20 @@ public function processCheckout(Request $request)
             return redirect()->route('login');
         }
 
-        // 1. Ambil token user dari session
+        // 1. Ambil token user dari session & Ambil Signature Keamanan
         $token = session('api_token');
+        $signature = config('app.api_signature');
 
-        // 2. Tembak API Wishlist dari backend
-        $response = Http::withToken($token)->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
+        // 2. Tembak API Wishlist dari backend (BAWA TOKEN + SIGNATURE)
+        $response = Http::withToken($token)->withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
 
         // 3. Cek hasilnya
         if ($response->successful()) {
             // Biasanya data API dibungkus di dalam key 'data'. Kalau nggak ada, ambil semua json-nya.
             $wishlistData = $response->json('data') ?? $response->json() ?? [];
-            
-            // 👇 BUKA KOMENTAR DD() INI KALAU HALAMANNYA ERROR / BLANK 👇
-            // dd($wishlistData); 
-
         } else {
             // Kalau API lagi down / error, kasih array kosong biar nggak error di HTML
             $wishlistData = [];
@@ -350,7 +364,7 @@ public function processCheckout(Request $request)
         return view('marketplace.user.wishlist', compact('userProfile', 'wishlistData'));
     }
 
-   public function toggleWishlist(Request $request)
+    public function toggleWishlist(Request $request)
     {
         $token = session('api_token');
 
@@ -359,11 +373,17 @@ public function processCheckout(Request $request)
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
+        // Ambil Signature Keamanan
+        $signature = config('app.api_signature');
+        
         $productId = $request->product_id;
         $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist';
 
-        // 1. KITA COBA TAMBAHIN DULU (POST)
-        $response = Http::withToken($token)->post($urlApi, [
+        // 1. KITA COBA TAMBAHIN DULU (POST + SIGNATURE)
+        $response = Http::withToken($token)->withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->post($urlApi, [
             'product_id' => $productId
         ]);
 
@@ -373,13 +393,18 @@ public function processCheckout(Request $request)
         // 2. LOGIKA PINTAR: Kalau API nolak karena "udah ada", berarti kita harus HAPUS (DELETE)!
         if (stripos($pesan, 'already') !== false || $response->status() == 400) {
             
-            // Asumsi standar API: buat hapus pakai method DELETE dan naruh ID di URL
-            // Kalau API temen lu beda (misal ID-nya ditaruh di body), tinggal disesuaikan.
-            $deleteResponse = Http::withToken($token)->delete($urlApi . '/' . $productId);
+            // Asumsi standar API: buat hapus pakai method DELETE (Bawa Signature)
+            $deleteResponse = Http::withToken($token)->withHeaders([
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json'
+            ])->delete($urlApi . '/' . $productId);
 
             // Coba skenario 2 kalau API temen lu butuh ID di dalem Body (bukan di URL)
             if ($deleteResponse->status() == 404 || $deleteResponse->status() == 405) {
-                 $deleteResponse = Http::withToken($token)->delete($urlApi, [
+                 $deleteResponse = Http::withToken($token)->withHeaders([
+                     'X-App-Signature' => $signature,
+                     'Accept'          => 'application/json'
+                 ])->delete($urlApi, [
                      'product_id' => $productId
                  ]);
             }

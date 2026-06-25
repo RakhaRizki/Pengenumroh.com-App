@@ -72,6 +72,7 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     // SUB-GRUP: AREA DASHBOARD MITRA TRAVEL
     // ==========================================================
     // 👇 UPDATE: Tambah middleware CheckRoleTravel
+
    Route::middleware([CheckRoleTravel::class])->group(function () {
    Route::prefix('travel')->name('travel.')->group(function () {
         Route::get('/', [TravelDashboardController::class, 'index'])->name('profil');
@@ -80,7 +81,11 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::put('/pesanan-masuk/{id}/verifikasi', [TravelDashboardController::class, 'verifikasiPembayaran'])->name('pesanan.verifikasi');
         Route::get('/kelola-produk', [TravelDashboardController::class, 'kelolaProduk'])->name('kelola-produk');
         Route::get('/upload-produk', [TravelDashboardController::class, 'uploadProduk'])->name('upload-produk');
+        Route::post('/upload-produk/store', [TravelDashboardController::class, 'storeProduk'])->name('produk.store');
+        Route::post('/produk/{id}/status', [TravelDashboardController::class, 'updateStatusProduk'])->name('produk.status');
+        Route::delete('/produk/{id}', [TravelDashboardController::class, 'destroyProduk'])->name('produk.destroy');
         Route::get('/kelola-produk/edit/{id}', [TravelDashboardController::class, 'editProduk'])->name('produk.edit');
+        Route::post('/produk/{id}/update', [TravelDashboardController::class, 'updateProduk'])->name('produk.update');
     });
 });
 
@@ -113,8 +118,7 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     
     // Halaman Perbandingan
     Route::get('/bandingkan', [MarketplaceController::class, 'bandingkan'])->name('bandingkan');
-
-});
+    });
 
 Route::get('/dashboard', function () {
     return view('dashboard');

@@ -6,82 +6,67 @@
     <link rel="icon" type="image/png" href="/assets/img/marketplace/favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
+    
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #F8FAFC;
-        }
-
-        /* Custom Input Style for focused ring color */
-        .form-input:focus {
-            border-color: #ea580c;
-            box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1);
-        }
-
-        /* itenary */
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fade-in-down {
-            animation: fadeInDown 0.2s ease-out;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; }
+        .form-input:focus { border-color: #ea580c; box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Animasi mulus buat efek pencarian */
+        .product-card { transition: opacity 0.3s ease, transform 0.3s ease; }
     </style>
 </head>
 
 <body class="text-slate-800 antialiased selection:bg-orange-500 selection:text-white">
 
+    @php
+        $userData = session('user') ?? [];
+        $namaTravel = $userData['fullname'] ?? ($userData['username'] ?? 'Biro Travel');
+        $avatar = $userData['avatar_url'] ?? session('user_avatar') ?? 'https://ui-avatars.com/api/?name=' . urlencode($namaTravel) . '&background=F97316&color=fff';
+        $bergabung = isset($userData['created_at']) ? \Carbon\Carbon::parse($userData['created_at'])->translatedFormat('F Y') : date('Y');
+        $statusRaw = $userData['status'] ?? 'aktif'; 
+        $isAktif = strtolower($statusRaw) === 'aktif' || $statusRaw == 1;
+        
+        $pesanan = $pesanan ?? [];
+        $countPending = collect($pesanan)->filter(function ($trx) {
+            return in_array(strtoupper($trx['status'] ?? ''), ['UNPAID', 'PENDING']);
+        })->count();
+
+        // 👇 BASE URL GAMBAR YANG SUDAH DITAMBAHKAN 'public/'
+        $baseUrlThumbnail = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/public/assets/img/products/thumbnails/';
+    @endphp
+
     <nav class="fixed w-full z-50 bg-white border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <a href="/marketplace/" class="flex items-center gap-2 group">
-                    <img src="/assets/img/marketplace/logo.png" alt="Logo PengenUmroh"
-                        class="h-10 w-auto object-contain">
+                    <img src="/assets/img/marketplace/logo.png" alt="Logo PengenUmroh" class="h-10 w-auto object-contain">
                 </a>
-
                 <div class="hidden lg:flex items-center gap-4">
-                    <a href="/marketplace/"
-                        class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-orange-600 transition bg-slate-50 px-4 py-2 rounded-full border border-slate-100 hover:bg-orange-50 hover:border-orange-100">
+                    <a href="/marketplace/" class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-orange-600 transition bg-slate-50 px-4 py-2 rounded-full border border-slate-100 hover:bg-orange-50 hover:border-orange-100">
                         <i class="ph-bold ph-arrow-left"></i> Kembali ke Beranda
                     </a>
-
                     <div class="h-6 w-px bg-slate-200 mx-2"></div>
-
                     <div class="flex items-center gap-3">
                         <div class="text-right">
-                            <p class="text-xs font-bold text-slate-700">Rahmat Rio</p>
-                            <p class="text-[10px] text-slate-500">Biro Travel</p>
+                            <p class="text-xs font-bold text-slate-700">{{ $namaTravel }}</p>
+                            <p class="text-[10px] text-slate-500">Mitra Travel</p>
                         </div>
                         <div class="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
-                            <img id="nav-avatar"
-                                src="https://ui-avatars.com/api/?name=Rakha+Rizki&background=F97316&color=fff"
-                                class="w-full h-full object-cover">
+                            <img id="nav-avatar" src="{{ $avatar }}" class="w-full h-full object-cover">
                         </div>
                     </div>
                 </div>
-
                 <div class="lg:hidden">
                     <a href="/marketplace/" class="text-slate-700 hover:text-orange-600">
                         <i class="ph-bold ph-house text-2xl"></i>
@@ -93,38 +78,30 @@
 
     <main class="pt-28 pb-5 min-h-screen bg-slate-50/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
+                
                 <div class="lg:col-span-1 space-y-6" data-aos="fade-right">
-                    <div
-                        class="bg-white rounded-2xl p-6 border border-slate-200 text-center shadow-sm relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-orange-100 to-orange-50">
-                        </div>
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-orange-100 to-orange-50"></div>
                         <div class="relative z-10">
-                            <div
-                                class="w-24 h-24 mx-auto rounded-full border-4 border-white shadow-md overflow-hidden bg-slate-100 mb-3">
-                                <img id="sidebar-avatar"
-                                    src="https://ui-avatars.com/api/?name=Rakha+Rizki&background=F97316&color=fff"
-                                    class="w-full h-full object-cover">
+                            <div class="w-24 h-24 mx-auto rounded-full border-4 border-white shadow-md overflow-hidden bg-slate-100 mb-3">
+                                <img id="sidebar-avatar" src="{{ $avatar }}" class="w-full h-full object-cover">
                             </div>
-                            <h2 class="text-lg font-bold text-slate-900">Rahmat Rio</h2>
-                            <p class="text-sm text-slate-500">Travel Agent Resmi</p>
+                            <h2 class="text-lg font-bold text-slate-900">{{ $namaTravel }}</h2>
+                            <p class="text-sm text-slate-500">Bergabung sejak {{ $bergabung }}</p>
                             <div class="mt-4 text-left">
                                 <div class="flex justify-between text-xs mb-1">
-                                    <span class="font-semibold text-slate-600">Kelengkapan Data</span>
-                                    <span class="font-bold text-emerald-600">100%</span>
+                                    <span class="font-semibold text-slate-600">Status Akun</span>
+                                    <span class="font-bold {{ $isAktif ? 'text-emerald-600' : 'text-red-600' }}">
+                                        {{ $isAktif ? 'Aktif' : 'Menunggu Verifikasi' }}
+                                    </span>
                                 </div>
-
                                 <div class="w-full bg-slate-100 rounded-full h-2">
-                                    <div class="bg-emerald-500 h-2 rounded-full transition-all duration-1000 w-full">
-                                    </div>
+                                    <div class="{{ $isAktif ? 'bg-emerald-500' : 'bg-red-500' }} h-2 rounded-full transition-all duration-1000 w-full"></div>
                                 </div>
-
-                                <p
-                                    class="text-[11px] text-emerald-700 mt-2 flex items-center gap-1 font-medium bg-emerald-50 py-1 px-2 rounded-lg">
-                                    <i class="ph-fill ph-check-circle text-emerald-600"></i>
-                                    Data Anda sudah lengkap.
+                                <p class="text-[11px] mt-2 flex items-center gap-1 font-medium px-2 py-1 rounded-lg {{ $isAktif ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50' }}">
+                                    <i class="ph-fill {{ $isAktif ? 'ph-check-circle text-emerald-600' : 'ph-clock text-red-600' }}"></i>
+                                    {{ $isAktif ? 'Mitra Travel Terverifikasi' : 'Harap Lengkapi Data' }}
                                 </p>
                             </div>
                         </div>
@@ -132,56 +109,35 @@
 
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                         <nav class="flex flex-col">
-
-                            <a href="{{ route('marketplace.travel.profil') }}"
-                                class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
+                            <a href="{{ route('marketplace.travel.profil') }}" class="flex items-center gap-3 px-5 py-4 font-bold transition border-l-4 {{ request()->routeIs('marketplace.travel.profil') ? 'bg-orange-50 text-orange-700 border-orange-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-transparent' }}">
                                 <i class="ph-bold ph-user text-xl"></i> Profil
                             </a>
-
-                            <a href="{{ route('marketplace.travel.pesanan-masuk') }}"
-                                class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
+                            <a href="{{ route('marketplace.travel.pesanan-masuk') }}" class="flex items-center gap-3 px-5 py-4 font-bold transition border-l-4 {{ request()->routeIs('marketplace.travel.pesanan-masuk') ? 'bg-orange-50 text-orange-700 border-orange-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-transparent' }}">
                                 <i class="ph-bold ph-receipt text-xl"></i> Pesanan Masuk
                             </a>
-
-                            <a href="{{ route('marketplace.travel.upload-produk') }}"
-                                class="flex items-center gap-3 px-5 py-4 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition border-l-4 border-transparent">
+                            <a href="{{ route('marketplace.travel.upload-produk') }}" class="flex items-center gap-3 px-5 py-4 font-bold transition border-l-4 {{ request()->routeIs('marketplace.travel.upload-produk') ? 'bg-orange-50 text-orange-700 border-orange-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-transparent' }}">
                                 <i class="ph-bold ph-upload text-xl"></i> Upload Produk
                             </a>
-
-                            <a href="{{ route('marketplace.travel.kelola-produk') }}"
-                                class="flex items-center gap-3 px-5 py-4 bg-orange-50 text-orange-700 font-bold border-l-4 border-orange-600">
+                            <a href="{{ route('marketplace.travel.kelola-produk') }}" class="flex items-center gap-3 px-5 py-4 font-bold transition border-l-4 {{ request()->routeIs('marketplace.travel.kelola-produk') ? 'bg-orange-50 text-orange-700 border-orange-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-transparent' }}">
                                 <i class="ph-bold ph-package text-xl"></i> Kelola Produk
                             </a>
-
                         </nav>
-                        <!-- <div class="mt-auto border-t border-slate-100 p-2 bg-slate-50">
-                            <button onclick="confirmLogout()"
-                                class="flex w-full items-center justify-center gap-2 px-5 py-3 text-red-600 hover:bg-red-100/50 hover:text-red-700 font-bold transition rounded-xl text-sm">
-                                <i class="ph-bold ph-sign-out text-lg"></i> Keluar Akun
-                            </button>
-                        </div> -->
                     </div>
                 </div>
 
                 <div class="lg:col-span-3" data-aos="fade-up" data-aos-delay="100">
-
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 min-h-[600px]">
-
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                             <div>
                                 <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Kelola Produk</h1>
-                                <p class="text-slate-500 text-sm mt-1">Atur ketersediaan dan informasi paket perjalanan
-                                    Anda.</p>
+                                <p class="text-slate-500 text-sm mt-1">Atur ketersediaan dan informasi paket perjalanan Anda.</p>
                             </div>
                             <div class="flex gap-3 w-full md:w-auto">
                                 <div class="relative flex-grow md:w-64">
-                                    <i
-                                        class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                                    <input type="text" placeholder="Cari paket..."
-                                        class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-100 transition shadow-sm">
+                                    <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                    <input type="text" id="searchInput" placeholder="Cari nama paket..." class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:outline-none focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-100 transition shadow-sm">
                                 </div>
-                                <a href="/marketplace/travel/upload-produk/"
-                                    class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-orange-500/20 transition whitespace-nowrap">
+                                <a href="/marketplace/travel/upload-produk/" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-orange-500/20 transition whitespace-nowrap">
                                     <i class="ph-bold ph-plus"></i> <span class="hidden sm:inline">Tambah</span>
                                 </a>
                             </div>
@@ -189,312 +145,303 @@
 
                         <div class="mb-8 overflow-x-auto no-scrollbar">
                             <div class="flex gap-4 min-w-max border-b border-slate-100 pb-1">
-                                <button
-                                    class="tab-btn active group relative px-2 py-3 text-sm font-bold text-orange-600 transition-all"
-                                    onclick="filterProduct('all', this)">
-                                    Semua Paket
-                                    <span
-                                        class="ml-1.5 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-bold">2</span>
-                                    <span
-                                        class="absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
+                                <button class="tab-btn active group relative px-2 py-3 text-sm font-bold text-orange-600 transition-all" onclick="changeTab('all', this)">
+                                    Semua Paket 
+                                    <span class="ml-1.5 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-bold">{{ count($produk) }}</span>
+                                    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
                                 </button>
-                                <button
-                                    class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all"
-                                    onclick="filterProduct('active', this)">
-                                    Aktif (Tayang)
-                                    <span
-                                        class="ml-1.5 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-bold">1</span>
-                                    <span
-                                        class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
+                                <button class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all" onclick="changeTab('active', this)">
+                                    Aktif (Tayang) 
+                                    <span class="ml-1.5 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-bold">{{ collect($produk)->where('status', 'publish')->count() }}</span>
+                                    <span class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
                                 </button>
-                                <button
-                                    class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all"
-                                    onclick="filterProduct('archive', this)">
-                                    Arsip (Draft)
-                                    <span
-                                        class="ml-1.5 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-bold">1</span>
-                                    <span
-                                        class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
+                                <button class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all" onclick="changeTab('archive', this)">
+                                    Arsip (Draft) 
+                                    <span class="ml-1.5 bg-orange-100 text-orange-700 text-[10px] px-2 py-0.5 rounded-full font-bold">{{ collect($produk)->where('status', 'draft')->count() }}</span>
+                                    <span class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
                                 </button>
                             </div>
                         </div>
 
                         <div class="space-y-4" id="product-container">
-
-                            <div class="product-card group bg-white rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row gap-5 transition hover:shadow-md hover:border-orange-200"
-                                data-status="active">
-
-                                <div
-                                    class="w-full sm:w-32 h-32 sm:h-28 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 relative">
-                                    <img src="/assets/img/marketplace/produk-dummy.png"
-                                        class="w-full h-full object-cover transition group-hover:scale-105 duration-500">
-                                    <div
-                                        class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-slate-700 flex items-center gap-1 shadow-sm">
-                                        <i class="ph-fill ph-star text-yellow-400"></i> 4.8
-                                    </div>
-                                </div>
-
-                                <div class="flex-grow flex flex-col justify-center">
-                                    <div class="flex flex-wrap gap-2 mb-2">
-                                        <span
-                                            class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-md border border-blue-100">
-                                            Umroh Reguler 9 Hari
-                                        </span>
-                                        <span
-                                            class="text-xs text-slate-500 flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
-                                            <i class="ph-bold ph-calendar text-slate-400"></i> 22 Juni 2026
-                                        </span>
-                                    </div>
-
-                                    <h3
-                                        class="text-base font-bold text-slate-900 mb-2 group-hover:text-orange-600 transition line-clamp-1 leading-snug">
-                                        Umroh Easy 22 Juni 2026
-                                    </h3>
-
-                                    <div class="flex items-center gap-4 text-sm">
-                                        <p class="text-orange-600 font-extrabold text-base">
-                                            Rp 28.900.000 <span class="text-slate-400 font-normal text-xs">/ Pax</span>
-                                        </p>
-                                        <div class="h-4 w-[1px] bg-slate-200"></div>
-                                        <p class="text-slate-500 text-xs flex items-center gap-1.5 font-medium">
-                                            <i class="ph-fill ph-users text-slate-400"></i> Sisa Kuota: <span
-                                                class="text-slate-700 font-bold">42</span>
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-4 border-t sm:border-t-0 sm:border-l border-slate-100 pt-4 sm:pt-0 sm:pl-5 min-w-[140px]">
-
-                                    <div class="flex flex-col items-center gap-1.5">
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" class="sr-only peer toggle-status" checked>
-                                            <div
-                                                class="w-10 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 shadow-inner">
+                            @forelse($produk as $item)
+                                @php
+                                    $statusTab = ($item['status'] ?? 'publish') == 'publish' ? 'active' : 'archive';
+                                    $hargaDisplay = 0;
+                                    if(!empty($item['prices']) && is_array($item['prices'])) {
+                                        $hargaDisplay = $item['prices'][0]['price'] ?? 0;
+                                    }
+                                    $kategoriTeks = match((int)($item['category_id'] ?? 0)) {
+                                        1 => 'Umroh Reguler 9 Hari', 2 => 'Umroh Reguler 12 Hari', 3 => 'Umroh Plus Tour',
+                                        4 => 'Umroh Ramadhan', 5 => 'Haji Khusus', default => 'Paket Perjalanan'
+                                    };
+                                    $badgeBg = ($item['category_id'] == 5) ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-blue-50 text-blue-600 border-blue-100';
+                                @endphp
+                                
+                                <div class="product-card group bg-white rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row gap-5 transition hover:shadow-md {{ $statusTab == 'archive' ? 'opacity-75 hover:opacity-100' : 'hover:border-orange-200' }}" data-status="{{ $statusTab }}">
+                                    <div class="w-full sm:w-32 h-32 sm:h-28 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 relative {{ $statusTab == 'archive' ? 'grayscale' : '' }}">
+                                        
+                                        <img src="{{ !empty($item['thumbnail_url']) ? $baseUrlThumbnail . $item['thumbnail_url'] : '/assets/img/marketplace/produk-dummy.png' }}" 
+                                             class="w-full h-full object-cover transition group-hover:scale-105 duration-500" 
+                                             onerror="this.src='/assets/img/marketplace/produk-dummy.png'">
+                                        
+                                        @if($statusTab == 'archive')
+                                            <div class="absolute inset-0 bg-slate-900/10"></div>
+                                        @else
+                                            <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-slate-700 flex items-center gap-1 shadow-sm">
+                                                <i class="ph-fill ph-star text-yellow-400"></i> 4.8
                                             </div>
-                                        </label>
-                                        <span
-                                            class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 transition-all duration-300">Tayang</span>
+                                        @endif
                                     </div>
-
-                                    <a href="{{ route('marketplace.travel.produk.edit') }}"
-                                        class="w-full py-2 flex items-center justify-center gap-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg transition text-xs font-bold">
-                                        <i class="ph-bold ph-pencil-simple text-sm"></i> Edit
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div class="product-card group bg-white rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row gap-5 transition hover:shadow-md opacity-75 hover:opacity-100"
-                                data-status="archive">
-
-                                <div
-                                    class="w-full sm:w-32 h-32 sm:h-28 bg-slate-100 rounded-xl overflow-hidden flex-shrink-0 grayscale relative">
-                                    <img src="/assets/img/marketplace/produk-dummy2.png"
-                                        class="w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-slate-900/10"></div>
-                                </div>
-
-                                <div class="flex-grow flex flex-col justify-center">
-                                    <div class="flex flex-wrap gap-2 mb-2">
-                                        <span
-                                            class="bg-purple-50 text-purple-600 text-[10px] font-bold px-2.5 py-1 rounded-md border border-purple-100">
-                                            Haji Khusus
-                                        </span>
-                                        <span
-                                            class="text-xs text-slate-500 flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
-                                            <i class="ph-bold ph-calendar text-slate-400"></i> 31 Desember 2035
-                                        </span>
+                                    <div class="flex-grow flex flex-col justify-center">
+                                        <div class="flex flex-wrap gap-2 mb-2">
+                                            <span class="{{ $badgeBg }} text-[10px] font-bold px-2.5 py-1 rounded-md border">{{ $kategoriTeks }}</span>
+                                            <span class="text-xs text-slate-500 flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                                                <i class="ph-bold ph-calendar text-slate-400"></i> {{ \Carbon\Carbon::parse($item['tgl_keberangkatan'])->translatedFormat('d F Y') ?? $item['tgl_keberangkatan'] }}
+                                            </span>
+                                        </div>
+                                        
+                                        <h3 class="product-title text-base font-bold text-slate-900 mb-2 {{ $item['category_id'] == 5 ? 'group-hover:text-purple-600' : 'group-hover:text-orange-600' }} transition line-clamp-1 leading-snug">
+                                            {{ $item['nama_produk'] }}
+                                        </h3>
+                                        
+                                        <div class="flex items-center gap-4 text-sm">
+                                            <p class="{{ $statusTab == 'archive' ? 'text-slate-500' : 'text-orange-600' }} font-extrabold text-base">
+                                                Rp {{ number_format($hargaDisplay, 0, ',', '.') }} <span class="text-slate-400 font-normal text-xs">/ Pax</span>
+                                            </p>
+                                            <div class="h-4 w-[1px] bg-slate-200"></div>
+                                            @if(($item['quota'] ?? 0) > 0)
+                                                <p class="text-slate-500 text-xs flex items-center gap-1.5 font-medium"><i class="ph-fill ph-users text-slate-400"></i> Sisa Kuota: <span class="text-slate-700 font-bold">{{ $item['quota'] }}</span></p>
+                                            @else
+                                                <p class="text-red-500 text-xs flex items-center gap-1.5 font-bold bg-red-50 px-2 py-0.5 rounded"><i class="ph-fill ph-x-circle"></i> Kuota Habis</p>
+                                            @endif
+                                        </div>
                                     </div>
-
-                                    <h3
-                                        class="text-base font-bold text-slate-900 mb-2 group-hover:text-purple-600 transition line-clamp-1 leading-snug">
-                                        Pendaftaran Haji
-                                        Khusus 2026 Program 26 Hari
-                                    </h3>
-
-                                    <div class="flex items-center gap-4 text-sm">
-                                        <p class="text-slate-500 font-bold text-base">
-                                            $ 16.000 Usd
-                                        </p>
-                                        <div class="h-4 w-[1px] bg-slate-200"></div>
-                                        <p
-                                            class="text-red-500 text-xs flex items-center gap-1.5 font-bold bg-red-50 px-2 py-0.5 rounded">
-                                            <i class="ph-fill ph-x-circle"></i> Kuota Habis
-                                        </p>
+                                    <div class="flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-4 border-t sm:border-t-0 sm:border-l border-slate-100 pt-4 sm:pt-0 sm:pl-5 min-w-[140px]">
+                                        <div class="flex flex-col items-center gap-1.5 w-full">
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" class="sr-only peer toggle-status" data-id="{{ $item['id'] }}" {{ $statusTab == 'active' ? 'checked' : '' }}>
+                                                <div class="w-10 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 shadow-inner"></div>
+                                            </label>
+                                            <span class="text-[10px] font-bold {{ $statusTab == 'active' ? 'text-green-600 bg-green-50 border-green-100' : 'text-slate-400 bg-slate-100 border-slate-200' }} px-2 py-0.5 rounded-full border transition-all duration-300 status-label">
+                                                {{ $statusTab == 'active' ? 'Tayang' : 'Arsip' }}
+                                            </span>
+                                        </div>
+                                        <div class="w-full flex gap-2">
+                                            <a href="{{ route('marketplace.travel.produk.edit', $item['id']) }}" class="flex-1 py-2 flex items-center justify-center gap-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg transition text-xs font-bold">
+                                                <i class="ph-bold ph-pencil-simple text-sm"></i> Edit
+                                            </a>
+                                            <button onclick="deleteProduct('{{ $item['id'] }}')" class="py-2 px-3 flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-200 rounded-lg transition text-xs font-bold">
+                                                <i class="ph-bold ph-trash text-sm"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div
-                                    class="flex flex-row sm:flex-col items-center justify-between sm:justify-center gap-4 border-t sm:border-t-0 sm:border-l border-slate-100 pt-4 sm:pt-0 sm:pl-5 min-w-[140px]">
-
-                                    <div class="flex flex-col items-center gap-1.5">
-                                        <label class="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" class="sr-only peer toggle-status">
-                                            <div
-                                                class="w-10 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500 shadow-inner">
-                                            </div>
-                                        </label>
-                                        <span
-                                            class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 transition-all duration-300">Arsip</span>
-                                    </div>
-
-                                    <a href="{{ route('marketplace.travel.produk.edit') }}"
-                                        class="w-full py-2 flex items-center justify-center gap-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg transition text-xs font-bold">
-                                        <i class="ph-bold ph-pencil-simple text-sm"></i> Edit
-                                    </a>
-                                </div>
-                            </div>
-
+                            @empty
+                                @endforelse
                         </div>
 
-                        <div id="empty-product" class="hidden flex-col items-center justify-center py-24 text-center">
-                            <div
-                                class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4 ring-8 ring-slate-50/50">
-                                <i class="ph-duotone ph-package text-5xl text-slate-300"></i>
+                        <div id="empty-product" class="{{ count($produk) > 0 ? 'hidden' : 'flex' }} flex-col items-center justify-center py-24 text-center">
+                            <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4 ring-8 ring-slate-50/50">
+                                <i class="ph-duotone ph-package text-5xl text-slate-300" id="empty-icon"></i>
                             </div>
-                            <h3 class="text-lg font-bold text-slate-900">Belum ada paket</h3>
-                            <p class="text-slate-500 text-sm mt-1 mb-6 max-w-xs mx-auto">
-                                Anda belum memiliki paket perjalanan pada kategori ini.
-                            </p>
-                            <a href="/marketplace/travel/upload-produk/"
-                                class="px-5 py-2.5 rounded-xl bg-orange-600 text-white font-bold text-sm shadow-lg hover:bg-orange-700 transition">
-                                Buat Paket Baru
-                            </a>
+                            <h3 class="text-lg font-bold text-slate-900" id="empty-title">Belum ada paket</h3>
+                            <p class="text-slate-500 text-sm mt-1 mb-6 max-w-xs mx-auto" id="empty-desc">Anda belum memiliki paket perjalanan.</p>
+                            <a href="/marketplace/travel/upload-produk/" class="px-5 py-2.5 rounded-xl bg-orange-600 text-white font-bold text-sm shadow-lg hover:bg-orange-700 transition">Buat Paket Baru</a>
                         </div>
 
                     </div>
                 </div>
-
-                <script>
-                    // Simple Filter Logic
-                    function filterProduct(status, btn) {
-                        // Update Tab Styles
-                        document.querySelectorAll('.tab-btn').forEach(b => {
-                            b.classList.remove('active', 'text-orange-600', 'font-bold');
-                            b.classList.add('text-slate-500', 'font-medium');
-                            b.querySelector('span:last-child').classList.add('hidden');
-                        });
-                        btn.classList.add('active', 'text-orange-600', 'font-bold');
-                        btn.classList.remove('text-slate-500', 'font-medium');
-                        btn.querySelector('span:last-child').classList.remove('hidden');
-
-                        // Filter Logic
-                        const cards = document.querySelectorAll('.product-card');
-                        let visible = 0;
-                        cards.forEach(card => {
-                            if (status === 'all' || card.dataset.status === status) {
-                                card.style.display = 'flex';
-                                visible++;
-                            } else {
-                                card.style.display = 'none';
-                            }
-                        });
-
-                        // Show/Hide Empty State
-                        const emptyState = document.getElementById('empty-product');
-                        if (visible === 0) {
-                            emptyState.classList.remove('hidden');
-                            emptyState.classList.add('flex');
-                        } else {
-                            emptyState.classList.add('hidden');
-                            emptyState.classList.remove('flex');
-                        }
-                    }
-                </script>
-
             </div>
         </div>
     </main>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
-
     <script>
-        AOS.init({
-            duration: 800,
-            once: true
+        AOS.init({ duration: 800, once: true });
+
+        // ==========================================
+        // FITUR SEARCH & FILTER PROFESIONAL
+        // ==========================================
+        let currentTab = 'all';
+        const searchInput = document.getElementById('searchInput');
+
+        // Fungsi ketika tab (Semua/Aktif/Arsip) diklik
+        function changeTab(status, btn) {
+            // Ubah gaya tombol tab
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'text-orange-600', 'font-bold');
+                b.classList.add('text-slate-500', 'font-medium');
+                b.querySelector('span:last-child').classList.add('hidden');
+            });
+            btn.classList.add('active', 'text-orange-600', 'font-bold');
+            btn.classList.remove('text-slate-500', 'font-medium');
+            btn.querySelector('span:last-child').classList.remove('hidden');
+
+            currentTab = status;
+            applyFilters();
+        }
+
+        // Listener saat user mengetik di kolom search
+        searchInput.addEventListener('input', function() {
+            applyFilters();
         });
 
+        // Logika penggabungan Search dan Tab
+        function applyFilters() {
+            const query = searchInput.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.product-card');
+            let visibleCount = 0;
 
+            cards.forEach(card => {
+                const title = card.querySelector('.product-title').innerText.toLowerCase();
+                const cardStatus = card.getAttribute('data-status');
+                
+                // Cek apakah cocok dengan tab saat ini & cocok dengan teks pencarian
+                const matchTab = (currentTab === 'all' || cardStatus === currentTab);
+                const matchSearch = title.includes(query);
 
-        // --- UX FUNCTION: Logout Confirmation ---
-        function confirmLogout() {
+                if (matchTab && matchSearch) {
+                    card.style.display = 'flex';
+                    // Sedikit animasi fade-in sederhana
+                    setTimeout(() => { card.style.opacity = '1'; }, 50);
+                    visibleCount++;
+                } else {
+                    card.style.opacity = '0';
+                    setTimeout(() => { card.style.display = 'none'; }, 50);
+                }
+            });
+
+            // Atur tampilan "Kosong" (Empty State) yang dinamis
+            const emptyState = document.getElementById('empty-product');
+            if (visibleCount === 0 && cards.length > 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                
+                // Ganti teks jika kosong karena pencarian
+                if(query) {
+                    document.getElementById('empty-icon').className = "ph-duotone ph-magnifying-glass text-5xl text-slate-300";
+                    document.getElementById('empty-title').innerText = "Pencarian tidak ditemukan";
+                    document.getElementById('empty-desc').innerText = `Tidak ada paket yang cocok dengan kata kunci "${searchInput.value}" pada kategori ini.`;
+                } else {
+                    document.getElementById('empty-icon').className = "ph-duotone ph-package text-5xl text-slate-300";
+                    document.getElementById('empty-title').innerText = "Belum ada paket";
+                    document.getElementById('empty-desc').innerText = "Anda belum memiliki paket perjalanan pada tab ini.";
+                }
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+        }
+
+        // ==========================================
+        // AJAX UPDATE STATUS TAYANG / ARSIP
+        // ==========================================
+        const statusToggles = document.querySelectorAll('.toggle-status');
+        statusToggles.forEach(toggle => {
+            toggle.addEventListener('change', async function() {
+                const labelSpan = this.closest('div.flex-col').querySelector('.status-label');
+                const isChecked = this.checked;
+                const productId = this.getAttribute('data-id');
+                const newStatus = isChecked ? 'publish' : 'draft';
+                const originalState = !isChecked;
+                
+                let urlStatus = "{{ route('marketplace.travel.produk.status', ':id') }}";
+                urlStatus = urlStatus.replace(':id', productId);
+
+                try {
+                    const response = await fetch(urlStatus, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if(response.ok) {
+                        const card = this.closest('.product-card');
+                        if (isChecked) {
+                            labelSpan.textContent = "Tayang";
+                            labelSpan.className = "text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 transition-all duration-300 status-label";
+                            card.dataset.status = 'active';
+                            card.classList.remove('opacity-75', 'grayscale');
+                            showAlert('Berhasil Diterbitkan', 'Produk kini tampil di beranda', 'success');
+                        } else {
+                            labelSpan.textContent = "Arsip";
+                            labelSpan.className = "text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 transition-all duration-300 status-label";
+                            card.dataset.status = 'archive';
+                            card.classList.add('opacity-75', 'grayscale');
+                            showAlert('Produk Diarsipkan', 'Produk disembunyikan dari beranda', 'info');
+                        }
+                        // Refresh filter agar kartu menghilang jika sedang di tab spesifik
+                        applyFilters();
+                    } else {
+                        this.checked = originalState;
+                        Swal.fire('Gagal!', result.message || 'Gagal mengubah status', 'error');
+                    }
+                } catch(error) {
+                    this.checked = originalState;
+                    console.error(error);
+                    Swal.fire('Error!', 'Terjadi kesalahan sistem saat menghubungi server.', 'error');
+                }
+            });
+        });
+
+        // ==========================================
+        // AJAX HAPUS PRODUK
+        // ==========================================
+        function deleteProduct(id) {
             Swal.fire({
-                title: 'Keluar dari Akun?',
-                text: "Anda harus masuk kembali untuk mengakses Profil & Pesanan Masuk",
+                title: 'Hapus Paket?',
+                text: "Data paket yang dihapus tidak dapat dikembalikan!",
                 icon: 'warning',
-                iconColor: '#dc2626',
                 showCancelButton: true,
                 confirmButtonColor: '#dc2626',
                 cancelButtonColor: '#64748b',
-                confirmButtonText: 'Ya, Keluar Akun',
-                cancelButtonText: 'Batal',
-                reverseButtons: true
-            }).then((result) => {
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then(async (result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
-                        title: 'Berhasil Keluar',
-                        text: 'Mengalihkan ke beranda...',
-                        icon: 'success',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = '/marketplace/'; // Redirect
+                        title: 'Menghapus...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
                     });
+                    
+                    let urlDelete = "{{ route('marketplace.travel.produk.destroy', ':id') }}";
+                    urlDelete = urlDelete.replace(':id', id);
+                    
+                    try {
+                        const response = await fetch(urlDelete, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        if(response.ok) {
+                            Swal.fire({ icon: 'success', title: 'Terhapus!', text: 'Paket berhasil dihapus.', timer: 1500, showConfirmButton: false })
+                            .then(() => { window.location.reload(); });
+                        } else {
+                            const res = await response.json();
+                            Swal.fire('Gagal!', res.message || 'Gagal menghapus produk.', 'error');
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire('Error!', 'Terjadi kesalahan sistem saat menghubungi server.', 'error');
+                    }
                 }
             });
         }
-    </script>
 
-    <script>
-        // Pilih semua elemen dengan class 'toggle-status'
-        const statusToggles = document.querySelectorAll('.toggle-status');
-
-        statusToggles.forEach(toggle => {
-            toggle.addEventListener('change', function() {
-                // Cari elemen span (Label) yang satu grup dengan checkbox ini
-                const labelSpan = this.closest('div.flex').querySelector('span');
-
-                if (this.checked) {
-                    // --- JIKA DINYALAKAN (AKTIF) ---
-
-                    // 1. Ubah Teks & Style
-                    labelSpan.textContent = "Tayang";
-                    labelSpan.className =
-                        "text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full border border-green-100 transition-all duration-300";
-
-                    // 2. Tampilkan Notifikasi Tengah (Success)
-                    showAlert('Berhasil Diterbitkan', 'Produk kini tampil di beranda', 'success');
-
-                } else {
-                    // --- JIKA DIMATIKAN (ARSIP) ---
-
-                    // 1. Ubah Teks & Style
-                    labelSpan.textContent = "Arsip";
-                    labelSpan.className =
-                        "text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 transition-all duration-300";
-
-                    // 2. Tampilkan Notifikasi Tengah (Info)
-                    showAlert('Produk Diarsipkan', 'Produk disembunyikan dari beranda', 'info');
-                }
-            });
-        });
-
-        // Fungsi Helper untuk Notifikasi di Tengah (Modal)
         function showAlert(title, text, icon) {
-            Swal.fire({
-                icon: icon, // Ikon (success/info/warning)
-                title: title, // Judul Besar
-                text: text, // Teks kecil di bawahnya
-                position: 'center', // Posisi di tengah
-                showConfirmButton: false, // Hilangkan tombol OK
-                timer: 1500, // Otomatis tutup dalam 1.5 detik
-                timerProgressBar: true // Bar waktu berjalan
-            });
+            Swal.fire({ icon: icon, title: title, text: text, position: 'center', showConfirmButton: false, timer: 1500, timerProgressBar: true });
         }
     </script>
-
 </body>
-
 </html>

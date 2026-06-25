@@ -29,22 +29,29 @@
 
 <body class="text-slate-800 antialiased selection:bg-orange-500 selection:text-white">
 
-    @php
-        // Mengambil data user dari session
+   @php
+        // 1. Ambil data user dari session
         $userData = session('user') ?? [];
-        $namaTravel = $userData['fullname'] ?? $userData['username'] ?? 'Biro Travel';
+        $namaTravel = $userData['fullname'] ?? ($userData['username'] ?? 'Biro Travel');
+        
+        // 2. Variabel buat ngisi input Email di Profil biar gak Undefined
         $emailTravel = $userData['email'] ?? 'Belum ada email';
         
-        // Ambil URL avatar dari API (kalau ada), kalau nggak pakai UI-Avatars
+        // 3. KEMBALI KE LOGIKA AWAL: Ambil URL avatar langsung dari session/API tanpa modifikasi path
         $avatar = $userData['avatar_url'] ?? session('user_avatar') ?? 'https://ui-avatars.com/api/?name=' . urlencode($namaTravel) . '&background=F97316&color=fff';
         
-        // Format Tanggal Dinamis (Misal: "Maret 2024")
-        $tanggalDibuat = $userData['created_at'] ?? null;
-        $bergabung = $tanggalDibuat ? \Carbon\Carbon::parse($tanggalDibuat)->translatedFormat('F Y') : date('Y');
-
-        // Status Akun Dinamis
+        // 4. Format Tanggal Perjalanan/Bergabung Dinamis
+        $bergabung = isset($userData['created_at']) ? \Carbon\Carbon::parse($userData['created_at'])->translatedFormat('F Y') : date('Y');
+        
+        // 5. Status Akun Dinamis biar aman di sidebar
         $statusRaw = $userData['status'] ?? 'aktif'; 
         $isAktif = strtolower($statusRaw) === 'aktif' || $statusRaw == 1;
+        
+        // 6. Notif Badge Pesanan Masuk
+        $pesanan = $pesanan ?? [];
+        $countPending = collect($pesanan)->filter(function ($trx) {
+            return in_array(strtoupper($trx['status'] ?? ''), ['UNPAID', 'PENDING']);
+        })->count();
     @endphp
 
     <nav class="fixed w-full z-50 bg-white border-b border-slate-200 shadow-sm">
@@ -117,9 +124,9 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
 
-                        <nav class="flex flex-col">
+<nav class="flex flex-col">
     <!-- Menu Profil -->
     <a href="{{ route('marketplace.travel.profil') }}" 
        class="flex items-center gap-3 px-5 py-4 font-bold transition border-l-4 {{ request()->routeIs('marketplace.travel.profil') ? 'bg-orange-50 text-orange-700 border-orange-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-transparent' }}">
