@@ -317,39 +317,61 @@
                         <div class="space-y-3 mb-6 relative z-10">
                             <p class="text-sm font-semibold text-gray-800">Pilih Tipe Kamar & Jumlah</p>
 
-                            {{-- Looping Array Kamar (Prices) dari API --}}
-                            @forelse($produk['prices'] ?? [] as $kamar)
-                                @php
-                                    $namaKamar = $kamar['room_types'] ?? 'Kamar';
-                                    $hargaKamar = $kamar['price'] ?? 0;
-                                    $idInputKamar = \Illuminate\Support\Str::slug($namaKamar);
-                                    
-                                    // Bikin Icon dinamis berdasarkan nama kamar
-                                    $iconKamar = 'ph-users';
-                                    if(stripos($namaKamar, 'quad') !== false) $iconKamar = 'ph-users-four';
-                                    if(stripos($namaKamar, 'triple') !== false) $iconKamar = 'ph-users-three';
-                                @endphp
+                        {{-- Looping Array Kamar (Prices) dari API --}}
+                        @forelse($produk['prices'] ?? [] as $kamar)
+                            @php
+                                $namaKamar = $kamar['room_types'] ?? 'Kamar';
+                                $hargaKamar = $kamar['price'] ?? 0;
+                                $kuotaKamar = $kamar['quota'] ?? 0; 
+                                $idInputKamar = \Illuminate\Support\Str::slug($namaKamar);
+                                
+                                // Bikin Icon dinamis
+                                $iconKamar = 'ph-users';
+                                if(stripos($namaKamar, 'quad') !== false) $iconKamar = 'ph-users-four';
+                                if(stripos($namaKamar, 'triple') !== false) $iconKamar = 'ph-users-three';
+                            @endphp
 
-                                <div class="p-3 rounded-xl border border-gray-200 flex items-center justify-between group hover:border-orange-300 transition-all bg-slate-50 hover:bg-orange-50/50">
-                                    <div class="flex items-center gap-3">
-                                        <div class="bg-white p-2 rounded-lg text-orange-600 shadow-sm border border-gray-100 group-hover:border-orange-200">
-                                            <i class="ph-fill {{ $iconKamar }} text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-sm text-gray-800">{{ $namaKamar }}</p>
-                                            <p class="text-xs text-gray-500">Rp {{ number_format($hargaKamar / 1000000, 1, ',', '.') }} Jt/pax</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
-                                        <button onclick="updateQty('{{ $idInputKamar }}', -1)" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-orange-600 transition">-</button>
-                                        {{-- Value awal Quad dikasih 1, sisanya 0 biar otomatis kehitung --}}
-                                        <input type="number" id="qty-{{ $idInputKamar }}" value="{{ $loop->first ? 1 : 0 }}" data-name="{{ $namaKamar }}" data-price="{{ $hargaKamar }}" class="qty-input w-10 text-center text-sm font-bold bg-transparent focus:outline-none" readonly>
-                                        <button onclick="updateQty('{{ $idInputKamar }}', 1)" class="w-8 h-8 flex items-center justify-center text-orange-600 transition">+</button>
-                                    </div>
+                        <div class="p-3 rounded-xl border border-gray-200 flex items-center justify-between group hover:border-orange-300 transition-all bg-slate-50 hover:bg-orange-50/50 relative overflow-hidden">
+        
+                            {{-- Badge Kuota Habis (Kalau 0) --}}
+                            @if($kuotaKamar <= 0)
+                                <div class="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex items-center justify-center">
+                                    <span class="bg-red-100 text-red-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-red-200 shadow-sm">
+                                        Sold Out
+                                    </span>
                                 </div>
-                            @empty
-                                <p class="text-xs text-red-500 italic">Harga belum disetting oleh Travel.</p>
-                            @endforelse
+                            @endif
+
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <!-- ICON (Dikasih flex-shrink-0 biar gak gepeng) -->
+                                <div class="bg-white p-2.5 rounded-lg text-orange-600 shadow-sm border border-gray-100 group-hover:border-orange-200 flex-shrink-0">
+                                    <i class="ph-fill {{ $iconKamar }} text-xl"></i>
+                                </div>
+                                
+                                <!-- TEKS & BADGE -->
+                                <div class="flex flex-col justify-center min-w-0 pr-2">
+                                    <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+                                        <p class="font-bold text-sm text-gray-800 truncate">{{ $namaKamar }}</p>
+                                        <span class="text-[9px] font-bold tracking-wide {{ $kuotaKamar <= 3 ? 'text-red-500 bg-red-50 border-red-100' : 'text-orange-500 bg-orange-50 border-orange-100' }} px-1.5 py-0.5 rounded-md border shadow-sm whitespace-nowrap">
+                                            Sisa {{ $kuotaKamar }}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 font-medium">Rp {{ number_format($hargaKamar / 1000000, 1, ',', '.') }} <span class="text-[10px]">Jt/pax</span></p>
+                                </div>
+                            </div>
+
+                            <!-- TOMBOL QTY (Dikasih efek hover & flex-shrink-0) -->
+                            <div class="flex items-center bg-white border border-gray-200 rounded-lg p-1 shadow-sm flex-shrink-0">
+                                <button onclick="updateQty('{{ $idInputKamar }}', -1, {{ $kuotaKamar }})" class="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-md transition" {{ $kuotaKamar <= 0 ? 'disabled' : '' }}>-</button>
+                                <input type="number" id="qty-{{ $idInputKamar }}" value="{{ ($loop->first && $kuotaKamar > 0) ? 1 : 0 }}" data-name="{{ $namaKamar }}" data-price="{{ $hargaKamar }}" data-max="{{ $kuotaKamar }}" class="qty-input w-8 text-center text-sm font-bold bg-transparent focus:outline-none" readonly>
+                                <button onclick="updateQty('{{ $idInputKamar }}', 1, {{ $kuotaKamar }})" class="w-7 h-7 flex items-center justify-center text-orange-600 hover:bg-orange-50 rounded-md transition" {{ $kuotaKamar <= 0 ? 'disabled' : '' }}>+</button>
+                            </div>
+                        </div>
+                            
+                        @empty
+                            <p class="text-xs text-red-500 italic">Harga belum disetting oleh Travel.</p>
+                        @endforelse
+
                         </div>
 
                         {{-- Summary Container --}}
@@ -371,21 +393,21 @@
                         <div class="hidden md:block">
                             <div class="flex gap-2">
                                @php
-    // Deteksi apakah ID produk ini ada di dalam array wishlist user
-    $isWishlisted = in_array($produk['id'], $wishlistIds ?? []);
-@endphp
-<button onclick="toggleWishlistDetail('{{ $produk['id'] }}')" id="btn-fav-desktop" 
-    class="flex-shrink-0 w-14 h-14 rounded-xl border-2 transition-all duration-300 flex items-center justify-center group 
-    {{ $isWishlisted ? 'border-red-200 text-red-500 bg-red-50' : 'border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50' }}">
-    <i id="icon-fav-desktop" class="text-2xl transform group-hover:scale-110 transition-transform {{ $isWishlisted ? 'ph-fill ph-heart' : 'ph-bold ph-heart' }}"></i>
-</button>
-                                <button onclick="toggleCompareDetail()" id="btn-compare-detail" class="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-gray-200 text-gray-400 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 transition-all duration-300 flex items-center justify-center group">
-                                    <i id="icon-compare-detail" class="ph-bold ph-arrows-left-right text-2xl transform group-hover:rotate-180 transition-transform duration-500"></i>
+                                    // Deteksi apakah ID produk ini ada di dalam array wishlist user
+                                    $isWishlisted = in_array($produk['id'], $wishlistIds ?? []);
+                                @endphp
+                                <button onclick="toggleWishlistDetail('{{ $produk['id'] }}')" id="btn-fav-desktop" 
+                                    class="flex-shrink-0 w-14 h-14 rounded-xl border-2 transition-all duration-300 flex items-center justify-center group 
+                                    {{ $isWishlisted ? 'border-red-200 text-red-500 bg-red-50' : 'border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50' }}">
+                                    <i id="icon-fav-desktop" class="text-2xl transform group-hover:scale-110 transition-transform {{ $isWishlisted ? 'ph-fill ph-heart' : 'ph-bold ph-heart' }}"></i>
                                 </button>
+                                    <button onclick="toggleCompareDetail()" id="btn-compare-detail" class="flex-shrink-0 w-14 h-14 rounded-xl border-2 border-gray-200 text-gray-400 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 transition-all duration-300 flex items-center justify-center group">
+                                    <i id="icon-compare-detail" class="ph-bold ph-arrows-left-right text-2xl transform group-hover:rotate-180 transition-transform duration-500"></i>
+                                    </button>
                                 <button onclick="handleCheckout()" class="flex-1 bg-orange-600 text-white font-bold py-3.5 rounded-xl hover:bg-orange-700 transition shadow-lg shadow-orange-500/30 flex justify-center items-center gap-2 group">
-    <i class="ph-bold ph-shopping-cart-simple text-xl group-hover:scale-110 transition"></i>
-    <span>Pesan Sekarang</span>
-</button>
+                                    <i class="ph-bold ph-shopping-cart-simple text-xl group-hover:scale-110 transition"></i>
+                                    <span>Pesan Sekarang</span>
+                                </button>
                             </div>
                         </div>
 
@@ -457,54 +479,79 @@
             });
         });
 
-        // 2. LOGIKA CHECKOUT BOX (KALKULASI HARGA DINAMIS)
-        function updateQty(type, change) {
+        // 2. LOGIKA CHECKOUT BOX (KALKULASI HARGA DINAMIS & QTY)
+
+        // FUNGSI INI YANG HILANG SEBELUMNYA (Buat nambah/ngurangin angka)
+        function updateQty(type, change, maxQuota) {
             const input = document.getElementById(`qty-${type}`);
             if(!input) return;
 
+            // Hitung total pax yang sedang dipilih di semua kamar
             const allInputs = document.querySelectorAll('.qty-input');
             let currentTotalPax = 0;
             allInputs.forEach(inp => currentTotalPax += parseInt(inp.value));
 
-            let newVal = parseInt(input.value) + change;
-            if (change === -1 && currentTotalPax <= 1) return; // Wajib minimal 1 pax
-            if (newVal < 0) newVal = 0;
+            // Hitung angka baru
+            let currentVal = parseInt(input.value);
+            let newVal = currentVal + change;
+
+            // VALIDASI 1: Gak boleh kurang dari 1 pax total secara keseluruhan
+            if (change === -1 && currentTotalPax <= 1 && currentVal >= 1) {
+                showSweetAlertToast('Minimal pemesanan adalah 1 Pax', 'warning');
+                return; 
+            }
             
+            // Gak boleh minus
+            if (newVal < 0) newVal = 0;
+
+            // VALIDASI 2: Mencegah pesan melebihi batas kuota kamar
+            if (change === 1 && newVal > maxQuota) {
+                showSweetAlertToast(`Tipe kamar ini hanya sisa ${maxQuota} seat!`, 'error');
+                return;
+            }
+
+            // Eksekusi perubahan angka ke HTML
             input.value = newVal;
+            
+            // Hitung ulang total harganya
             calculateTotal();
         }
 
+        // FUNGSI BUAT NGITUNG TOTAL HARGA (Punya lu yang udah bener)
         function calculateTotal() {
             let total = 0;
             let totalPax = 0;
-            let summaryHtml = ''; 
+            let summaryHtml = '';
+            
             const inputs = document.querySelectorAll('.qty-input');
             const summaryContainer = document.getElementById('summary-container');
             const summaryList = document.getElementById('order-summary-list');
             const totalPriceMobile = document.getElementById('total-price-mobile');
-
+            
             inputs.forEach(input => {
                 const qty = parseInt(input.value);
                 const price = parseInt(input.getAttribute('data-price'));
                 const name = input.getAttribute('data-name');
-
+                
                 if (qty > 0) {
                     total += qty * price;
                     totalPax += qty;
                     summaryHtml += `
-                        <div class="flex justify-between text-xs font-medium text-orange-800">
-                            <span>${qty}x Pax ${name}</span>
-                            <span>Rp ${(qty * price).toLocaleString('id-ID')}</span>
-                        </div>`;
+                    <div class="flex justify-between text-xs font-medium text-orange-800">
+                        <span>${qty}x Pax ${name}</span>
+                        <span>Rp ${(qty * price).toLocaleString('id-ID')}</span>
+                    </div>`;
                 }
             });
-
+            
             const formattedTotal = 'Rp ' + total.toLocaleString('id-ID');
-
             document.getElementById('total-price-display').innerText = formattedTotal;
             document.getElementById('total-pax').innerText = totalPax + ' Pax';
-            if (totalPriceMobile) totalPriceMobile.innerText = 'Rp ' + (total/1000000).toFixed(1) + ' Jt';
-
+            
+            if (totalPriceMobile) {
+                totalPriceMobile.innerText = 'Rp ' + (total/1000000).toFixed(1) + ' Jt';
+            }
+            
             if (totalPax > 0 && summaryContainer) {
                 summaryContainer.classList.remove('hidden');
                 summaryList.innerHTML = summaryHtml;
@@ -513,8 +560,9 @@
             }
         }
 
+        // JALANKAN SAAT HALAMAN PERTAMA DIBUKA
         document.addEventListener('DOMContentLoaded', function() {
-            checkInitialCompareState();
+            if (typeof checkInitialCompareState === 'function') checkInitialCompareState();
             calculateTotal();
         });
 

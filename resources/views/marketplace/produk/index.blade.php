@@ -267,190 +267,139 @@
                     </div>
                 </aside>
 
-                {{-- AREA PRODUK --}}
-                <div class="lg:col-span-3">
+                {{-- AREA PRODUK --}} 
+<div class="lg:col-span-3"> 
+    {{-- PESAN KOSONG (Disembunyikan default) --}} 
+    <div id="empty-state" class="hidden text-center py-20 bg-white rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all"> 
+        <div class="w-20 h-20 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100"> 
+            <i class="ph-duotone ph-magnifying-glass text-4xl text-slate-400"></i> 
+        </div> 
+        <h3 class="text-xl font-bold text-slate-800">Paket Tidak Ditemukan</h3> 
+        <p class="text-sm text-slate-500 mt-2 mb-6 max-w-sm mx-auto">Maaf, kami tidak dapat menemukan paket yang sesuai dengan kriteria filter Anda.</p> 
+        <button onclick="resetAllFilters()" class="px-8 py-3 bg-orange-50 text-orange-600 font-bold rounded-full hover:bg-orange-600 hover:text-white transition-colors duration-300 shadow-sm">Reset Filter</button> 
+    </div> 
 
-                    {{-- PESAN KOSONG (Disembunyikan default) --}}
-                    <div id="empty-state"
-                        class="hidden text-center py-20 bg-white rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all">
-                        <div
-                            class="w-20 h-20 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
-                            <i class="ph-duotone ph-magnifying-glass text-4xl text-slate-400"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-slate-800">Paket Tidak Ditemukan</h3>
-                        <p class="text-sm text-slate-500 mt-2 mb-6 max-w-sm mx-auto">Maaf, kami tidak dapat menemukan
-                            paket yang sesuai dengan kriteria filter Anda.</p>
-                        <button onclick="resetAllFilters()"
-                            class="px-8 py-3 bg-orange-50 text-orange-600 font-bold rounded-full hover:bg-orange-600 hover:text-white transition-colors duration-300 shadow-sm">Reset
-                            Filter</button>
-                    </div>
+    {{-- 👇 GRID PRODUK DIUBAH JADI 2 KOLOM DI MOBILE 👇 --}} 
+    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 min-h-[600px] content-start" id="product-container"> 
+        @forelse($daftarProduk as $produk) 
+        @php 
+            $hargaAsli = $produk['prices'][0]['harga'] ?? ($produk['prices'][0]['price'] ?? 0); 
+        @endphp 
+        
+        <div class="product-card group bg-white rounded-xl md:rounded-2xl border border-slate-100 overflow-hidden hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col h-full hover:-translate-y-1" data-id="{{ $produk['id'] }}" data-category="{{ $produk['category_id'] }}" data-kota="{{ strtolower($produk['tmp_keberangkatan'] ?? '') }}" data-tanggal="{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->format('Y-m-d') }}" data-harga="{{ $hargaAsli }}" data-nama="{{ strtolower($produk['nama_produk'] ?? '') }}"> 
+            
+            <div class="relative aspect-[4/3] overflow-hidden bg-slate-200"> 
+                <img src="https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/{{ rawurlencode($produk['thumbnail_url']) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" alt="{{ $produk['nama_produk'] }}" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';"> 
+                
+                <div class="absolute top-2 right-2 md:top-3 md:right-3 z-10 flex gap-1.5 md:gap-2"> 
+                    {{-- Tombol Bandingkan --}} 
+                    <button onclick="addToCompare(this)" class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-500 hover:text-white transition-colors border border-white/30 group/btn" title="Bandingkan"> 
+                        <i class="ph-bold ph-arrows-left-right text-xs md:text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i> 
+                    </button> 
+                    
+                    {{-- Tombol Wishlist --}} 
+                    @php 
+                        $isWishlisted = in_array($produk['id'], $wishlistIds ?? []); 
+                    @endphp 
+                    <button onclick="toggleWishlist(this, '{{ $produk['id'] }}')" class="wishlist-btn w-6 h-6 md:w-8 md:h-8 rounded-full backdrop-blur-md flex items-center justify-center transition-colors border group/wishlist {{ $isWishlisted ? 'bg-white text-red-500 border-red-500' : 'bg-white/20 text-white hover:bg-white hover:text-red-500 border-white/30' }}" title="Simpan ke Wishlist"> 
+                        <i class="ph-fill ph-heart text-xs md:text-lg pointer-events-none transition-transform group-active/wishlist:scale-75"></i> 
+                    </button> 
+                </div> 
+            </div> 
 
-                    {{-- GRID PRODUK --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 min-h-[600px] content-start"
-                        id="product-container">
-                        @forelse($daftarProduk as $produk)
-                            @php
-                                $hargaAsli = $produk['prices'][0]['harga'] ?? ($produk['prices'][0]['price'] ?? 0);
+            {{-- Padding disesuaikan di mobile --}}
+            <div class="p-3 md:p-5 flex flex-col flex-grow"> 
+                <div class="min-h-[2.5rem] md:min-h-[3.5rem] mb-1 md:mb-0"> 
+                    <h3 class="text-[11px] sm:text-xs md:text-base font-bold text-slate-900 group-hover:text-orange-600 transition-colors line-clamp-2 leading-tight"> 
+                        {{ $produk['nama_produk'] }} 
+                    </h3> 
+                </div> 
+
+                <div class="flex-grow space-y-1.5 md:space-y-3 mb-4 md:mb-6 mt-1 md:mt-2"> 
+                    @if (!empty($produk['hotels'][0])) 
+                    <div class="flex items-center gap-1.5 md:gap-3"> 
+                        <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0"> 
+                            <i class="ph-duotone ph-buildings text-orange-500 text-[10px] md:text-sm"></i> 
+                        </div> 
+                        <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate"> 
+                            {{ $produk['hotels'][0]['city'] ?? 'Kota' }}: {{ $produk['hotels'][0]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][0]['rating'] ?? '5' }} 
+                        </p> 
+                    </div> 
+                    @endif 
+                    
+                    @if (!empty($produk['hotels'][1])) 
+                    <div class="flex items-center gap-1.5 md:gap-3"> 
+                        <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0"> 
+                            <i class="ph-duotone ph-buildings text-orange-500 text-[10px] md:text-sm"></i> 
+                        </div> 
+                        <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate"> 
+                            {{ $produk['hotels'][1]['city'] ?? 'Kota' }}: {{ $produk['hotels'][1]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][1]['rating'] ?? '5' }} 
+                        </p> 
+                    </div> 
+                    @endif 
+                    
+                    <div class="flex items-center gap-1.5 md:gap-3"> 
+                        <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0"> 
+                            <i class="ph-duotone ph-airplane-tilt text-blue-500 text-[10px] md:text-sm"></i> 
+                        </div> 
+                        <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate"> 
+                            {{ $produk['flights'][0]['airline_name'] ?? 'Maskapai' }} 
+                        </p> 
+                    </div> 
+                    
+                    <div class="flex items-center gap-1.5 md:gap-3"> 
+                        <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0"> 
+                            <i class="ph-duotone ph-calendar-blank text-green-500 text-[10px] md:text-sm"></i> 
+                        </div> 
+                        <p class="text-[9px] md:text-sm font-semibold text-slate-600"> 
+                            {{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->translatedFormat('d M y') }} 
+                        </p> 
+                    </div> 
+                    
+                    <div class="pt-1.5 md:pt-3"> 
+                            @php 
+                                $kuota = intval($produk['total_quota'] ?? 0); 
+                                $maxSeat = ($kuota > 45) ? 100 : 45; 
+                                $persenSeat = $maxSeat > 0 ? round(($kuota / $maxSeat) * 100) : 0; 
+                                if ($persenSeat > 100) $persenSeat = 100; 
                             @endphp
-
-                            <div class="product-card group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col h-full hover:-translate-y-1"
-                                data-id="{{ $produk['id'] }}" {{-- KUNCI UTAMANYA ADA DI SINI BRO --}}
-                                data-category="{{ $produk['category_id'] }}"
-                                data-kota="{{ strtolower($produk['tmp_keberangkatan'] ?? '') }}"
-                                data-tanggal="{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->format('Y-m-d') }}"
-                                data-harga="{{ $hargaAsli }}"
-                                data-nama="{{ strtolower($produk['nama_produk'] ?? '') }}">
-
-                                <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                                    <img src="https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/{{ rawurlencode($produk['thumbnail_url']) }}"
-                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-                                        alt="{{ $produk['nama_produk'] }}"
-                                        onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';">
-
-                                    <div class="absolute top-3 right-3 z-10 flex gap-2">
-                                        {{-- Tombol Bandingkan --}}
-                                        <button onclick="addToCompare(this)"
-                                            class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-500 hover:text-white transition-colors border border-white/30 group/btn"
-                                            title="Bandingkan">
-                                            <i
-                                                class="ph-bold ph-arrows-left-right text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
-                                        </button>
-
-                                        {{-- 👇 PERBAIKAN TOMBOL WISHLIST 👇 --}}
-                                        @php
-                                            // Cek apakah ID produk ini ada di dalam array $wishlistIds (dikirim dari Controller)
-                                            // Kalau user belum login atau array kosong, defaultnya false
-                                            $isWishlisted = in_array($produk['id'], $wishlistIds ?? []);
-                                        @endphp
-
-                                        <button onclick="toggleWishlist(this, '{{ $produk['id'] }}')"
-                                            class="wishlist-btn w-8 h-8 rounded-full backdrop-blur-md flex items-center justify-center transition-colors border group/wishlist 
-                                            {{ $isWishlisted ? 'bg-white text-red-500 border-red-500' : 'bg-white/20 text-white hover:bg-white hover:text-red-500 border-white/30' }}"
-                                            title="Simpan ke Wishlist">
-                                            <i
-                                                class="ph-fill ph-heart text-lg pointer-events-none transition-transform group-active/wishlist:scale-75"></i>
-                                        </button>
-                                    </div>
-
-                                </div>
-
-                                <div class="p-5 flex flex-col flex-grow">
-                                    <div class="min-h-[3.5rem]">
-                                        <h3
-                                            class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition-colors line-clamp-2 leading-tight">
-                                            {{ $produk['nama_produk'] }}
-                                        </h3>
-                                    </div>
-
-                                    <div class="flex-grow space-y-3 mb-6 mt-2">
-                                        @if (!empty($produk['hotels'][0]))
-                                            <div class="flex items-center gap-3">
-                                                <div
-                                                    class="w-7 h-7 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
-                                                    <i class="ph-duotone ph-buildings text-orange-500 text-sm"></i>
-                                                </div>
-                                                <p class="text-sm font-semibold text-slate-600 truncate">
-                                                    {{ $produk['hotels'][0]['city'] ?? 'Kota' }}:
-                                                    {{ $produk['hotels'][0]['name'] ?? 'Hotel' }}
-                                                    ⭐{{ $produk['hotels'][0]['rating'] ?? '5' }}
-                                                </p>
-                                            </div>
-                                        @endif
-
-                                        @if (!empty($produk['hotels'][1]))
-                                            <div class="flex items-center gap-3">
-                                                <div
-                                                    class="w-7 h-7 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
-                                                    <i class="ph-duotone ph-buildings text-orange-500 text-sm"></i>
-                                                </div>
-                                                <p class="text-sm font-semibold text-slate-600 truncate">
-                                                    {{ $produk['hotels'][1]['city'] ?? 'Kota' }}:
-                                                    {{ $produk['hotels'][1]['name'] ?? 'Hotel' }}
-                                                    ⭐{{ $produk['hotels'][1]['rating'] ?? '5' }}
-                                                </p>
-                                            </div>
-                                        @endif
-
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-sm"></i>
-                                            </div>
-                                            <p class="text-sm font-semibold text-slate-600 truncate">
-                                                {{ $produk['flights'][0]['airline_name'] ?? 'Maskapai' }}
-                                            </p>
-                                        </div>
-
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-7 h-7 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
-                                                <i class="ph-duotone ph-calendar-blank text-green-500 text-sm"></i>
-                                            </div>
-                                            <p class="text-sm font-semibold text-slate-600">
-                                                {{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->translatedFormat('d M Y') }}
-                                            </p>
-                                        </div>
-
-                                       <div class="pt-3">
-                                            @php
-                                                // 1. Ambil data quota asli dari API
-                                                $kuota = intval($produk['quota'] ?? 0);
-                                                
-                                                // 2. Logika Progress Bar Pintar (Samain kayak Wishlist)
-                                                // Asumsi: 45 (bus) atau 100 (pesawat) adalah kapasitas wajar.
-                                                $maxSeat = ($kuota > 45) ? 100 : 45; 
-                                                
-                                                $persenSeat = $maxSeat > 0 ? round(($kuota / $maxSeat) * 100) : 0;
-                                                
-                                                // Cegah bar lebih dari 100%
-                                                if ($persenSeat > 100) $persenSeat = 100;
-                                            @endphp
-
-                                            <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                                <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                                <span class="text-[#ff782e] font-black">{{ $kuota }} Seat</span>
-                                            </div>
-                                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                                {{-- Pakai variabel $persenSeat dan kasih min-width 5% biar aman kalau 0 --}}
-                                                <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                                    style="width: {{ $persenSeat }}%; min-width: 5%;"></div>
-                                            </div>
-                                        </div>
-                                        
-                                    </div>
-
-                                    <div
-                                        class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                                        <div>
-                                            <p class="text-[10px] text-slate-400 uppercase font-black tracking-wider">
-                                                Mulai Dari</p>
-                                            <p class="text-xl font-black text-slate-900">
-                                                @if ($hargaAsli > 0)
-                                                    Rp {{ number_format($hargaAsli / 1000000, 1, ',', '.') }} <span
-                                                        class="text-sm text-slate-500 font-bold">Jt</span>
-                                                @else
-                                                    <span class="text-sm">Hubungi Kami</span>
-                                                @endif
-                                            </p>
-                                        </div>
-                                        <a href="{{ route('marketplace.produk.detail', $produk['id']) }}"
-                                            class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-md hover:shadow-orange-500/30">
-                                            <i class="ph-bold ph-arrow-right text-lg"></i>
-                                        </a>
-                                    </div>
-                                </div>
+                            <div class="flex justify-between text-[8px] md:text-[11px] mb-1 font-bold">
+                                <span class="text-slate-500 uppercase tracking-tighter">Seat Sisa</span>
+                                <span class="text-[#ff782e] font-black">{{ $kuota }} Seat</span>
                             </div>
-                        @empty
-                            <div class="col-span-full text-center py-12">Belum ada paket produk dari API.</div>
-                        @endforelse
-                    </div>
+                        <div class="w-full bg-slate-100 h-2 md:h-2.5 rounded-full overflow-hidden shadow-inner p-[1px]"> 
+                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700" style="width: {{ $persenSeat }}%; min-width: 5%;"></div> 
+                        </div> 
+                    </div> 
+                </div> 
 
-                    {{-- PAGINATION CONTAINER --}}
-                    <div class="mt-14 flex justify-center gap-2" id="pagination-container">
-                        {{-- Diisi Otomatis oleh JS --}}
-                    </div>
-
-                </div>
+                <div class="pt-2 md:pt-4 border-t border-slate-100 flex items-center justify-between mt-auto"> 
+                    <div> 
+                        <p class="text-[8px] md:text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai</p> 
+                        <p class="text-xs sm:text-sm md:text-xl font-black text-slate-900"> 
+                            @if ($hargaAsli > 0) 
+                                Rp {{ number_format($hargaAsli / 1000000, 1, ',', '.') }} <span class="text-[8px] md:text-sm text-slate-500 font-bold">Jt</span> 
+                            @else 
+                                <span class="text-[10px] md:text-sm">Hubungi Kami</span> 
+                            @endif 
+                        </p> 
+                    </div> 
+                    <a href="{{ route('marketplace.produk.detail', $produk['id']) }}" class="w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-md hover:shadow-orange-500/30 flex-shrink-0"> 
+                        <i class="ph-bold ph-arrow-right text-xs md:text-lg"></i> 
+                    </a> 
+                </div> 
+            </div> 
+        </div> 
+        @empty 
+        <div class="col-span-full text-center py-12">Belum ada paket produk dari API.</div> 
+        @endforelse 
+    </div> 
+    
+    {{-- PAGINATION CONTAINER --}} 
+    <div class="mt-14 flex justify-center gap-2" id="pagination-container"> 
+        {{-- Diisi Otomatis oleh JS --}} 
+    </div> 
+</div>
 
             </div>
         </div>

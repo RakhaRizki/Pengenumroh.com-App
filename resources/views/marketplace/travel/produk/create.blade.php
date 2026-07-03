@@ -119,7 +119,7 @@
                                     <div class="bg-emerald-500 h-2 rounded-full w-full"></div>
                                 </div>
                                 <p class="text-[11px] text-emerald-700 mt-2 flex items-center gap-1 font-medium bg-emerald-50 py-1 px-2 rounded-lg">
-                                    <i class="ph-fill ph-check-circle text-emerald-600"></i> Mitra Terverifikasi
+                                    <i class="ph-fill ph-check-circle text-emerald-600"></i> Mitra Travel Terverifikasi
                                 </p>
                             </div>
                         </div>
@@ -193,12 +193,16 @@
                                     <i class="ph-duotone ph-info text-blue-500 text-xl"></i> Informasi Paket
                                 </h3>
                                 <div class="space-y-8">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+                                        <!-- Nama Paket -->
                                         <div class="space-y-2 md:col-span-2">
                                             <label class="text-sm font-bold text-slate-700">Nama Paket</label>
                                             <input type="text" id="product_name" required placeholder="Contoh: Umroh Awal Ramadhan 9 Hari - Hotel Bintang 5" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition">
                                         </div>
-                                        <div class="space-y-2">
+                                        
+                                        <!-- Kategori -->
+                                        <div class="space-y-2 md:col-span-2">
                                             <label class="text-sm font-bold text-slate-700">Kategori</label>
                                             <div class="relative">
                                                 <i class="ph-bold ph-tag absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
@@ -213,13 +217,42 @@
                                                 <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                                             </div>
                                         </div>
-                                        <div class="space-y-2">
-                                            <label class="text-sm font-bold text-slate-700">Jumlah Kuota (Pax)</label>
-                                            <div class="relative">
-                                                <i class="ph-bold ph-users absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                                                <input type="number" id="quota" required placeholder="45" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition">
+
+                                        <!-- 👇 BAGIAN KUOTA YANG BARU (DIPECAH 3) 👇 -->
+                                        <div class="space-y-3 md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                            <label class="text-sm font-bold text-slate-700">Jumlah Kuota per Tipe Kamar (Pax)</label>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                
+                                                <!-- Quad -->
+                                                <div class="space-y-1.5">
+                                                    <span class="text-xs font-semibold text-slate-500">Kamar Quad</span>
+                                                    <div class="relative">
+                                                        <i class="ph-bold ph-users-four absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                                        <input type="number" id="quota_quad" min="0" required placeholder="0" class="w-full pl-11 pr-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition bg-white">
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Double -->
+                                                <div class="space-y-1.5">
+                                                    <span class="text-xs font-semibold text-slate-500">Kamar Double</span>
+                                                    <div class="relative">
+                                                        <i class="ph-bold ph-users absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                                        <input type="number" id="quota_double" min="0" required placeholder="0" class="w-full pl-11 pr-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition bg-white">
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Triple -->
+                                                <div class="space-y-1.5">
+                                                    <span class="text-xs font-semibold text-slate-500">Kamar Triple</span>
+                                                    <div class="relative">
+                                                        <i class="ph-bold ph-users-three absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                                        <input type="number" id="quota_triple" min="0" required placeholder="0" class="w-full pl-11 pr-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition bg-white">
+                                                    </div>
+                                                </div>
+                                                
                                             </div>
                                         </div>
+
                                     </div>
                                     <hr class="border-slate-100">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -508,6 +541,7 @@
     </main>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
     <script>
         AOS.init({
             duration: 800,
@@ -624,7 +658,9 @@
             const formData = new FormData();
             formData.append('product_name', document.getElementById('product_name').value);
             formData.append('category', document.getElementById('category').value);
-            formData.append('quota', document.getElementById('quota').value);
+            formData.append('quota_quad', document.getElementById('quota_quad').value || 0);
+            formData.append('quota_double', document.getElementById('quota_double').value || 0);
+            formData.append('quota_triple', document.getElementById('quota_triple').value || 0);
             formData.append('departure_date', document.getElementById('departure_date').value);
             formData.append('duration', document.getElementById('duration').value);
             formData.append('departure_from', document.getElementById('departure_from').value);
@@ -707,6 +743,7 @@
             }
         }
     </script>
+
 </body>
 
 </html>

@@ -295,7 +295,9 @@ public function processCheckout(Request $request)
             ];
         }
 
-       // 2. PAYLOAD FINAL
+        // QTY QUAD, QTY DOUBLE, QTY TRIPLE //
+
+       // 2. PAYLOAD FINAL      
         $payload = [
             'user_id'        => (int) $userId,
             'product_id'     => (int) $request->product_id,
@@ -331,37 +333,60 @@ public function processCheckout(Request $request)
     } catch (\Exception $e) {
         return response()->json(['status' => 'error', 'message' => 'Sistem sibuk: ' . $e->getMessage()], 500);
     }
-}
+    }
 
-  public function wishlist(Request $request)
-    {
-        $userProfile = $this->getProfileData();
+    public function wishlist(Request $request) 
+    { 
 
-        if (!$userProfile) {
-            return redirect()->route('login');
-        }
+    $userProfile = $this->getProfileData(); 
+    if (!$userProfile) { 
+        return redirect()->route('login'); 
+    } 
 
-        // 1. Ambil token user dari session & Ambil Signature Keamanan
-        $token = session('api_token');
-        $signature = config('app.api_signature');
+    // 1. Ambil token user dari session & Ambil Signature Keamanan 
+    $token = session('api_token'); 
+    $signature = config('app.api_signature'); 
 
-        // 2. Tembak API Wishlist dari backend (BAWA TOKEN + SIGNATURE)
-        $response = Http::withToken($token)->withHeaders([
-            'X-App-Signature' => $signature,
-            'Accept'          => 'application/json'
-        ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist');
+    // 2. Tembak API Wishlist dari backend (BAWA TOKEN + SIGNATURE) 
+    $response = Http::withToken($token)->withHeaders([ 
+        'X-App-Signature' => $signature, 
+        'Accept'          => 'application/json' 
+    ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist'); 
 
-        // 3. Cek hasilnya
-        if ($response->successful()) {
-            // Biasanya data API dibungkus di dalam key 'data'. Kalau nggak ada, ambil semua json-nya.
-            $wishlistData = $response->json('data') ?? $response->json() ?? [];
-        } else {
-            // Kalau API lagi down / error, kasih array kosong biar nggak error di HTML
-            $wishlistData = [];
-        }
+    // 3. Cek hasilnya dan KALKULASI DATA
+    if ($response->successful()) { 
+        $rawData = $response->json('data') ?? $response->json() ?? []; 
 
-        // Lempar variabel $wishlistData ke tampilan HTML
-        return view('marketplace.user.wishlist', compact('userProfile', 'wishlistData'));
+        // dd($rawData);
+        
+        // 👇 PERBAIKAN: Kita rapihin struktur dan hitung total kuotanya di Controller 👇
+        $wishlistData = collect($rawData)->map(function ($row) {
+            
+            // Deteksi struktur API (kadang di dalem 'product', kadang di luar)
+            $item = isset($row['product']) ? $row['product'] : $row;
+            
+            // 1. Paksa 'prices' jadi Array (buat jaga-jaga kalau dari API wujudnya masih string JSON)
+            $pricesData = is_string($item['prices'] ?? null) ? json_decode($item['prices'], true) : ($item['prices'] ?? []);
+            $item['prices'] = $pricesData;
+            
+            // 2. Hitung total_quota dari semua tipe kamar
+            $item['total_quota'] = collect($pricesData)->sum('quota');
+            
+            // Balikin ke struktur asalnya
+            if (isset($row['product'])) {
+                $row['product'] = $item;
+                return $row;
+            }
+            return $item;
+        })->toArray();
+
+    } else { 
+        // Kalau API lagi down / error, kasih array kosong biar nggak error di HTML 
+        $wishlistData = []; 
+    } 
+
+    // Lempar variabel $wishlistData ke tampilan HTML 
+    return view('marketplace.user.wishlist', compact('userProfile', 'wishlistData')); 
     }
 
     public function toggleWishlist(Request $request)

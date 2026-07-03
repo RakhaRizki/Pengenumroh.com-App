@@ -116,7 +116,7 @@
                                 </div>
                                 <p
                                     class="text-[11px] text-emerald-700 mt-2 flex items-center gap-1 font-medium bg-emerald-50 py-1 px-2 rounded-lg">
-                                    <i class="ph-fill ph-check-circle text-emerald-600"></i> Mitra Terverifikasi
+                                    <i class="ph-fill ph-check-circle text-emerald-600"></i> Mitra Travel Terverifikasi
                                 </p>
                             </div>
                         </div>
@@ -132,12 +132,12 @@
                                 <div class="flex items-center gap-3">
                                     <i class="ph-bold ph-receipt text-xl"></i> Pesanan Masuk
                                 </div>
-                                @if ($countPending > 0)
+                                {{-- @if ($countPending > 0)
                                     <span
                                         class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
                                         {{ $countPending }}
                                     </span>
-                                @endif
+                                @endif --}}
                             </a>
                             <a href="{{ route('marketplace.travel.upload-produk') }}"
                                 class="flex items-center gap-3 px-5 py-4 font-bold transition border-l-4 {{ request()->routeIs('marketplace.travel.upload-produk') ? 'bg-orange-50 text-orange-700 border-orange-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-transparent' }}">
@@ -192,13 +192,6 @@
                                     class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all"
                                     onclick="filterOrder('lunas', this)">
                                     Lunas / Siap Berangkat
-                                    <span
-                                        class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
-                                </button>
-                                <button
-                                    class="tab-btn group relative px-2 py-3 text-sm font-medium text-slate-500 hover:text-slate-800 transition-all"
-                                    onclick="filterOrder('selesai', this)">
-                                    Riwayat Selesai
                                     <span
                                         class="hidden absolute bottom-0 left-0 w-full h-0.5 bg-orange-600 rounded-t-full transition-all"></span>
                                 </button>
@@ -300,26 +293,24 @@
                                     $tipeKamarStr = implode(', ', $arrKamar);
 
                                     // ==========================================
-                                    // DATA JAMAAH
-                                    // ==========================================
-                                    $jamaah = $item['user'] ?? [];
-                                    $namaJamaah =
-                                        $jamaah['fullname'] ?? ($jamaah['username'] ?? 'Jamaah Tidak Diketahui');
-                                    $emailJamaah = $jamaah['email'] ?? '-';
-                                    $waJamaah = $jamaah['no_wa'] ?? null;
+// DATA JAMAAH (PERBAIKAN FOTO)
+// ==========================================
+$jamaah = $item['user'] ?? [];
+$namaJamaah = $jamaah['fullname'] ?? ($jamaah['username'] ?? 'Jamaah Tidak Diketahui');
+$emailJamaah = $jamaah['email'] ?? '-';
+$waJamaah = $jamaah['no_wa'] ?? null;
+$fotoJamaahAsli = $jamaah['image'] ?? ($jamaah['avatar'] ?? null);
 
-                                    $fotoJamaahAsli = $jamaah['image'] ?? ($jamaah['avatar'] ?? null);
-                                    if ($fotoJamaahAsli) {
-                                        $fotoJamaah = str_starts_with($fotoJamaahAsli, 'http')
-                                            ? $fotoJamaahAsli
-                                            : 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/profiles/' .
-                                                ltrim($fotoJamaahAsli, '/');
-                                    } else {
-                                        $fotoJamaah =
-                                            'https://ui-avatars.com/api/?name=' .
-                                            urlencode($namaJamaah) .
-                                            '&background=random';
-                                    }
+if (!empty($fotoJamaahAsli)) {
+    // Kalau udah ada 'http', langsung pake. Kalau cuma nama file, tambahin prefix Darda
+    $fotoJamaah = str_starts_with($fotoJamaahAsli, 'http') 
+        ? $fotoJamaahAsli 
+        : 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/profiles/' . rawurlencode(ltrim($fotoJamaahAsli, '/'));
+} else {
+    // Kalau kosong, tembak avatar default
+    $fotoJamaah = 'https://ui-avatars.com/api/?name=' . urlencode($namaJamaah) . '&background=random';
+}
+
                                 @endphp
 
                                 <div class="order-card searchable-item group rounded-2xl border border-slate-200 overflow-hidden shadow-sm {{ $bgCard }} transition-all duration-300 relative"
@@ -465,79 +456,87 @@
                                         <div
                                             class="lg:w-64 flex-shrink-0 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-slate-200 pt-5 lg:pt-0 lg:pl-8">
 
-                                            <!-- Kotak Data Jamaah -->
-                                            <div class="mb-5">
-                                                <p
-                                                    class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                                                    <i class="ph-bold ph-user-circle text-sm"></i> Informasi Jamaah
-                                                </p>
-                                                <div
-                                                    class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
-                                                    <div
-                                                        class="w-10 h-10 rounded-full bg-white border border-slate-200 p-0.5 flex-shrink-0 shadow-sm">
-                                                        <img src="{{ $fotoJamaah }}"
-                                                            class="w-full h-full rounded-full object-cover">
-                                                    </div>
-                                                    <div class="min-w-0 flex-grow">
-                                                        <p class="text-sm font-bold text-slate-900 truncate">
-                                                            {{ $namaJamaah }}</p>
-                                                        @if ($waJamaah)
-                                                            <a href="https://wa.me/{{ preg_replace('/^0/', '62', $waJamaah) }}"
-                                                                target="_blank"
-                                                                class="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-1 rounded-md hover:bg-emerald-200 transition mt-1.5">
-                                                                <i
-                                                                    class="ph-fill ph-whatsapp-logo text-emerald-600"></i>
-                                                                Hubungi
-                                                            </a>
-                                                        @else
-                                                            <p class="text-[10px] text-slate-500 truncate mt-1">
-                                                                {{ $emailJamaah }}</p>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
+                                          <!-- Kotak Data Jamaah -->
+<div class="mb-5">
+    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+        <i class="ph-bold ph-user-circle text-sm"></i> Informasi Jamaah
+    </p>
+    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
+        
+        @php
+            $fotoJamaahAsli = $jamaah['image'] ?? ($jamaah['avatar'] ?? ($jamaah['foto'] ?? null));
+            $fotoJamaah = 'https://ui-avatars.com/api/?name=' . str_replace(' ', '+', $namaJamaah) . '&background=F97316&color=fff';
 
-                                            <!-- Kotak Tagihan & Tombol -->
-                                            <div class="mt-auto flex flex-col">
-                                                <div
-                                                    class="flex flex-row lg:flex-col justify-between items-center lg:items-end mb-4 bg-orange-50/50 p-3.5 rounded-xl border border-orange-100/50">
-                                                    <p
-                                                        class="text-[10px] text-slate-500 font-bold uppercase tracking-wider lg:mb-1 w-full text-left lg:text-right">
-                                                        Total Tagihan</p>
-                                                    <p
-                                                        class="text-lg sm:text-xl font-black text-orange-600 w-full text-right">
-                                                        Rp {{ $totalHarga }}</p>
-                                                </div>
+            if (!empty($fotoJamaahAsli)) {
+                if (str_starts_with($fotoJamaahAsli, 'http')) {
+                    $fotoJamaah = $fotoJamaahAsli;
+                } else {
+                    // Nebak path folder user di backend (bisa profiles / users / avatar)
+                    $fotoJamaah = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/users/' . rawurlencode(ltrim($fotoJamaahAsli, '/'));
+                }
+            }
+        @endphp
 
-                                                <div class="w-full space-y-2.5">
-                                                    @if ($dataStatus == 'verifikasi')
-                                                        @php
-                                                            $urlBukti = null;
-                                                            $rawEvidenceName = $item['evidence_url'] ?? '';
-                                                            if (!empty($item['evidence_url'])) {
-                                                                if (str_starts_with($item['evidence_url'], 'http')) {
-                                                                    $urlBukti = $item['evidence_url'];
-                                                                } else {
-                                                                    $namaFileB = ltrim($item['evidence_url'], '/');
-                                                                    $urlBukti =
-                                                                        'https://mediumspringgreen-meerkat-585223.hostingersite.com/storage/transactions/' .
-                                                                        $namaFileB;
-                                                                }
-                                                            }
-                                                        @endphp
-                                                        <button
-                                                            onclick="lihatBuktiBayar('{{ $urlBukti }}', '{{ $item['id'] }}', '{{ $rawEvidenceName }}')"
-                                                            class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl shadow-lg shadow-slate-300 transition-all active:scale-95 flex items-center justify-center gap-2">
-                                                            <i class="ph-bold ph-check-circle"></i> Verifikasi Bayar
-                                                        </button>
-                                                    @elseif(in_array($statusAPI, ['PAID', 'LUNAS', 'SUCCESS', 'DONE', 'COMPLETED']))
-                                                        <button
-                                                            class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2">
-                                                            <i class="ph-bold ph-file-pdf"></i> Cetak Invoice
-                                                        </button>
-                                                    @endif
-                                                </div>
-                                            </div>
+        <!-- FOTO PROFIL JAMAAH -->
+        <div class="w-10 h-10 rounded-full bg-slate-200 border border-slate-200 p-0.5 flex-shrink-0 shadow-sm overflow-hidden">
+            <img src="{{ $fotoJamaah }}" class="w-full h-full rounded-full object-cover" 
+                 onerror="console.log('📸 FOTO JAMAAH ERROR NYARINYA KE SINI:', this.src); this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $namaJamaah) }}&background=F97316&color=fff';">
+        </div>
+        
+        <div class="min-w-0 flex-grow">
+            <p class="text-sm font-bold text-slate-900 truncate"> {{ $namaJamaah }}</p>
+            @if ($waJamaah)
+                <a href="https://wa.me/{{ preg_replace('/^0/', '62', $waJamaah) }}" target="_blank" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-1 rounded-md hover:bg-emerald-200 transition mt-1.5">
+                    <i class="ph-fill ph-whatsapp-logo text-emerald-600"></i> Hubungi
+                </a>
+            @else
+                <p class="text-[10px] text-slate-500 truncate mt-1"> {{ $emailJamaah }}</p>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- Kotak Tagihan & Tombol -->
+<div class="mt-auto flex flex-col">
+    <div class="flex flex-row lg:flex-col justify-between items-center lg:items-end mb-4 bg-orange-50/50 p-3.5 rounded-xl border border-orange-100/50">
+        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider lg:mb-1 w-full text-left lg:text-right"> Total Tagihan</p>
+        <p class="text-lg sm:text-xl font-black text-orange-600 w-full text-right"> Rp {{ $totalHarga }}</p>
+    </div>
+
+    <div class="w-full space-y-2.5">
+        @if ($dataStatus == 'verifikasi')
+            @php 
+                $urlBukti = ''; 
+                $rawEvidenceName = $item['evidence_url'] ?? ''; 
+                
+                if (!empty($rawEvidenceName)) { 
+                    if (str_starts_with($rawEvidenceName, 'http')) { 
+                        $urlBukti = $rawEvidenceName; 
+                    } else { 
+                        // Fix Path & Spasi pada nama file
+                        $namaFileB = rawurlencode(ltrim($rawEvidenceName, '/')); 
+                        
+                        // Coba pakai path default assets/img/transactions/
+                        $urlBukti = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/transactions/' . $namaFileB; 
+                    } 
+                } 
+            @endphp
+            
+            <!-- 👇 TOMBOLNYA UDAH DIPERBAIKI (Tanda kutipnya dipastikan aman) 👇 -->
+            <button onclick="console.log('🔗 Link Bukti:', '{{ $urlBukti }}'); lihatBuktiBayar('{{ $urlBukti }}', '{{ $item['id'] }}', '{{ $rawEvidenceName }}')" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl shadow-lg shadow-slate-300 transition-all active:scale-95 flex items-center justify-center gap-2">
+                <i class="ph-bold ph-check-circle"></i> Verifikasi Bayar
+            </button>
+            
+      @elseif(in_array($statusAPI, ['PAID', 'LUNAS', 'SUCCESS', 'DONE', 'COMPLETED']))
+    <button onclick="cetakInvoice('{{ $invoice }}', '{{ addslashes($namaJamaah) }}', '{{ addslashes($emailJamaah) }}', '{{ addslashes($waJamaah ?? '-') }}', '{{ addslashes($namaTravel) }}', '{{ addslashes($namaProduk) }}', '{{ $totalQty }}', '{{ $totalHarga }}', '{{ $tglOrder }}')" 
+            class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+        <i class="ph-bold ph-file-pdf"></i> Cetak Invoice
+    </button>
+@endif
+
+    </div>
+</div>
+
                                         </div>
 
                                     </div>
@@ -563,179 +562,399 @@
         </div>
     </main>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        AOS.init({
-            duration: 800,
-            once: true
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+    AOS.init({ duration: 800, once: true });
+
+    // --- FITUR PENCARIAN & FILTER (TETAP SAMA) ---
+    function searchOrders(keyword) {
+        keyword = keyword.toLowerCase();
+        const cards = document.querySelectorAll('.searchable-item');
+        let visibleCount = 0;
+        const activeTab = document.querySelector('.tab-btn.active').innerText.trim();
+        let currentStatus = 'all';
+
+        if (activeTab.includes('Verifikasi')) currentStatus = 'verifikasi';
+        if (activeTab.includes('Lunas')) currentStatus = 'lunas';
+        if (activeTab.includes('Selesai')) currentStatus = 'selesai';
+
+        cards.forEach(card => {
+            const dataSearch = card.getAttribute('data-search');
+            const dataStatus = card.getAttribute('data-status');
+            const matchSearch = dataSearch.includes(keyword);
+            const matchStatus = (currentStatus === 'all' || dataStatus === currentStatus);
+
+            if (matchSearch && matchStatus) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        checkEmptyState(visibleCount);
+    }
+
+    function filterOrder(status, btn) {
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(b => {
+            b.classList.remove('active', 'text-orange-600', 'font-bold');
+            b.classList.add('text-slate-500', 'font-medium');
+            if (b.querySelector('span:last-child')) b.querySelector('span:last-child').classList.add('hidden');
         });
 
-        function searchOrders(keyword) {
-            keyword = keyword.toLowerCase();
-            const cards = document.querySelectorAll('.searchable-item');
-            let visibleCount = 0;
-            const activeTab = document.querySelector('.tab-btn.active').innerText.trim();
+        btn.classList.add('active', 'text-orange-600', 'font-bold');
+        btn.classList.remove('text-slate-500', 'font-medium');
+        if (btn.querySelector('span:last-child')) btn.querySelector('span:last-child').classList.remove('hidden');
 
-            let currentStatus = 'all';
-            if (activeTab.includes('Verifikasi')) currentStatus = 'verifikasi';
-            if (activeTab.includes('Lunas')) currentStatus = 'lunas';
-            if (activeTab.includes('Selesai')) currentStatus = 'selesai';
+        const searchInput = document.querySelector('input[placeholder^="Cari"]');
+        if (searchInput) searchInput.value = '';
 
-            cards.forEach(card => {
-                const dataSearch = card.getAttribute('data-search');
-                const dataStatus = card.getAttribute('data-status');
-                const matchSearch = dataSearch.includes(keyword);
-                const matchStatus = (currentStatus === 'all' || dataStatus === currentStatus);
-
-                if (matchSearch && matchStatus) {
-                    card.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            checkEmptyState(visibleCount);
-        }
-
-        function filterOrder(status, btn) {
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(b => {
-                b.classList.remove('active', 'text-orange-600', 'font-bold');
-                b.classList.add('text-slate-500', 'font-medium');
-                if (b.querySelector('span:last-child')) b.querySelector('span:last-child').classList.add('hidden');
-            });
-
-            btn.classList.add('active', 'text-orange-600', 'font-bold');
-            btn.classList.remove('text-slate-500', 'font-medium');
-            if (btn.querySelector('span:last-child')) btn.querySelector('span:last-child').classList.remove('hidden');
-
-            const searchInput = document.querySelector('input[placeholder^="Cari"]');
-            if (searchInput) searchInput.value = '';
-
-            const cards = document.querySelectorAll('.order-card');
-            let visibleCount = 0;
-
-            cards.forEach(card => {
-                if (status === 'all' || card.getAttribute('data-status') === status) {
-                    card.style.display = 'block';
-                    card.classList.remove('aos-animate');
-                    setTimeout(() => card.classList.add('aos-animate'), 50);
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            checkEmptyState(visibleCount);
-        }
-
-        function checkEmptyState(count) {
-            const emptyState = document.getElementById('empty-state');
-            if (count === 0) {
-                emptyState.classList.remove('hidden');
-                emptyState.classList.add('flex');
+        const cards = document.querySelectorAll('.order-card');
+        let visibleCount = 0;
+        cards.forEach(card => {
+            if (status === 'all' || card.getAttribute('data-status') === status) {
+                card.style.display = 'block';
+                card.classList.remove('aos-animate');
+                setTimeout(() => card.classList.add('aos-animate'), 50);
+                visibleCount++;
             } else {
-                emptyState.classList.add('hidden');
-                emptyState.classList.remove('flex');
+                card.style.display = 'none';
             }
-        }
+        });
+        checkEmptyState(visibleCount);
+    }
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true
-                });
-                Toast.fire({
-                    icon: "success",
-                    title: "Invoice " + text + " disalin!"
-                });
+    function checkEmptyState(count) {
+        const emptyState = document.getElementById('empty-state');
+        if (count === 0) {
+            emptyState.classList.remove('hidden');
+            emptyState.classList.add('flex');
+        } else {
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+        }
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const Toast = Swal.mixin({
+                toast: true, position: "top-end", showConfirmButton: false, timer: 2000, timerProgressBar: true
             });
-        }
+            Toast.fire({ icon: "success", title: "Invoice " + text + " disalin!" });
+        });
+    }
 
-        // Update fungsi agar menerima parameter nama file mentah (rawEvidence)
-        function lihatBuktiBayar(imgUrl, idTransaksi, rawEvidence) {
-            if (!imgUrl || imgUrl === '' || imgUrl === 'null') {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Belum Ada Bukti',
-                    text: 'Jamaah ini belum mengunggah bukti pembayaran. Tetap ingin memverifikasi (tandai lunas)?',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ya, Verifikasi Saja',
-                    cancelButtonText: 'Tutup',
-                    confirmButtonColor: '#16a34a',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        prosesVerifikasi(idTransaksi, rawEvidence);
-                    }
-                });
-                return;
-            }
+    // --- FITUR VERIFIKASI PEMBAYARAN (FIXED) ---
+    function lihatBuktiBayar(imgUrl, idTransaksi, rawEvidence) {
+        // Tanda console log sudah dipindah ke dalam fungsi biar gak error script
+        console.log("🔗 Cek link bukti bayar:", imgUrl);
 
+        if (!imgUrl || imgUrl === '' || imgUrl === 'null') {
             Swal.fire({
-                title: 'Bukti Pembayaran',
-                imageUrl: imgUrl,
-                imageWidth: 400,
-                imageAlt: 'Gambar Bukti Transfer',
+                icon: 'warning',
+                title: 'Belum Ada Bukti',
+                text: 'Jamaah ini belum mengunggah bukti pembayaran. Tetap ingin memverifikasi (tandai lunas)?',
                 showCancelButton: true,
-                confirmButtonText: 'Validasi & Terima',
+                confirmButtonText: 'Ya, Verifikasi Saja',
                 cancelButtonText: 'Tutup',
                 confirmButtonColor: '#16a34a',
-                cancelButtonColor: '#64748b',
-                footer: '<p class="text-sm text-slate-500">Pastikan nominal transfer sesuai tagihan.</p>'
             }).then((result) => {
                 if (result.isConfirmed) {
                     prosesVerifikasi(idTransaksi, rawEvidence);
                 }
             });
+            return;
         }
 
-        // Fungsi prosesVerifikasi dengan pengiriman data JSON Body
-        function prosesVerifikasi(idTransaksi, rawEvidence) {
-            Swal.fire({
-                title: 'Memproses...',
-                text: 'Sedang memvalidasi pembayaran',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
+        Swal.fire({
+            title: 'Bukti Pembayaran',
+            imageUrl: imgUrl,
+            imageWidth: 400,
+            imageAlt: 'Gambar Bukti Transfer',
+            showCancelButton: true,
+            confirmButtonText: 'Validasi & Terima',
+            cancelButtonText: 'Tutup',
+            confirmButtonColor: '#16a34a',
+            cancelButtonColor: '#64748b',
+            footer: '<p class="text-sm text-slate-500">Pastikan nominal transfer sesuai tagihan.</p>'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                prosesVerifikasi(idTransaksi, rawEvidence);
+            }
+        });
+    }
 
-            let urlApi = '{{ route('marketplace.travel.pesanan.verifikasi', ['id' => 'DUMMY_ID']) }}';
-            urlApi = urlApi.replace('DUMMY_ID', idTransaksi);
+    function prosesVerifikasi(idTransaksi, rawEvidence) {
+        Swal.fire({
+            title: 'Memproses...', text: 'Sedang memvalidasi pembayaran', allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
 
-            fetch(urlApi, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    // 👇 KITA KIRIM NAMA FILE BUKTI KE CONTROLLER LARAVEL 👇
-                    body: JSON.stringify({
-                        evidence_url: rawEvidence
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire('Berhasil!', data.message, 'success').then(() => {
-                            window.location.reload();
-                        });
-                    } else {
-                        Swal.fire('Gagal!', data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error("Detail Error:", error);
-                    Swal.fire('Error Sistem!', 'Terjadi kesalahan saat memproses data.', 'error');
+        let urlApi = '{{ route('marketplace.travel.pesanan.verifikasi', ['id' => 'DUMMY_ID']) }}';
+        urlApi = urlApi.replace('DUMMY_ID', idTransaksi);
+
+        fetch(urlApi, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ evidence_url: rawEvidence })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire('Berhasil!', data.message, 'success').then(() => {
+                    window.location.reload();
                 });
-        }
-    </script>
+            } else {
+                Swal.fire('Gagal!', data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error("Detail Error:", error);
+            Swal.fire('Error Sistem!', 'Terjadi kesalahan saat memproses data.', 'error');
+        });
+    }
+
+   // --- FITUR CETAK INVOICE DINAMIS (PROFESIONAL) ---
+    function cetakInvoice(invoice, namaJamaah, emailJamaah, waJamaah, namaTravel, paket, qty, total, tanggal) {
+        const printWindow = window.open('', '_blank', 'width=900,height=1000');
+        
+        // Desain struk kelas Enterprise (Bersih, Rapi, Detail)
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="id">
+            <head>
+                <meta charset="UTF-8">
+                <title>INVOICE - ${invoice}</title>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+                    
+                    body { 
+                        font-family: 'Inter', sans-serif; 
+                        padding: 50px; 
+                        color: #1e293b; 
+                        line-height: 1.6;
+                        max-width: 900px;
+                        margin: 0 auto;
+                        background: #fff;
+                    }
+                    .header { 
+                        display: flex; 
+                        justify-content: space-between; 
+                        align-items: flex-start; 
+                        border-bottom: 2px solid #f1f5f9; 
+                        padding-bottom: 30px; 
+                        margin-bottom: 40px; 
+                    }
+                    .logo-area h1 { 
+                        color: #ea580c; 
+                        margin: 0; 
+                        font-size: 32px; 
+                        font-weight: 800;
+                        letter-spacing: -0.5px;
+                    }
+                    .logo-area p { 
+                        margin: 5px 0 0 0; 
+                        color: #64748b; 
+                        font-size: 14px; 
+                    }
+                    .invoice-details { text-align: right; }
+                    .invoice-details h2 { 
+                        margin: 0; 
+                        color: #cbd5e1; 
+                        font-size: 36px; 
+                        font-weight: 800;
+                        text-transform: uppercase;
+                        letter-spacing: 2px;
+                    }
+                    .invoice-details p { margin: 5px 0; font-size: 14px; font-weight: 500; }
+                    
+                    .info-section {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 40px;
+                    }
+                    .info-box { width: 45%; }
+                    .info-box h3 {
+                        font-size: 12px;
+                        color: #94a3b8;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        margin-bottom: 10px;
+                        border-bottom: 1px solid #f1f5f9;
+                        padding-bottom: 5px;
+                    }
+                    .info-box p { margin: 4px 0; font-size: 14px; }
+                    .info-box strong { color: #0f172a; font-size: 16px; display: block; margin-bottom: 4px;}
+
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 30px;
+                    }
+                    th {
+                        background-color: #f8fafc;
+                        color: #64748b;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        text-align: left;
+                        padding: 15px;
+                        border-y: 1px solid #e2e8f0;
+                    }
+                    th.text-right, td.text-right { text-align: right; }
+                    th.text-center, td.text-center { text-align: center; }
+                    td {
+                        padding: 15px;
+                        border-bottom: 1px solid #f1f5f9;
+                        font-size: 15px;
+                        color: #334155;
+                    }
+                    td strong { color: #0f172a; }
+
+                    .summary-section {
+                        display: flex;
+                        justify-content: flex-end;
+                        margin-bottom: 40px;
+                    }
+                    .summary-box {
+                        width: 400px;
+                    }
+                    .summary-row {
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 10px 15px;
+                        font-size: 15px;
+                        color: #64748b;
+                    }
+                    .summary-row.total {
+                        background-color: #fff7ed;
+                        color: #ea580c;
+                        font-size: 20px;
+                        font-weight: 800;
+                        border-radius: 8px;
+                        padding: 20px 15px;
+                        margin-top: 10px;
+                        border: 1px solid #ffedd5;
+                    }
+                    
+                    .stamp {
+                        display: inline-block;
+                        color: #16a34a;
+                        border: 3px solid #16a34a;
+                        padding: 10px 30px;
+                        font-size: 24px;
+                        font-weight: 800;
+                        border-radius: 8px;
+                        transform: rotate(-10deg);
+                        opacity: 0.8;
+                        margin-bottom: 20px;
+                    }
+
+                    .footer {
+                        text-align: center;
+                        font-size: 13px;
+                        color: #94a3b8;
+                        border-top: 1px solid #f1f5f9;
+                        padding-top: 30px;
+                    }
+
+                    @media print {
+                        body { padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                        .summary-row.total { background-color: #fff7ed !important; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="logo-area">
+                        <h1>${namaTravel}</h1>
+                        <p>Mitra Resmi Pengenumroh Marketplace</p>
+                    </div>
+                    <div class="invoice-details">
+                        <h2>INVOICE</h2>
+                        <p><strong>NO:</strong> ${invoice}</p>
+                        <p><strong>Tanggal:</strong> ${tanggal}</p>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-box">
+                        <h3>DITAGIHKAN KEPADA:</h3>
+                        <strong>${namaJamaah}</strong>
+                        <p>No. WhatsApp: ${waJamaah}</p>
+                        <p>Email: ${emailJamaah}</p>
+                    </div>
+                    <div class="info-box">
+                        <h3>STATUS PEMBAYARAN:</h3>
+                        <div class="stamp">LUNAS</div>
+                        <p style="color: #16a34a; font-weight: 600;">Terverifikasi oleh Sistem</p>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Deskripsi Paket</th>
+                            <th class="text-center">Kuantitas</th>
+                            <th class="text-right">Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>${paket}</strong><br>
+                                <span style="font-size: 13px; color: #64748b;">Paket Ibadah Umroh / Haji Khusus</span>
+                            </td>
+                            <td class="text-center">${qty} Pax</td>
+                            <td class="text-right">Rp ${total}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="summary-section">
+                    <div class="summary-box">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span>Rp ${total}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Biaya Admin</span>
+                            <span>Rp 0</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Grand Total</span>
+                            <span>Rp ${total}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer">
+                    <p>Terima kasih telah mempercayakan perjalanan ibadah Anda bersama <strong>${namaTravel}</strong> dan <strong>Pengenumroh</strong>.</p>
+                    <p>Dokumen ini adalah bukti pembayaran yang sah dan diterbitkan secara elektronik. Tidak memerlukan tanda tangan basah.</p>
+                </div>
+
+                <script>
+                    window.onload = function() {
+                        setTimeout(() => {
+                            window.print();
+                        }, 800);
+                    }
+                <\/script>
+            </body>
+            </html>
+        `;
+        
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+    }
+
+</script>
+
 </body>
 
 </html>

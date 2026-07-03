@@ -94,6 +94,9 @@
                                         $excludeFacilities[] = $fac['facility'];
                                     }
                                 }
+
+                                // Hitung Total Kuota Gabungan Semua Kamar
+                                $totalKuota = collect($produk['prices'] ?? [])->sum('quota');
                             @endphp
 
                             <div class="product-card group relative flex flex-col h-full bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:border-teal-300 hover:shadow-[0_8px_30px_rgb(13,148,136,0.15)] transition-all duration-300 overflow-hidden" data-id="{{ $produk['id'] }}">
@@ -172,12 +175,12 @@
                                             </p>
                                         </div>
                                         <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Jarak Makkah</p>
+                                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Jarak Hotel Makkah</p>
                                             <p class="font-bold text-gray-800 text-sm flex items-center justify-center gap-1 line-clamp-1">
                                                 <i class="ph-duotone ph-map-pin text-orange-500 text-base"></i> {{ $jarakMakkah }}
                                             </p>
                                         </div>
-                                        <div class="col-start-2 col-span-1 bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
+                                        <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
                                             <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Hotel Madinah</p>
                                             <p class="font-bold text-gray-800 text-sm flex items-center justify-center gap-1 line-clamp-1" title="{{ $hotelMadinah }}">
                                                 <i class="ph-duotone ph-buildings text-orange-500 text-base"></i> {{ $hotelMadinah }}
@@ -189,8 +192,14 @@
                                                 <i class="ph-duotone ph-map-pin text-orange-500 text-base"></i> {{ $jarakMadinah }}
                                             </p>
                                         </div>
+                                        <div class="bg-orange-50 rounded-xl p-2.5 text-center border border-orange-100 shadow-inner">
+                                            <p class="text-[10px] text-orange-500 uppercase font-bold tracking-wide mb-1">Sisa Seat</p>
+                                            <p class="font-black text-orange-600 text-sm flex items-center justify-center gap-1">
+                                                <i class="ph-bold ph-users text-orange-500 text-base"></i> {{ $totalKuota }} Pax
+                                            </p>
+                                        </div>
                                     </div>
-
+                                    
                                     <div class="border border-gray-100 rounded-2xl p-4 bg-white relative overflow-hidden flex-grow">
                                         <div class="absolute top-0 right-0 w-16 h-16 bg-teal-50 rounded-bl-full -mr-8 -mt-8 z-0"></div>
                                         <p class="text-[10px] font-bold text-teal-800 uppercase mb-3 flex items-center gap-2 relative z-10">

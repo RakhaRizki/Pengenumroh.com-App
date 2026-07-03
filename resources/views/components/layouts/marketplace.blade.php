@@ -392,24 +392,24 @@
         });
 
         // Mobile Menu Logic
-        const menuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
+        // const menuBtn = document.getElementById('mobile-menu-btn');
+        // const mobileMenu = document.getElementById('mobile-menu');
 
-        function toggleMobileMenu() {
-            mobileMenu.classList.toggle('hidden');
-        }
+        // function toggleMobileMenu() {
+        //     mobileMenu.classList.toggle('hidden');
+        // }
 
-        menuBtn.addEventListener('click', toggleMobileMenu);
+        // menuBtn.addEventListener('click', toggleMobileMenu);
 
         // Sticky Navbar Effect
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('py-0');
-            } else {
-                navbar.classList.remove('py-0');
-            }
-        });
+        // const navbar = document.getElementById('navbar');
+        // window.addEventListener('scroll', () => {
+        //     if (window.scrollY > 50) {
+        //         navbar.classList.add('py-0');
+        //     } else {
+        //         navbar.classList.remove('py-0');
+        //     }
+        // });
 
         // --- AUTH SIMULATION LOGIC ---
         let isLoggedIn = true;

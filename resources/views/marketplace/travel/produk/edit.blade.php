@@ -211,7 +211,7 @@
 
                         <div class="space-y-6">
                             
-                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8">
+                           <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8">
                                 <h3 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
                                     <i class="ph-duotone ph-broadcast text-red-500 text-xl"></i> Status Produk
                                 </h3>
@@ -222,11 +222,11 @@
                                         </div>
                                         <div>
                                             <h4 class="font-bold text-slate-900 text-sm">Status Penayangan</h4>
-                                            <p class="text-xs text-slate-500 mt-1 max-w-sm">Matikan tombol ini untuk menyimpan sebagai Draft/Arsip.</p>
+                                            <p class="text-xs text-slate-500 mt-1 max-w-sm">Otomatis tersimpan ke database saat tombol ini digeser.</p>
                                         </div>
                                     </div>
                                     <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" id="statusToggle" class="sr-only peer" {{ $isPublish ? 'checked' : '' }}>
+                                        <input type="checkbox" id="statusToggle" data-id="{{ $p['id'] ?? 0 }}" class="sr-only peer" {{ $isPublish ? 'checked' : '' }}>
                                         <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
                                         <span class="ml-3 text-sm font-bold {{ $isPublish ? 'text-slate-700' : 'text-slate-400' }}" id="statusLabel">{{ $isPublish ? 'Aktif (Tayang)' : 'Non-Aktif (Draft)' }}</span>
                                     </label>
@@ -601,20 +601,76 @@
             return formattedString.replace(/\D/g, '');
         }
 
+       // ==========================================
+        // FITUR 1: AJAX STATUS PENAYANGAN (DINAMIS KAYA DI LIST)
+        // ==========================================
         const statusToggle = document.getElementById('statusToggle');
         const statusLabel = document.getElementById('statusLabel');
+
         if (statusToggle) {
-            statusToggle.addEventListener('change', function () {
-                if (this.checked) {
+            statusToggle.addEventListener('change', async function () {
+                const isChecked = this.checked;
+                const newStatus = isChecked ? 'publish' : 'draft';
+                const originalState = !isChecked;
+                const productId = this.getAttribute('data-id');
+
+                // Update UI Sementara
+                if (isChecked) {
                     statusLabel.textContent = "Aktif (Tayang)";
                     statusLabel.classList.replace('text-slate-400', 'text-slate-700');
                 } else {
                     statusLabel.textContent = "Non-Aktif (Draft)";
                     statusLabel.classList.replace('text-slate-700', 'text-slate-400');
                 }
+
+                // Tembak API Laravel
+                let urlStatus = "{{ route('marketplace.travel.produk.status', ':id') }}".replace(':id', productId);
+                
+                try {
+                    const response = await fetch(urlStatus, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if(response.ok) {
+                        // Munculin notif kecil (toast) biar elegan
+                        Swal.fire({
+                            icon: 'success',
+                            title: isChecked ? 'Tayang di Publik' : 'Disimpan ke Arsip',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    } else {
+                        throw new Error(result.message || 'Gagal dari server');
+                    }
+                } catch(error) {
+                    console.error("Error Status:", error);
+                    // Revert UI kalau API gagal
+                    this.checked = originalState;
+                    if (originalState) {
+                        statusLabel.textContent = "Aktif (Tayang)";
+                        statusLabel.classList.replace('text-slate-400', 'text-slate-700');
+                    } else {
+                        statusLabel.textContent = "Non-Aktif (Draft)";
+                        statusLabel.classList.replace('text-slate-700', 'text-slate-400');
+                    }
+                    Swal.fire('Gagal!', 'Terjadi kesalahan saat mengupdate status.', 'error');
+                }
             });
         }
 
+        // ==========================================
+        // FITUR 2 & 3: PREVIEW GAMBAR & DYNAMIC LISTS
+        // ==========================================
         function toggleReturnAirline() {
             const isChecked = document.getElementById('sameAirlineToggle').checked;
             document.getElementById('returnContainer').classList.toggle('hidden', isChecked);
@@ -640,11 +696,9 @@
             }
         }
 
-        // ===== 3. DYNAMIC LIST LOGIC =====
         function insertItemToList(type, value) {
             const list = document.getElementById(`list-${type}`);
             const li = document.createElement('li');
-            
             let colorClass = 'bg-orange-50 border-orange-100 text-orange-800';
             let btnColor = 'text-orange-400 hover:text-red-500';
             if (type === 'included') { colorClass = 'bg-green-50 border-green-100 text-green-800'; btnColor = 'text-green-400 hover:text-red-500'; }
@@ -677,7 +731,6 @@
             }
         }
 
-        // ===== 4. ITINERARY LOGIC WITH PARAMETERS =====
         function addItineraryDay(title = "", desc = "") {
             const container = document.getElementById('itinerary-container');
             const dayCount = container.children.length + 1;
@@ -702,7 +755,9 @@
             });
         }
 
-        // ===== 5. SUBMIT DATA KE LARAVEL =====
+        // ==========================================
+        // FITUR 4: SUBMIT FORM UTAMA (DENGAN PELACAK ERROR)
+        // ==========================================
         async function handleUpdate(e) {
             e.preventDefault();
             
@@ -716,15 +771,15 @@
             const formData = new FormData();
             formData.append('product_name', document.getElementById('product_name').value);
             formData.append('category', document.getElementById('category').value);
-            formData.append('quota', document.getElementById('quota').value);
+            formData.append('quota', document.getElementById('quota').value || 0); // Jaga-jaga agar tidak error int
             formData.append('status', document.getElementById('statusToggle').checked ? 'publish' : 'draft');
             formData.append('departure_date', document.getElementById('departure_date').value);
-            formData.append('duration', document.getElementById('duration').value);
+            formData.append('duration', document.getElementById('duration').value || 0);
             formData.append('departure_from', document.getElementById('departure_from').value);
             formData.append('description', document.getElementById('description').value);
-            formData.append('price_quad', getRawNumber(document.getElementById('price_quad').value));
-            formData.append('price_triple', getRawNumber(document.getElementById('price_triple').value));
-            formData.append('price_double', getRawNumber(document.getElementById('price_double').value));
+            formData.append('price_quad', getRawNumber(document.getElementById('price_quad').value) || 0);
+            formData.append('price_triple', getRawNumber(document.getElementById('price_triple').value) || 0);
+            formData.append('price_double', getRawNumber(document.getElementById('price_double').value) || 0);
             
             const isSameAirline = document.getElementById('sameAirlineToggle').checked;
             const flightDep = document.getElementById('flight_departure').value;
@@ -758,11 +813,12 @@
             if (imgMakkah) formData.append('image_makkah', imgMakkah);
             if (imgMadinah) formData.append('image_madinah', imgMadinah);
             
-            const submitUrl = "{{ route('marketplace.travel.produk.update', $p['id'] ?? 0) }}";
+            // Menggunakan relative path biar browser otomatis nyesuain sama HTTPS domain hosting lu
+            const submitUrl = "/marketplace/travel/produk/{{ $p['id'] ?? 0 }}/update";
             
             Swal.fire({
                 title: 'Menyimpan Perubahan...',
-                text: 'Mohon tunggu, data sedang diunggah.',
+                text: 'Sedang menghubungi server...',
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading()
             });
@@ -779,18 +835,24 @@
                 
                 const result = await response.json();
                 
+                console.log("DEBUG RESPONSE DARI SERVER:", result); // Buka Inspect > Console kalau ini error
+                
                 if (response.ok) {
                     Swal.fire({ title: 'Berhasil Diperbarui!', text: 'Data paket umroh berhasil disimpan.', icon: 'success', confirmButtonColor: '#ea580c' }).then(() => {
                         window.location.href = "{{ route('marketplace.travel.kelola-produk') }}";
                     });
                 } else {
-                    Swal.fire('Gagal!', result.message || 'Terjadi kesalahan.', 'error');
+                    // 👇 Ini akan nampilin alasan persis kenapa Darda nolak editannya
+                    let errorPesan = result.message || 'Data tidak valid.';
+                    if(result.debug) errorPesan += `\nCek Inspect > Console`; 
+                    Swal.fire('Gagal Menyimpan!', errorPesan, 'error');
                 }
             } catch (error) {
                 console.error(error);
-                Swal.fire('Error Sistem', 'Tidak dapat terhubung ke server.', 'error');
+                Swal.fire('Error Sistem', 'Tidak dapat terhubung ke server Controller.', 'error');
             }
         }
+        
     </script>
 </body>
 

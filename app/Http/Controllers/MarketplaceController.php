@@ -23,9 +23,20 @@ class MarketplaceController extends Controller
         // ]);
 
         $daftarProduk = [];
-        if ($responseProduk->successful()) {
-            $dataAsli = $responseProduk->json('data') ?? []; 
-            $daftarProduk = collect($dataAsli)->take(8)->toArray();
+       if ($responseProduk->successful()) {
+            $dataAsli = $responseProduk->json('data') ?? [];
+            
+            // Filter publish & Hitung Total Kuota
+            $dataPublish = collect($dataAsli)->filter(function ($item) {
+                return strtolower($item['status'] ?? '') === 'publish';
+            })->map(function ($item) {
+                // 👇 JUMBLAHIN SEMUA QUOTA DI DALAM PRICES 👇
+                $item['total_quota'] = collect($item['prices'] ?? [])->sum('quota');
+                return $item;
+            })->values()->all();
+
+            // Ambil maksimal 8 produk
+            $daftarProduk = collect($dataPublish)->take(8)->toArray();
         }
 
         $responseKategori = Http::withHeaders([
@@ -83,8 +94,17 @@ class MarketplaceController extends Controller
             'X-App-Signature' => $signature,
             'Accept'          => 'application/json'
         ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products');
-        
-        $daftarProduk = $responseProduk->successful() ? ($responseProduk->json('data') ?? []) : [];
+
+        $dataSemuaProduk = $responseProduk->successful() ? ($responseProduk->json('data') ?? []) : [];
+
+        // Filter publish & Hitung Total Kuota
+        $daftarProduk = collect($dataSemuaProduk)->filter(function ($item) {
+            return strtolower($item['status'] ?? '') === 'publish';
+        })->map(function ($item) {
+            // 👇 JUMBLAHIN SEMUA QUOTA DI DALAM PRICES 👇
+            $item['total_quota'] = collect($item['prices'] ?? [])->sum('quota');
+            return $item;
+        })->values()->all();
 
         // --- FILTER MITRA TRAVEL (Tetap butuh di PHP) ---
         if (!empty($namaMitra)) {
@@ -134,9 +154,10 @@ class MarketplaceController extends Controller
         ])->get("https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/{$id}");
 
         // 2. Cek apakah request sukses dan datanya ada
-        if ($response->successful() && $response->json('data')) {
-            // Ambil data spesifik dari object 'data'
+     if ($response->successful() && $response->json('data')) {
             $produk = $response->json('data');
+            
+            $produk['total_quota'] = collect($produk['prices'] ?? [])->sum('quota');
 
             // 👇 TAMBAHAN BARU: NGAMBIL DATA WISHLIST BUAT HALAMAN DETAIL 👇
             $wishlistIds = [];

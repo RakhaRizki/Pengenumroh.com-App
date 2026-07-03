@@ -136,17 +136,17 @@
                             </p>
 
                             <div class="mt-4 text-left">
-    <div class="flex justify-between text-xs mb-1">
-        <span class="font-semibold text-slate-600">Kelengkapan Data</span>
-        <!-- 2. Angka persentase jadi dinamis -->
-        <span class="font-bold text-orange-600">{{ $userProfile['kelengkapan'] ?? 0 }}%</span>
-    </div>
-    <div class="w-full bg-slate-100 rounded-full h-2">
-        <!-- 3. Panjang bar pakai inline CSS (style="width: ...%") biar bisa baca angka dari Laravel -->
-        <div class="bg-orange-500 h-2 rounded-full transition-all duration-1000" style="width: {{ $userProfile['kelengkapan'] ?? 0 }}%;"></div>
-    </div>
-    <p class="text-[10px] text-slate-400 mt-1 italic">*Lengkapi data untuk kemudahan Umroh.</p>
-</div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-semibold text-slate-600">Kelengkapan Data</span>
+                                    <!-- 2. Angka persentase jadi dinamis -->
+                                    <span class="font-bold text-orange-600">{{ $userProfile['kelengkapan'] ?? 0 }}%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <!-- 3. Panjang bar pakai inline CSS (style="width: ...%") biar bisa baca angka dari Laravel -->
+                                    <div class="bg-orange-500 h-2 rounded-full transition-all duration-1000" style="width: {{ $userProfile['kelengkapan'] ?? 0 }}%;"></div>
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-1 italic">*Lengkapi data untuk kemudahan Umroh.</p>
+                            </div>
 
                         </div>
                     </div>
@@ -198,46 +198,45 @@
                         @if (isset($wishlistData) && count($wishlistData) > 0)
                             <div id="wishlist-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                                @foreach ($wishlistData as $row)
-                                    {{-- MAPPING DATA API BIAR GAK ERROR/KOSONG --}}
-                                    @php
-                                        // Deteksi struktur API
-                                        $item = isset($row['product']) ? $row['product'] : $row;
-                                        $idProduk = $item['id'] ?? $loop->index;
+                               @foreach ($wishlistData as $row)
+                                {{-- MAPPING DATA API BIAR GAK ERROR/KOSONG --}}
+                                @php
+                                    // Deteksi struktur API
+                                    $item = isset($row['product']) ? $row['product'] : $row;
+                                    $idProduk = $item['id'] ?? $loop->index;
+                                    $nama = $item['nama_produk'] ?? 'Nama Paket Umroh';
+                                    $gambar = !empty($item['thumbnail_url']) ? 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/' . rawurlencode($item['thumbnail_url']) : 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=600&q=80';
+                                    $hotelMakkah = $item['hotels'][0]['name'] ?? '-';
+                                    $hotelMadinah = $item['hotels'][1]['name'] ?? '-';
+                                    $maskapai = $item['flights'][0]['airline_name'] ?? '-';
 
-                                        $nama = $item['nama_produk'] ?? 'Nama Paket Umroh';
+                                 // AMBIL DATA TANGGAL
+                                $tglKeberangkatan = !empty($item['tgl_keberangkatan']) ? \Carbon\Carbon::parse($item['tgl_keberangkatan'])->translatedFormat('d M Y') : '-';
+                                
+                                // 1. Amankan data prices (antisipasi kalau API ngirim format aneh)
+                                $pricesData = is_string($item['prices'] ?? null) ? json_decode($item['prices'], true) : ($item['prices'] ?? []);
+                                
+                                // 2. Amankan harga
+                                $harga = $pricesData[0]['harga'] ?? ($pricesData[0]['price'] ?? ($item['price'] ?? 0));
 
-                                        $gambar = !empty($item['thumbnail_url'])
-                                            ? 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/' .
-                                                rawurlencode($item['thumbnail_url'])
-                                            : 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=600&q=80';
+                                // 3. LOGIKA KUOTA (Sapu Jagat)
+                                $kuotaDariPrices = collect($pricesData)->sum('quota');
+                                
+                                // Kalau dari prices hasilnya 0, kita tembak semua kemungkinan nama variabel dari backend!
+                                if ($kuotaDariPrices > 0) {
+                                    $kuota = $kuotaDariPrices;
+                                } else {
+                                    $kuota = intval($item['total_quota'] ?? $item['quota'] ?? $item['stok'] ?? $item['sisa_seat'] ?? 0);
+                                }
 
-                                        $hotelMakkah = $item['hotels'][0]['name'] ?? '-';
-                                        $hotelMadinah = $item['hotels'][1]['name'] ?? '-';
-                                        $maskapai = $item['flights'][0]['airline_name'] ?? '-';
-
-                                        // AMBIL DATA TANGGAL
-                                        $tglKeberangkatan = !empty($item['tgl_keberangkatan'])
-                                            ? \Carbon\Carbon::parse($item['tgl_keberangkatan'])->translatedFormat(
-                                                'd M Y',
-                                            )
-                                            : '-';
-
-                                        $harga = $item['prices'][0]['harga'] ?? ($item['prices'][0]['price'] ?? 0);
-
-                                        // 1. Ambil data quota (Sebagai Seat Tersisa)
-                                        $kuota = intval($item['quota'] ?? 0);
-
-                                        $maxSeat = $kuota > 45 ? 100 : 45;
-
-                                        $persenSeat = $maxSeat > 0 ? round(($kuota / $maxSeat) * 100) : 0;
-
-                                        // Cegah bar lebih dari 100% kalau kuota datanya aneh
-                                        if ($persenSeat > 100) {
-                                            $persenSeat = 100;
-                                        }
-
-                                    @endphp
+                                $maxSeat = $kuota > 45 ? 100 : 45;
+                                $persenSeat = $maxSeat > 0 ? round(($kuota / $maxSeat) * 100) : 0;
+                                
+                                // Cegah bar lebih dari 100%
+                                if ($persenSeat > 100) {
+                                    $persenSeat = 100;
+                                }
+                                @endphp
 
                                     <div class="wishlist-item group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
                                         id="wishlist-{{ $idProduk }}">
@@ -288,19 +287,16 @@
                                                         {{ $tglKeberangkatan }}</p>
                                                 </div>
 
-                                                <div class="pt-2">
-                                                    <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                                        <span class="text-slate-500 uppercase tracking-tighter">Seat
-                                                            Tersisa</span>
-                                                        <span class="text-[#ff782e] font-black">{{ $kuota }}
-                                                            Seat</span>
-                                                    </div>
-                                                    <div
-                                                        class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                                        <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                                            style="width: {{ $persenSeat }}%; min-width: 5%;"></div>
-                                                    </div>
+                                               <div class="pt-2">
+                                                <div class="flex justify-between text-[11px] mb-1.5 font-bold">
+                                                    <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
+                                                    <span class="text-[#ff782e] font-black">{{ $kuota }} Seat</span>
                                                 </div>
+                                                <div class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
+                                                    <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
+                                                        style="width: {{ $persenSeat }}%; min-width: 5%;"></div>
+                                                </div>
+                                            </div>
 
                                             </div>
                                             <div
