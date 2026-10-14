@@ -64,9 +64,15 @@
         $pricesDB = $p['prices'] ?? '[]';
         $rawPrices = is_string($pricesDB) ? json_decode($pricesDB, true) : $pricesDB;
         $prices = collect(is_array($rawPrices) ? $rawPrices : []);
+        
         $hargaQuad = data_get($prices->firstWhere('room_types', 'Quad'), 'price', '');
+        $kuotaQuad = data_get($prices->firstWhere('room_types', 'Quad'), 'quota', '');
+
         $hargaTriple = data_get($prices->firstWhere('room_types', 'Triple'), 'price', '');
+        $kuotaTriple = data_get($prices->firstWhere('room_types', 'Triple'), 'quota', '');
+
         $hargaDouble = data_get($prices->firstWhere('room_types', 'Double'), 'price', '');
+        $kuotaDouble = data_get($prices->firstWhere('room_types', 'Double'), 'quota', '');
 
         // 6. Ekstrak Maskapai (Safe Guarded via data_get)
         $flightsDB = $p['flights'] ?? '[]';
@@ -76,12 +82,23 @@
         $maskapaiPulang = data_get($flights->firstWhere('type', 'Return'), 'airline_name', '');
         $isMaskapaiSama = empty($maskapaiPulang) || $maskapaiBerangkat === $maskapaiPulang;
 
-        // 7. Ekstrak Data Hotel (Safe Guarded via data_get)
+        // 7. Ekstrak Data Hotel (SAFE GUARDED & KEBAL TYPO)
         $hotelsDB = $p['hotels'] ?? '[]';
         $rawHotels = is_string($hotelsDB) ? json_decode($hotelsDB, true) : $hotelsDB;
         $hotels = collect(is_array($rawHotels) ? $rawHotels : []);
-        $hotelMakkah = $hotels->firstWhere('city', 'Mekkah') ?? [];
-        $hotelMadinah = $hotels->firstWhere('city', 'Madinah') ?? [];
+
+        // 👇 FIX: Menggunakan stripos biar mau 'Mekkah', 'Makkah', atau 'makkah' tetep ketemu datanya! 👇
+        $hotelMakkah = $hotels->first(function($h) {
+            $city = strtolower($h['city'] ?? '');
+            return strpos($city, 'mekkah') !== false || strpos($city, 'makkah') !== false;
+        }) ?? [];
+
+        $hotelMadinah = $hotels->first(function($h) {
+            return strpos(strtolower($h['city'] ?? ''), 'madinah') !== false;
+        }) ?? [];
+
+        $fasilitasMakkahArr = !empty($hotelMakkah['facilities']) ? array_map('trim', explode(',', $hotelMakkah['facilities'])) : [];
+        $fasilitasMadinahArr = !empty($hotelMadinah['facilities']) ? array_map('trim', explode(',', $hotelMadinah['facilities'])) : [];
 
         $fasilitasMakkahArr = !empty($hotelMakkah['facilities']) ? array_map('trim', explode(',', $hotelMakkah['facilities'])) : [];
         $fasilitasMadinahArr = !empty($hotelMadinah['facilities']) ? array_map('trim', explode(',', $hotelMadinah['facilities'])) : [];
@@ -195,6 +212,9 @@
 
                 <div class="lg:col-span-3" data-aos="fade-up">
                     <form id="productForm" onsubmit="handleUpdate(event)">
+
+                       <input type="hidden" id="old_img_makkah" value="{{ $hotelMakkah['image'] ?? '' }}">
+                       <input type="hidden" id="old_img_madinah" value="{{ $hotelMadinah['image'] ?? '' }}">   
                         
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                             <div>
@@ -258,25 +278,51 @@
                                             <label class="text-sm font-bold text-slate-700">Nama Paket</label>
                                             <input type="text" id="product_name" value="{{ $p['nama_produk'] ?? '' }}" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition">
                                         </div>
-                                        <div class="space-y-2">
+
+                                        <!-- Kategori -->
+                                        <div class="space-y-2 md:col-span-2">
                                             <label class="text-sm font-bold text-slate-700">Kategori</label>
                                             <div class="relative">
                                                 <i class="ph-bold ph-tag absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                                                <select id="category" required class="w-full pl-11 pr-10 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition appearance-none bg-white">
+                                                <select id="category" required onchange="handleCategoryChange(this)" class="w-full pl-11 pr-10 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition appearance-none bg-white">
                                                     <option value="1" @selected(($p['category_id'] ?? 0) == 1)>Umroh Reguler 9 Hari</option>
                                                     <option value="2" @selected(($p['category_id'] ?? 0) == 2)>Umroh Reguler 12 Hari</option>
                                                     <option value="3" @selected(($p['category_id'] ?? 0) == 3)>Umroh Plus Tour</option>
                                                     <option value="4" @selected(($p['category_id'] ?? 0) == 4)>Umroh Ramadhan</option>
-                                                    <option value="5" @selected(($p['category_id'] ?? 0) == 5)>Haji Khusus</option>
+                                                    <option value="6" @selected(($p['category_id'] ?? 0) == 6)>Haji</option>
                                                 </select>
                                                 <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                                             </div>
                                         </div>
-                                        <div class="space-y-2">
-                                            <label class="text-sm font-bold text-slate-700">Jumlah Kuota (Pax)</label>
-                                            <div class="relative">
-                                                <i class="ph-bold ph-users absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                                                <input type="number" id="quota" value="{{ $p['quota'] ?? 0 }}" required class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition">
+
+                                        <!-- 👇 BAGIAN KUOTA (DIPECAH 3) 👇 -->
+                                        <div class="space-y-3 md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                            <label class="text-sm font-bold text-slate-700">Jumlah Kuota per Tipe Kamar (Pax)</label>
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <!-- Quad -->
+                                                <div class="space-y-1.5">
+                                                    <span class="text-xs font-semibold text-slate-500">Kamar Quad</span>
+                                                    <div class="relative">
+                                                        <i class="ph-bold ph-users-four absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                                        <input type="number" id="quota_quad" value="{{ $kuotaQuad }}" min="0" required class="w-full pl-11 pr-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition bg-white">
+                                                    </div>
+                                                </div>
+                                                <!-- Double -->
+                                                <div class="space-y-1.5">
+                                                    <span class="text-xs font-semibold text-slate-500">Kamar Double</span>
+                                                    <div class="relative">
+                                                        <i class="ph-bold ph-users absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                                        <input type="number" id="quota_double" value="{{ $kuotaDouble }}" min="0" required class="w-full pl-11 pr-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition bg-white">
+                                                    </div>
+                                                </div>
+                                                <!-- Triple -->
+                                                <div class="space-y-1.5">
+                                                    <span class="text-xs font-semibold text-slate-500">Kamar Triple</span>
+                                                    <div class="relative">
+                                                        <i class="ph-bold ph-users-three absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                                        <input type="number" id="quota_triple" value="{{ $kuotaTriple }}" min="0" required class="w-full pl-11 pr-4 py-2.5 rounded-lg border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition bg-white">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -324,17 +370,29 @@
                                     <div class="space-y-2">
                                         <label class="text-sm font-bold text-slate-700">Durasi (Hari)</label>
                                         <div class="relative">
-                                            <input type="number" id="duration" value="{{ $p['duration'] ?? ($p['durasi_hari'] ?? 9) }}" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition">
+                                            <input type="number" id="duration" value="{{ $p['duration'] ?? ($p['durasi_hari'] ?? 9) }}" required onchange="adjustItinerary(this.value)" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition">
                                             <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">Hari</span>
                                         </div>
                                     </div>
                                     <div class="space-y-2">
-                                        <label class="text-sm font-bold text-slate-700">Keberangkatan</label>
-                                        <div class="relative">
-                                            <i class="ph-bold ph-map-pin absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                                            <input type="text" id="departure_from" value="{{ $p['tmp_keberangkatan'] ?? '' }}" required class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition">
-                                        </div>
+                                    <label class="text-sm font-bold text-slate-700">Keberangkatan</label>
+                                    <div class="relative">
+                                        <i class="ph-bold ph-map-pin absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                                        @php
+                                            // Logika cerdas untuk membaca data lama, meskipun ada typo/pakai kode bandara
+                                            $kotaAwal = strtolower($p['tmp_keberangkatan'] ?? '');
+                                        @endphp
+                                        <select id="departure_from" required class="w-full pl-11 pr-10 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition appearance-none bg-white">
+                                            <option value="" disabled {{ empty($kotaAwal) ? 'selected' : '' }}>Pilih Kota Keberangkatan</option>
+                                            <option value="Jakarta" {{ str_contains($kotaAwal, 'jakarta') || str_contains($kotaAwal, 'cgk') ? 'selected' : '' }}>Jakarta (CGK)</option>
+                                            <option value="Surabaya" {{ str_contains($kotaAwal, 'surabaya') || str_contains($kotaAwal, 'sub') ? 'selected' : '' }}>Surabaya (SUB)</option>
+                                            <option value="Medan" {{ str_contains($kotaAwal, 'medan') || str_contains($kotaAwal, 'kno') ? 'selected' : '' }}>Medan (KNO)</option>
+                                            <option value="Makassar" {{ str_contains($kotaAwal, 'makassar') || str_contains($kotaAwal, 'upg') ? 'selected' : '' }}>Makassar (UPG)</option>
+                                            <option value="Jeddah" {{ str_contains($kotaAwal, 'jeddah') ? 'selected' : '' }}>Jeddah (Langsung)</option>
+                                        </select>
+                                        <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                                     </div>
+                                </div>
                                 </div>
                                 <div class="p-5 bg-slate-50 rounded-xl border border-slate-100 transition-all duration-300">
                                     <div class="flex items-center justify-between mb-4">
@@ -377,7 +435,8 @@
                                             <i class="ph-fill ph-kaaba text-slate-400"></i>
                                         </div>
                                         <div class="relative h-32 w-full rounded-xl border-2 border-dashed border-slate-300 bg-white hover:bg-orange-50 hover:border-orange-400 transition cursor-pointer flex flex-col items-center justify-center group/upload overflow-hidden" onclick="document.getElementById('img_makkah').click()">
-                                            <input type="file" id="img_makkah" accept="image/*" class="hidden" onchange="previewHotelImg(event, 'preview-makkah', 'placeholder-makkah')">
+                                          <input type="file" id="img_makkah" accept="image/*" class="hidden" onchange="previewHotelImg(event, 'preview-makkah', 'placeholder-makkah')">
+                                          <input type="hidden" id="old_img_makkah" value="{{ $hotelMakkah['image'] ?? '' }}">
                                             <div class="text-center p-2 {{ $imgMakkah ? 'hidden' : '' }}" id="placeholder-makkah">
                                                 <i class="ph-bold ph-image text-2xl text-slate-300 group-hover/upload:text-orange-500 transition mb-1"></i>
                                                 <p class="text-xs font-bold text-slate-400 group-hover/upload:text-orange-600 transition">Foto Hotel Makkah</p>
@@ -428,7 +487,8 @@
                                             <p class="font-bold text-slate-700">Hotel Madinah</p>
                                         </div>
                                         <div class="relative h-32 w-full rounded-xl border-2 border-dashed border-slate-300 bg-white hover:bg-orange-50 hover:border-orange-400 transition cursor-pointer flex flex-col items-center justify-center group/upload overflow-hidden" onclick="document.getElementById('img_madinah').click()">
-                                            <input type="file" id="img_madinah" accept="image/*" class="hidden" onchange="previewHotelImg(event, 'preview-madinah', 'placeholder-madinah')">
+                                           <input type="file" id="img_madinah" accept="image/*" class="hidden" onchange="previewHotelImg(event, 'preview-madinah', 'placeholder-madinah')">
+                                           <input type="hidden" id="old_img_madinah" value="{{ $hotelMadinah['image'] ?? '' }}">
                                             <div class="text-center p-2 {{ $imgMadinah ? 'hidden' : '' }}" id="placeholder-madinah">
                                                 <i class="ph-bold ph-image text-2xl text-slate-300 group-hover/upload:text-orange-500 transition mb-1"></i>
                                                 <p class="text-xs font-bold text-slate-400 group-hover/upload:text-orange-600 transition">Foto Hotel Madinah</p>
@@ -590,6 +650,83 @@
             formatCurrency(document.getElementById('price_double'));
         };
 
+        // ==========================================
+        // FITUR TAMBAHAN: AUTO-DURASI & AUTO-ITINERARY (VERSI EDIT)
+        // ==========================================
+        function handleCategoryChange(select) {
+            const durationInput = document.getElementById('duration');
+            const selectedText = select.options[select.selectedIndex].text;
+            
+            // Cari angka di teks kategori
+            const match = selectedText.match(/(\d+)\s*Hari/i);
+            
+            if (match) {
+                const jumlahHari = parseInt(match[1]);
+                const container = document.getElementById('itinerary-container');
+                const currentDays = container.children.length; // Cek jumlah form yang ada sekarang
+                
+                durationInput.value = jumlahHari;
+                adjustItinerary(jumlahHari); // Panggil fungsi nyesuaiin itinerary
+                
+                // FIX: Toast notif HANYA muncul kalau harinya TETAP atau NAMBAH.
+                // Kalau harinya BERKURANG, biarkan popup peringatan (Warning) muncul dengan aman tanpa tertimpa.
+                if (currentDays <= jumlahHari) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: `Durasi disesuaikan ke ${jumlahHari} Hari`,
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true
+                    });
+                }
+            }
+        }
+
+        function adjustItinerary(targetDays) {
+            targetDays = parseInt(targetDays);
+            if (!targetDays || targetDays <= 0) return;
+
+            const container = document.getElementById('itinerary-container');
+            const currentDays = container.children.length;
+            
+            // Kalau hari kurang, tambahin kolom otomatis
+            if (currentDays < targetDays) {
+                for (let i = currentDays; i < targetDays; i++) {
+                    addItineraryDay();
+                }
+            } 
+            // Kalau hari lebih, HAPUS DENGAN PERINGATAN (biar data lama gak lenyap)
+            else if (currentDays > targetDays) {
+                Swal.fire({
+                    title: 'Hapus Sisa Itinerary?',
+                    text: `Perubahan durasi akan menghapus data Itinerary dari hari ke-${targetDays + 1} sampai ke-${currentDays}. Yakin?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ea580c',
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal',
+                    allowOutsideClick: false // Biar gak batal kalau gak sengaja klik luar
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // User setuju hapus
+                        for (let i = currentDays; i > targetDays; i--) {
+                            container.lastElementChild.remove();
+                        }
+                    } else {
+                        // User batalin, balikin angka durasi ke jumlah kolom yang sebenernya
+                        document.getElementById('duration').value = currentDays;
+                        
+                        // Opsional: Balikin dropdown kategori ke default (biar selaras sama durasi yang batal diubah)
+                        // document.getElementById('category').value = ''; 
+                    }
+                });
+            }
+        }
+        // ==========================================
+
         // ===== 2. FUNGSI UI & UTILS =====
         function formatCurrency(input) {
             let value = input.value.replace(/\D/g, '');
@@ -736,15 +873,19 @@
             const dayCount = container.children.length + 1;
             const div = document.createElement('div');
             div.className = 'relative pl-6 pb-8 itinerary-item';
+
             div.innerHTML = `
                 <div class="absolute -left-[21px] top-0 w-10 h-10 bg-white border-2 border-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-xs shadow-sm z-10">H<span class="day-num">${dayCount}</span></div>
                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 group hover:border-orange-200 transition">
                     <div class="flex justify-between mb-2">
-                        <input type="text" value="${title}" class="itinerary-title w-full bg-transparent font-bold text-slate-800 text-sm focus:outline-none placeholder:text-slate-400" placeholder="Judul Kegiatan">
+                        <!-- Tambah REQUIRED di input judul -->
+                        <input type="text" value="${title}" required class="itinerary-title w-full bg-transparent font-bold text-slate-800 text-sm focus:outline-none placeholder:text-slate-400" placeholder="Judul Kegiatan (Wajib diisi)">
                         <button type="button" onclick="removeDay(this)" class="text-slate-400 hover:text-red-500 transition"><i class="ph-bold ph-trash"></i></button>
                     </div>
-                    <textarea rows="2" class="itinerary-desc w-full bg-white px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-orange-500 resize-none" placeholder="Deskripsi kegiatan...">${desc}</textarea>
+                    <!-- Tambah REQUIRED di textarea deskripsi -->
+                    <textarea rows="2" required class="itinerary-desc w-full bg-white px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-orange-500 resize-none" placeholder="Deskripsi kegiatan... (Wajib diisi)">${desc}</textarea>
                 </div>`;
+
             container.appendChild(div);
         }
 
@@ -760,18 +901,19 @@
         // ==========================================
         async function handleUpdate(e) {
             e.preventDefault();
-            
             const getListArray = (type) => Array.from(document.querySelectorAll(`.list-item-${type} .item-text`)).map(el => el.innerText);
             const itineraryData = Array.from(document.querySelectorAll('.itinerary-item')).map((el, i) => ({
                 day: i + 1,
                 title: el.querySelector('.itinerary-title').value,
                 description: el.querySelector('.itinerary-desc').value
             }));
-            
+
             const formData = new FormData();
             formData.append('product_name', document.getElementById('product_name').value);
             formData.append('category', document.getElementById('category').value);
-            formData.append('quota', document.getElementById('quota').value || 0); // Jaga-jaga agar tidak error int
+            formData.append('quota_quad', document.getElementById('quota_quad').value || 0);
+            formData.append('quota_double', document.getElementById('quota_double').value || 0);
+            formData.append('quota_triple', document.getElementById('quota_triple').value || 0);
             formData.append('status', document.getElementById('statusToggle').checked ? 'publish' : 'draft');
             formData.append('departure_date', document.getElementById('departure_date').value);
             formData.append('duration', document.getElementById('duration').value || 0);
@@ -780,31 +922,45 @@
             formData.append('price_quad', getRawNumber(document.getElementById('price_quad').value) || 0);
             formData.append('price_triple', getRawNumber(document.getElementById('price_triple').value) || 0);
             formData.append('price_double', getRawNumber(document.getElementById('price_double').value) || 0);
-            
+
             const isSameAirline = document.getElementById('sameAirlineToggle').checked;
             const flightDep = document.getElementById('flight_departure').value;
             formData.append('flight_departure', flightDep);
             formData.append('flight_return', isSameAirline ? flightDep : document.getElementById('flight_return').value);
-            
+
+            // 👇 AMBIL NAMA FOTO LAMA
+            const oldMakkah = document.getElementById('old_img_makkah') ? document.getElementById('old_img_makkah').value : '';
+            const oldMadinah = document.getElementById('old_img_madinah') ? document.getElementById('old_img_madinah').value : '';
+
+            // 👇 FIX UTAMA 1: Wajib dikirim ke Controller Laravel biar ditangkep sama PHP lu
+            formData.append('old_image_makkah', oldMakkah);
+            formData.append('old_image_madinah', oldMadinah);
+
+            // 👇 FIX UTAMA 2: Masukin key "existing_image" langsung dari sini sesuai rikues orang backend
             formData.append('hotel_makkah', JSON.stringify({
                 name: document.getElementById('makkah_name').value,
                 rating: document.getElementById('makkah_rating').value,
                 distance: document.getElementById('makkah_distance').value,
-                facilities: getListArray('fasilitas_makkah')
+                facilities: getListArray('fasilitas_makkah'),
+                image: oldMakkah,
+                existing_image: oldMakkah // Penuhi permintaan backend
             }));
+
             formData.append('hotel_madinah', JSON.stringify({
                 name: document.getElementById('madinah_name').value,
                 rating: document.getElementById('madinah_rating').value,
                 distance: document.getElementById('madinah_distance').value,
-                facilities: getListArray('fasilitas_madinah')
+                facilities: getListArray('fasilitas_madinah'),
+                image: oldMadinah,
+                existing_image: oldMadinah // Penuhi permintaan backend
             }));
-            
+
             formData.append('included_facilities', JSON.stringify(getListArray('included')));
             formData.append('excluded_facilities', JSON.stringify(getListArray('excluded')));
             formData.append('terms', JSON.stringify(getListArray('syarat')));
             formData.append('notes', JSON.stringify(getListArray('catatan')));
             formData.append('itinerary', JSON.stringify(itineraryData));
-            
+
             const imgMain = document.getElementById('thumbnail_product').files[0];
             const imgMakkah = document.getElementById('img_makkah').files[0];
             const imgMadinah = document.getElementById('img_madinah').files[0];
@@ -812,17 +968,16 @@
             if (imgMain) formData.append('thumbnail', imgMain);
             if (imgMakkah) formData.append('image_makkah', imgMakkah);
             if (imgMadinah) formData.append('image_madinah', imgMadinah);
-            
-            // Menggunakan relative path biar browser otomatis nyesuain sama HTTPS domain hosting lu
+
             const submitUrl = "/marketplace/travel/produk/{{ $p['id'] ?? 0 }}/update";
-            
+
             Swal.fire({
                 title: 'Menyimpan Perubahan...',
                 text: 'Sedang menghubungi server...',
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading()
             });
-            
+
             try {
                 const response = await fetch(submitUrl, {
                     method: 'POST',
@@ -832,20 +987,29 @@
                     },
                     body: formData
                 });
-                
+
                 const result = await response.json();
-                
-                console.log("DEBUG RESPONSE DARI SERVER:", result); // Buka Inspect > Console kalau ini error
-                
+
                 if (response.ok) {
-                    Swal.fire({ title: 'Berhasil Diperbarui!', text: 'Data paket umroh berhasil disimpan.', icon: 'success', confirmButtonColor: '#ea580c' }).then(() => {
+                    Swal.fire({
+                        title: 'Berhasil Diperbarui!',
+                        text: 'Data paket umroh berhasil disimpan.',
+                        icon: 'success',
+                        confirmButtonColor: '#ea580c'
+                    }).then(() => {
                         window.location.href = "{{ route('marketplace.travel.kelola-produk') }}";
                     });
                 } else {
-                    // 👇 Ini akan nampilin alasan persis kenapa Darda nolak editannya
-                    let errorPesan = result.message || 'Data tidak valid.';
-                    if(result.debug) errorPesan += `\nCek Inspect > Console`; 
-                    Swal.fire('Gagal Menyimpan!', errorPesan, 'error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Ditolak Server Darda!',
+                        html: `<div style="text-align: left; background: #f8fafc; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; color: #ef4444; overflow-x: auto; border: 1px solid #f87171;">
+                                <strong>Pesan Error:</strong><br>
+                                ${JSON.stringify(result, null, 2)}
+                            </div>
+                            <p style="margin-top: 15px; font-size: 14px;">Silakan <b>Copy</b> teks merah di atas dan kirim ke sini biar langsung kita benerin!</p>`,
+                        width: '600px'
+                    });
                 }
             } catch (error) {
                 console.error(error);

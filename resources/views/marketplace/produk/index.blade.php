@@ -108,6 +108,18 @@
                                     'label' => $date->translatedFormat('F Y'),
                                 ];
                             }
+
+                            // 2. CEK STATUS AKUN (Apakah dia Mitra Travel / Admin)
+                            $userData = session('user') ?? [];
+                            $idLevel = $userData['id_level'] ?? null;
+                            $userDataString = strtolower(json_encode($userData));
+
+                            $isTravelAccount = (
+                                in_array($idLevel, [1, 2, 4]) || 
+                                strpos($userDataString, '"id_level":4') !== false ||
+                                strpos($userDataString, '"id_level": 4') !== false ||
+                                strpos($userDataString, '"nama_level":"travel"') !== false
+                            );
                         @endphp
 
                         <div
@@ -268,141 +280,210 @@
                 </aside>
 
                 {{-- AREA PRODUK --}} 
-<div class="lg:col-span-3"> 
-    {{-- PESAN KOSONG (Disembunyikan default) --}} 
-    <div id="empty-state" class="hidden text-center py-20 bg-white rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all"> 
-        <div class="w-20 h-20 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100"> 
-            <i class="ph-duotone ph-magnifying-glass text-4xl text-slate-400"></i> 
-        </div> 
-        <h3 class="text-xl font-bold text-slate-800">Paket Tidak Ditemukan</h3> 
-        <p class="text-sm text-slate-500 mt-2 mb-6 max-w-sm mx-auto">Maaf, kami tidak dapat menemukan paket yang sesuai dengan kriteria filter Anda.</p> 
-        <button onclick="resetAllFilters()" class="px-8 py-3 bg-orange-50 text-orange-600 font-bold rounded-full hover:bg-orange-600 hover:text-white transition-colors duration-300 shadow-sm">Reset Filter</button> 
-    </div> 
+                <div class="lg:col-span-3"> 
+                    {{-- PESAN KOSONG (Disembunyikan default) --}} 
+                    <div id="empty-state" class="hidden text-center py-20 bg-white rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all"> 
+                        <div class="w-20 h-20 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100"> 
+                            <i class="ph-duotone ph-magnifying-glass text-4xl text-slate-400"></i> 
+                        </div> 
+                        <h3 class="text-xl font-bold text-slate-800">Paket Tidak Ditemukan</h3> 
+                        <p class="text-sm text-slate-500 mt-2 mb-6 max-w-sm mx-auto">Maaf, kami tidak dapat menemukan paket yang sesuai dengan kriteria filter Anda.</p> 
+                        <button onclick="resetAllFilters()" class="px-8 py-3 bg-orange-50 text-orange-600 font-bold rounded-full hover:bg-orange-600 hover:text-white transition-colors duration-300 shadow-sm">Reset Filter</button> 
+                    </div> 
 
-    {{-- 👇 GRID PRODUK DIUBAH JADI 2 KOLOM DI MOBILE 👇 --}} 
-    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 min-h-[600px] content-start" id="product-container"> 
-        @forelse($daftarProduk as $produk) 
-        @php 
-            $hargaAsli = $produk['prices'][0]['harga'] ?? ($produk['prices'][0]['price'] ?? 0); 
-        @endphp 
-        
-        <div class="product-card group bg-white rounded-xl md:rounded-2xl border border-slate-100 overflow-hidden hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col h-full hover:-translate-y-1" data-id="{{ $produk['id'] }}" data-category="{{ $produk['category_id'] }}" data-kota="{{ strtolower($produk['tmp_keberangkatan'] ?? '') }}" data-tanggal="{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->format('Y-m-d') }}" data-harga="{{ $hargaAsli }}" data-nama="{{ strtolower($produk['nama_produk'] ?? '') }}"> 
-            
-            <div class="relative aspect-[4/3] overflow-hidden bg-slate-200"> 
-                <img src="https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/{{ rawurlencode($produk['thumbnail_url']) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" alt="{{ $produk['nama_produk'] }}" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';"> 
-                
-                <div class="absolute top-2 right-2 md:top-3 md:right-3 z-10 flex gap-1.5 md:gap-2"> 
-                    {{-- Tombol Bandingkan --}} 
-                    <button onclick="addToCompare(this)" class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-500 hover:text-white transition-colors border border-white/30 group/btn" title="Bandingkan"> 
-                        <i class="ph-bold ph-arrows-left-right text-xs md:text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i> 
-                    </button> 
-                    
-                    {{-- Tombol Wishlist --}} 
-                    @php 
-                        $isWishlisted = in_array($produk['id'], $wishlistIds ?? []); 
-                    @endphp 
-                    <button onclick="toggleWishlist(this, '{{ $produk['id'] }}')" class="wishlist-btn w-6 h-6 md:w-8 md:h-8 rounded-full backdrop-blur-md flex items-center justify-center transition-colors border group/wishlist {{ $isWishlisted ? 'bg-white text-red-500 border-red-500' : 'bg-white/20 text-white hover:bg-white hover:text-red-500 border-white/30' }}" title="Simpan ke Wishlist"> 
-                        <i class="ph-fill ph-heart text-xs md:text-lg pointer-events-none transition-transform group-active/wishlist:scale-75"></i> 
-                    </button> 
-                </div> 
-            </div> 
+                    {{-- 👇 GRID PRODUK DIUBAH JADI 2 KOLOM DI MOBILE 👇 --}}
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 min-h-[600px] content-start" id="product-container">
+                        @forelse($daftarProduk as $produk)
+                            @php
+                                // Cari spesifik harga untuk kamar Quad
+                                $kamarQuad = collect($produk['prices'] ?? [])->first(function($kamar) {
+                                    return stripos($kamar['room_types'] ?? '', 'quad') !== false;
+                                });
 
-            {{-- Padding disesuaikan di mobile --}}
-            <div class="p-3 md:p-5 flex flex-col flex-grow"> 
-                <div class="min-h-[2.5rem] md:min-h-[3.5rem] mb-1 md:mb-0"> 
-                    <h3 class="text-[11px] sm:text-xs md:text-base font-bold text-slate-900 group-hover:text-orange-600 transition-colors line-clamp-2 leading-tight"> 
-                        {{ $produk['nama_produk'] }} 
-                    </h3> 
-                </div> 
-
-                <div class="flex-grow space-y-1.5 md:space-y-3 mb-4 md:mb-6 mt-1 md:mt-2"> 
-                    @if (!empty($produk['hotels'][0])) 
-                    <div class="flex items-center gap-1.5 md:gap-3"> 
-                        <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0"> 
-                            <i class="ph-duotone ph-buildings text-orange-500 text-[10px] md:text-sm"></i> 
-                        </div> 
-                        <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate"> 
-                            {{ $produk['hotels'][0]['city'] ?? 'Kota' }}: {{ $produk['hotels'][0]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][0]['rating'] ?? '5' }} 
-                        </p> 
-                    </div> 
-                    @endif 
-                    
-                    @if (!empty($produk['hotels'][1])) 
-                    <div class="flex items-center gap-1.5 md:gap-3"> 
-                        <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0"> 
-                            <i class="ph-duotone ph-buildings text-orange-500 text-[10px] md:text-sm"></i> 
-                        </div> 
-                        <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate"> 
-                            {{ $produk['hotels'][1]['city'] ?? 'Kota' }}: {{ $produk['hotels'][1]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][1]['rating'] ?? '5' }} 
-                        </p> 
-                    </div> 
-                    @endif 
-                    
-                    <div class="flex items-center gap-1.5 md:gap-3"> 
-                        <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0"> 
-                            <i class="ph-duotone ph-airplane-tilt text-blue-500 text-[10px] md:text-sm"></i> 
-                        </div> 
-                        <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate"> 
-                            {{ $produk['flights'][0]['airline_name'] ?? 'Maskapai' }} 
-                        </p> 
-                    </div> 
-                    
-                    <div class="flex items-center gap-1.5 md:gap-3"> 
-                        <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0"> 
-                            <i class="ph-duotone ph-calendar-blank text-green-500 text-[10px] md:text-sm"></i> 
-                        </div> 
-                        <p class="text-[9px] md:text-sm font-semibold text-slate-600"> 
-                            {{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->translatedFormat('d M y') }} 
-                        </p> 
-                    </div> 
-                    
-                    <div class="pt-1.5 md:pt-3"> 
-                            @php 
-                                $kuota = intval($produk['total_quota'] ?? 0); 
-                                $maxSeat = ($kuota > 45) ? 100 : 45; 
-                                $persenSeat = $maxSeat > 0 ? round(($kuota / $maxSeat) * 100) : 0; 
-                                if ($persenSeat > 100) $persenSeat = 100; 
+                                // Jika kamar Quad ketemu, ambil harganya. Kalau nggak ada, pakai harga pertama (fallback)
+                                if ($kamarQuad) {
+                                    $hargaAsli = $kamarQuad['harga'] ?? ($kamarQuad['price'] ?? 0);
+                                } else {
+                                    $hargaAsli = $produk['prices'][0]['harga'] ?? ($produk['prices'][0]['price'] ?? 0);
+                                }
                             @endphp
-                            <div class="flex justify-between text-[8px] md:text-[11px] mb-1 font-bold">
-                                <span class="text-slate-500 uppercase tracking-tighter">Seat Sisa</span>
-                                <span class="text-[#ff782e] font-black">{{ $kuota }} Seat</span>
+                           <div class="product-card group bg-white rounded-xl md:rounded-2xl border border-slate-100 overflow-hidden hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col h-full hover:-translate-y-1" 
+                                    data-id="{{ $produk['id'] }}" 
+                                    {{-- 👇 INI YANG DIUPDATE BRO (data-category) 👇 --}}
+                                    data-category="{{ $produk['category_id'] ?? ($produk['category']['id'] ?? '') }}" 
+                                    data-kota="{{ strtolower($produk['tmp_keberangkatan'] ?? '') }}" 
+                                    data-tanggal="{{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->format('Y-m-d') }}" 
+                                    data-harga="{{ $hargaAsli }}" 
+                                    data-nama="{{ strtolower($produk['nama_produk'] ?? '') }}">
+                                    
+                                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
+                                        {{-- 👇 UPDATE 1: Tambah onClick Lightbox ke Gambar 👇 --}}
+                                        <img src="https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/{{ rawurlencode($produk['thumbnail_url']) }}" 
+                                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out cursor-pointer" 
+                                            alt="{{ $produk['nama_produk'] }}" 
+                                            onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ str_replace(' ', '+', $produk['nama_produk']) }}&background=F97316&color=fff';"
+                                            onclick="openKatalogLightbox(this.src); event.stopPropagation();"
+                                            title="Perbesar Gambar">
+                                    <div class="absolute top-2 right-2 md:top-3 md:right-3 z-10 flex gap-1.5 md:gap-2">
+                                        {{-- Tombol Bandingkan (Compare) Selalu Tampil --}}
+                                        <button onclick="addToCompare(this)" class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-teal-500 hover:text-white transition-colors border border-white/30 group/btn" title="Bandingkan">
+                                            <i class="ph-bold ph-arrows-left-right text-xs md:text-lg transform group-hover/btn:rotate-180 transition-transform duration-500"></i>
+                                        </button>
+                                        
+                                        {{-- Tombol Wishlist (Hati) HANYA untuk Jamaah --}}
+                                        @if(!$isTravelAccount)
+                                            @php
+                                                $isWishlisted = in_array($produk['id'], $wishlistIds ?? []);
+                                                // Cek apakah user guest (belum login)
+                                                $isGuest = !session()->has('api_token');
+                                            @endphp
+                                            {{-- 👇 UPDATE 2: Cegat Guest pas klik Wishlist 👇 --}}
+                                            <button onclick="{{ $isGuest ? 'requireLoginAlert(event)' : 'toggleWishlist(this, \''.$produk['id'].'\')' }}" 
+                                                class="wishlist-btn w-6 h-6 md:w-8 md:h-8 rounded-full backdrop-blur-md flex items-center justify-center transition-colors border group/wishlist {{ $isWishlisted ? 'bg-white text-red-500 border-red-500' : 'bg-white/20 text-white hover:bg-white hover:text-red-500 border-white/30' }}" title="Simpan ke Wishlist">
+                                                <i class="ph-fill ph-heart text-xs md:text-lg pointer-events-none transition-transform group-active/wishlist:scale-75"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                                
+                                {{-- 👇 UPDATE 3: Bikin seluruh kotak di bawah gambar bisa diklik buat Link ke Detail 👇 --}}
+                                <div class="p-3 md:p-5 flex flex-col flex-grow cursor-pointer hover:bg-slate-50/50 transition-colors" 
+                                     onclick="window.location.href='{{ route('marketplace.produk.detail', $produk['id']) }}'" 
+                                     title="Lihat Detail Paket">
+                                     
+                                    <div class="min-h-[2.5rem] md:min-h-[3.5rem] mb-1 md:mb-0">
+                                        <h3 class="text-[11px] sm:text-xs md:text-base font-bold text-slate-900 group-hover:text-orange-600 transition-colors line-clamp-2 leading-tight">
+                                            {{ $produk['nama_produk'] }}
+                                        </h3>
+                                    </div>
+                                    <div class="flex-grow space-y-1.5 md:space-y-3 mb-4 md:mb-6 mt-1 md:mt-2">
+                                        @if (!empty($produk['hotels'][0]))
+                                            <div class="flex items-center gap-1.5 md:gap-3">
+                                                <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
+                                                    <i class="ph-duotone ph-buildings text-orange-500 text-[10px] md:text-sm"></i>
+                                                </div>
+                                                <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate">
+                                                    {{ $produk['hotels'][0]['city'] ?? 'Kota' }}: {{ $produk['hotels'][0]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][0]['rating'] ?? '5' }}
+                                                </p>
+                                            </div>
+                                        @endif
+                                        @if (!empty($produk['hotels'][1]))
+                                            <div class="flex items-center gap-1.5 md:gap-3">
+                                                <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
+                                                    <i class="ph-duotone ph-buildings text-orange-500 text-[10px] md:text-sm"></i>
+                                                </div>
+                                                <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate">
+                                                    {{ $produk['hotels'][1]['city'] ?? 'Kota' }}: {{ $produk['hotels'][1]['name'] ?? 'Hotel' }} ⭐{{ $produk['hotels'][1]['rating'] ?? '5' }}
+                                                </p>
+                                            </div>
+                                        @endif
+                                        <div class="flex items-center gap-1.5 md:gap-3">
+                                            <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                                                <i class="ph-duotone ph-airplane-tilt text-blue-500 text-[10px] md:text-sm"></i>
+                                            </div>
+                                            <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate">
+                                                {{ $produk['flights'][0]['airline_name'] ?? 'Maskapai' }}
+                                            </p>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 md:gap-3">
+                                            <div class="w-5 h-5 md:w-7 md:h-7 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                                                <i class="ph-duotone ph-calendar-blank text-green-500 text-[10px] md:text-sm"></i>
+                                            </div>
+                                            <p class="text-[9px] md:text-sm font-semibold text-slate-600">
+                                                {{ \Carbon\Carbon::parse($produk['tgl_keberangkatan'])->translatedFormat('d M y') }}
+                                            </p>
+                                        </div>
+                                        <div class="pt-1.5 md:pt-3">
+                                            @php
+                                                $kuota = intval($produk['total_quota'] ?? 0);
+                                                $maxSeat = ($kuota > 45) ? 100 : 45;
+                                                $persenSeat = $maxSeat > 0 ? round(($kuota / $maxSeat) * 100) : 0;
+                                                if ($persenSeat > 100) $persenSeat = 100;
+                                            @endphp
+                                            <div class="flex justify-between text-[8px] md:text-[11px] mb-1 font-bold">
+                                                <span class="text-slate-500 uppercase tracking-tighter">Seat Sisa</span>
+                                                <span class="text-[#ff782e] font-black">{{ $kuota }} Seat</span>
+                                            </div>
+                                            <div class="w-full bg-slate-100 h-2 md:h-2.5 rounded-full overflow-hidden shadow-inner p-[1px]">
+                                                <div class="progress-orange-animated h-full rounded-full transition-all duration-700" style="width: {{ $persenSeat }}%; min-width: 5%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-2 md:pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                                        <div>
+                                            <p class="text-[8px] md:text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai</p>
+                                            <p class="text-xs sm:text-sm md:text-xl font-black text-slate-900">
+                                                @if ($hargaAsli > 0)
+                                                    Rp {{ number_format($hargaAsli / 1000000, 1, ',', '.') }} <span class="text-[8px] md:text-sm text-slate-500 font-bold">Jt</span>
+                                                @else
+                                                    <span class="text-[10px] md:text-sm">Hubungi Kami</span>
+                                                @endif
+                                            </p>
+                                        </div>
+                                        <button class="w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-md hover:shadow-orange-500/30 flex-shrink-0">
+                                            <i class="ph-bold ph-arrow-right text-xs md:text-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        <div class="w-full bg-slate-100 h-2 md:h-2.5 rounded-full overflow-hidden shadow-inner p-[1px]"> 
-                            <div class="progress-orange-animated h-full rounded-full transition-all duration-700" style="width: {{ $persenSeat }}%; min-width: 5%;"></div> 
-                        </div> 
+                        @empty
+                            {{-- <div class="col-span-full text-center py-12">Belum ada paket produk dari API.</div> --}}
+                        @endforelse
+                    </div>
+                    
+                    {{-- PAGINATION CONTAINER --}} 
+                    <div class="mt-14 flex justify-center gap-2" id="pagination-container"> 
+                        {{-- Diisi Otomatis oleh JS --}} 
                     </div> 
-                </div> 
-
-                <div class="pt-2 md:pt-4 border-t border-slate-100 flex items-center justify-between mt-auto"> 
-                    <div> 
-                        <p class="text-[8px] md:text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai</p> 
-                        <p class="text-xs sm:text-sm md:text-xl font-black text-slate-900"> 
-                            @if ($hargaAsli > 0) 
-                                Rp {{ number_format($hargaAsli / 1000000, 1, ',', '.') }} <span class="text-[8px] md:text-sm text-slate-500 font-bold">Jt</span> 
-                            @else 
-                                <span class="text-[10px] md:text-sm">Hubungi Kami</span> 
-                            @endif 
-                        </p> 
-                    </div> 
-                    <a href="{{ route('marketplace.produk.detail', $produk['id']) }}" class="w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-md hover:shadow-orange-500/30 flex-shrink-0"> 
-                        <i class="ph-bold ph-arrow-right text-xs md:text-lg"></i> 
-                    </a> 
-                </div> 
-            </div> 
-        </div> 
-        @empty 
-        <div class="col-span-full text-center py-12">Belum ada paket produk dari API.</div> 
-        @endforelse 
-    </div> 
-    
-    {{-- PAGINATION CONTAINER --}} 
-    <div class="mt-14 flex justify-center gap-2" id="pagination-container"> 
-        {{-- Diisi Otomatis oleh JS --}} 
-    </div> 
-</div>
+                </div>
 
             </div>
         </div>
+
+        {{-- 👇 MODAL LIGHTBOX KATALOG 👇 --}}
+    <div id="katalog-lightbox" class="fixed inset-0 z-[70] bg-black/90 flex items-center justify-center hidden p-4" onclick="closeKatalogLightbox()">
+        <button class="absolute top-4 right-4 text-white text-3xl hover:text-orange-500 transition"><i class="ph-bold ph-x"></i></button>
+        <img id="katalog-lightbox-img" src="" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl transform scale-95 transition-transform duration-300" onclick="event.stopPropagation()">
+    </div>
+
+    <script>
+        // Fungsi Lightbox
+        function openKatalogLightbox(src) {
+            const lightbox = document.getElementById('katalog-lightbox');
+            const img = document.getElementById('katalog-lightbox-img');
+            img.src = src;
+            lightbox.classList.remove('hidden');
+            setTimeout(() => img.classList.remove('scale-95'), 10);
+        }
+        function closeKatalogLightbox() {
+            const lightbox = document.getElementById('katalog-lightbox');
+            const img = document.getElementById('katalog-lightbox-img');
+            img.classList.add('scale-95');
+            setTimeout(() => lightbox.classList.add('hidden'), 300);
+        }
+
+        // Fungsi Pencegat Wishlist untuk Guest
+        function requireLoginAlert(event) {
+            event.preventDefault(); 
+            event.stopPropagation(); 
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Harap Login',
+                text: 'Silakan masuk ke akun Anda terlebih dahulu untuk menyimpan paket impian ke Wishlist.',
+                showCancelButton: true,
+                confirmButtonText: 'Login Sekarang',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#ea580c',
+                reverseButtons: true
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    window.location.href = '/login'; 
+                }
+            });
+        }
+    </script>
+
     </main>
 
     {{-- TOMBOL MOBILE FILTER --}}
@@ -414,26 +495,33 @@
         </button>
     </div>
 
-    {{-- MODAL MOBILE FILTER --}}
+  {{-- MODAL MOBILE FILTER --}}
     <div id="mobile-filter" class="fixed inset-0 z-[60] hidden">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="toggleMobileFilter()">
         </div>
-        <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl p-6 h-[85vh] overflow-y-auto transform transition-transform duration-300 translate-y-full flex flex-col shadow-2xl"
-            id="mobile-filter-content">
+        <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl p-6 h-[85vh] overflow-y-auto transform transition-transform duration-300 translate-y-full flex flex-col shadow-2xl" id="mobile-filter-content">
             <div class="flex justify-between items-center mb-6 flex-shrink-0">
                 <h3 class="text-xl font-bold text-slate-900">Filter Produk</h3>
-                <button onclick="toggleMobileFilter()"
-                    class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors active:scale-90">
+                <button onclick="toggleMobileFilter()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors active:scale-90">
                     <i class="ph-bold ph-x"></i>
                 </button>
             </div>
+            
+            <div class="space-y-8 pb-24 overflow-y-auto flex-grow no-scrollbar">
+                
+                {{-- SEARCH BAR MOBILE --}}
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Cari Paket</h4>
+                    <div class="relative group">
+                        <i class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input type="text" id="search-input-mobile" placeholder="Cari nama paket..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-orange-500 transition-all duration-300">
+                    </div>
+                </div>
 
-            <div class="space-y-8 pb-24 overflow-y-auto flex-grow">
                 {{-- OPSI PENGURUTAN MOBILE --}}
                 <div>
                     <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Urutkan</h4>
-                    <select id="sort-select-mobile"
-                        class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm font-bold rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-orange-500 cursor-pointer">
+                    <select id="sort-select-mobile" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm font-bold rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-orange-500 cursor-pointer">
                         <option value="default">Pilihan Terbaik</option>
                         <option value="price_asc">Harga Terendah</option>
                         <option value="price_desc">Harga Tertinggi</option>
@@ -442,51 +530,117 @@
                     </select>
                 </div>
 
+                {{-- RENCANA WAKTU MOBILE --}}
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Rencana Waktu</h4>
+                    <div class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                        <i class="ph-duotone ph-calendar-blank text-xl text-slate-400"></i>
+                        <div class="relative w-full">
+                            <select id="input-month-mobile" class="w-full bg-transparent border-none p-0 text-slate-800 font-bold text-sm focus:ring-0 cursor-pointer truncate pr-4 outline-none appearance-none">
+                                <option value="" selected>Semua Waktu</option>
+                                @foreach ($months as $month)
+                                    <option value="{{ $month['value'] }}">{{ $month['label'] }}</option>
+                                @endforeach
+                                <option value="specific" class="font-black text-orange-600">Pilih Tanggal Pasti... </option>
+                            </select>
+                            <i id="month-icon-mobile" class="ph-bold ph-caret-down absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                        </div>
+                        <div id="date-wrapper-mobile" class="hidden w-full items-center justify-between">
+                            <input type="text" id="input-date-mobile" placeholder="Pilih Tanggal..." class="w-full bg-transparent border-none p-0 text-orange-600 font-bold text-sm focus:ring-0 cursor-pointer placeholder-slate-400 outline-none">
+                            <button type="button" id="btn-clear-date-mobile" class="text-slate-300 hover:text-red-500 pl-2">
+                                <i class="ph-bold ph-x-circle text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- KATEGORI HARGA MOBILE --}}
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Kategori Harga</h4>
+                    <div class="grid grid-cols-1 gap-2.5">
+                        <label class="cursor-pointer group relative block active:scale-[0.98] transition-transform duration-200">
+                            <input type="radio" name="price_category_mobile" value="hemat" class="hidden peer category-radio-mobile">
+                            <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white peer-checked:border-orange-500 peer-checked:bg-orange-50/50 transition-all duration-300">
+                                <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 peer-checked:bg-orange-100 peer-checked:text-orange-600 flex items-center justify-center transition-colors">
+                                    <i class="ph-bold ph-tag text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-800 peer-checked:text-orange-700">Paket Hemat</p>
+                                    <p class="text-[10px] text-slate-500 font-medium">&lt; Rp 28 Juta</p>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group relative block active:scale-[0.98] transition-transform duration-200">
+                            <input type="radio" name="price_category_mobile" value="standar" class="hidden peer category-radio-mobile">
+                            <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white peer-checked:border-orange-500 peer-checked:bg-orange-50/50 transition-all duration-300">
+                                <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 peer-checked:bg-orange-100 peer-checked:text-orange-600 flex items-center justify-center transition-colors">
+                                    <i class="ph-bold ph-check-circle text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-800 peer-checked:text-orange-700">Paket Standar</p>
+                                    <p class="text-[10px] text-slate-500 font-medium">Rp 28 - 35 Juta</p>
+                                </div>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group relative block active:scale-[0.98] transition-transform duration-200">
+                            <input type="radio" name="price_category_mobile" value="vip" class="hidden peer category-radio-mobile">
+                            <div class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-white peer-checked:border-orange-500 peer-checked:bg-orange-50/50 transition-all duration-300">
+                                <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 peer-checked:bg-orange-100 peer-checked:text-orange-600 flex items-center justify-center transition-colors">
+                                    <i class="ph-bold ph-crown text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-800 peer-checked:text-orange-700">Paket VIP</p>
+                                    <p class="text-[10px] text-slate-500 font-medium">&gt; Rp 35 Juta</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                {{-- RENTANG HARGA MOBILE --}}
+                <div>
+                    <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Rentang Harga (Rp)</h4>
+                    <div class="mb-5 px-1">
+                        <input type="range" id="price-range-mobile" min="20000000" max="100000000" step="1000000" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-600">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <input type="number" id="price-min-mobile" placeholder="Min" class="w-full pl-3 pr-2 py-2.5 text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-orange-500">
+                        <div class="w-3 h-0.5 bg-slate-300 rounded-full flex-shrink-0"></div>
+                        <input type="number" id="price-max-mobile" placeholder="Max" class="w-full pl-3 pr-2 py-2.5 text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-orange-500">
+                    </div>
+                </div>
+
+                {{-- KATEGORI PAKET MOBILE --}}
                 <div>
                     <h4 class="font-bold text-slate-800 mb-3 text-sm uppercase tracking-wide">Kategori Paket</h4>
                     <div class="space-y-1">
                         @foreach ($daftarKategori as $kategori)
-                            <label
-                                class="flex items-center gap-3 p-2 -ml-2 cursor-pointer group rounded-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-200">
+                            <label class="flex items-center gap-3 p-2 -ml-2 cursor-pointer group rounded-lg hover:bg-slate-50 active:scale-[0.98] transition-all duration-200">
                                 <div class="relative flex items-center justify-center">
-
-                                    {{-- PERBAIKAN DI SINI: Ditambahin (string) dan ?? '' biar stripos gak crash --}}
-                                    <input type="checkbox" class="peer hidden filter-category"
-                                        value="{{ $kategori['id'] }}"
-                                        @if (
-                                            !empty($kategoriFilter) &&
-                                                stripos((string) ($kategori['name'] ?? ($kategori['nama_kategori'] ?? '')), $kategoriFilter) !== false) checked @endif>
-
-                                    {{-- Kotak Luar Checkbox --}}
-                                    <div
-                                        class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200 group-hover:border-orange-400">
+                                    <input type="checkbox" class="peer hidden filter-category" value="{{ $kategori['id'] }}"
+                                        @if (!empty($kategoriFilter) && stripos((string) ($kategori['name'] ?? ($kategori['nama_kategori'] ?? '')), $kategoriFilter) !== false) checked @endif>
+                                    <div class="w-5 h-5 rounded-[4px] border-2 border-slate-300 bg-white peer-checked:bg-orange-600 peer-checked:border-orange-600 transition-all duration-200 group-hover:border-orange-400">
                                     </div>
-
-                                    {{-- Logo Centang (SVG) --}}
-                                    <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none"
-                                        viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                            clip-rule="evenodd" />
+                                    <svg class="absolute w-3 h-3 text-white opacity-0 scale-50 peer-checked:opacity-100 peer-checked:scale-100 transition-all duration-300 pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <span
-                                    class="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">
+                                <span class="text-sm text-slate-600 font-semibold group-hover:text-slate-900 transition-colors">
                                     {{ $kategori['name'] ?? ($kategori['nama_kategori'] ?? 'Kategori') }}
                                 </span>
                             </label>
                         @endforeach
                     </div>
                 </div>
-            </div>
 
-            <div class="pt-4 border-t border-slate-100 flex-shrink-0 flex gap-3">
-                <button onclick="resetAllFilters(); toggleMobileFilter();"
-                    class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3.5 rounded-xl font-bold transition-colors active:scale-95">
+            </div>
+            
+            {{-- TOMBOL ACTION MOBILE --}}
+            <div class="pt-4 border-t border-slate-100 flex-shrink-0 flex gap-3 bg-white">
+                <button onclick="resetAllFilters(); toggleMobileFilter();" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3.5 rounded-xl font-bold transition-colors active:scale-95">
                     Reset
                 </button>
-                <button onclick="toggleMobileFilter()"
-                    class="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-orange-500/30 transition-all active:scale-95">
+                <button onclick="toggleMobileFilter()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-orange-500/30 transition-all active:scale-95">
                     Terapkan
                 </button>
             </div>
@@ -498,162 +652,192 @@
         const ITEMS_PER_PAGE = 9;
         let currentPage = 1;
         let filteredCardsArray = [];
-
+        
+        // Element Desktop & Sync
         const searchInput = document.getElementById('search-input');
         const radios = document.querySelectorAll('.category-radio');
         const minInput = document.getElementById('price-min');
         const maxInput = document.getElementById('price-max');
         const rangeInput = document.getElementById('price-range');
-        const categoryCheckboxes = document.querySelectorAll('.filter-category, .filter-category-mobile');
+        const categoryCheckboxes = document.querySelectorAll('.filter-category');
 
-        // Element Bulan & Tanggal Baru
         const inputMonth = document.getElementById('input-month');
         const dateWrapper = document.getElementById('date-wrapper');
         const monthIcon = document.getElementById('month-icon');
         const btnClearDate = document.getElementById('btn-clear-date');
-
+        
         const sortSelect = document.getElementById('sort-select');
         const sortSelectMobile = document.getElementById('sort-select-mobile');
-
+        
         const productCards = document.querySelectorAll('.product-card');
         const counterElement = document.getElementById('product-counter');
         const emptyState = document.getElementById('empty-state');
         const paginationContainer = document.getElementById('pagination-container');
-
+        
         const priceMap = {
-            'hemat': {
-                min: 0,
-                max: 28000000
-            },
-            'standar': {
-                min: 28000000,
-                max: 35000000
-            },
-            'vip': {
-                min: 35000000,
-                max: 999999999
-            }
+            'hemat': { min: 0, max: 28000000 },
+            'standar': { min: 28000000, max: 35000000 },
+            'vip': { min: 35000000, max: 999999999 }
         };
+        
+        let datePicker, datePickerMobile;
 
-        let datePicker; // Inisialisasi nanti
+        window.addEventListener('pageshow', function(event) {
+            // Jika halaman dimuat dari Cache Browser (akibat tombol Back/Kembali ditekan)
+            if (event.persisted) {
+                // Reload halaman secara diam-diam agar data Wishlist & Compare terbaru ter-render ulang
+                window.location.reload();
+            }
+        });
+
+        // FUNGSI SINKRONISASI INPUT DESKTOP <-> MOBILE
+        function syncInputs(idDesk, idMob) {
+            const desk = document.getElementById(idDesk);
+            const mob = document.getElementById(idMob);
+            if(desk && mob) {
+                desk.addEventListener('input', () => { mob.value = desk.value; applyAllFilters(); });
+                mob.addEventListener('input', () => { desk.value = mob.value; applyAllFilters(); });
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
-
             syncCompareState();
+            
+            // Sinkronisasi otomatis Desktop & Mobile
+            syncInputs('search-input', 'search-input-mobile');
+            syncInputs('price-min', 'price-min-mobile');
+            syncInputs('price-max', 'price-max-mobile');
+            syncInputs('price-range', 'price-range-mobile');
+            syncInputs('input-month', 'input-month-mobile');
 
             // Inisialisasi Flatpickr
             if (typeof flatpickr !== 'undefined') {
                 datePicker = flatpickr("#input-date", {
-                    locale: "id",
-                    altInput: true,
-                    altFormat: "j F Y",
-                    dateFormat: "Y-m-d",
-                    minDate: "today",
-                    disableMobile: "true",
-                    theme: "airbnb",
-                    onChange: function() {
-                        applyAllFilters();
-                    }
+                    locale: "id", altInput: true, altFormat: "j F Y", dateFormat: "Y-m-d", minDate: "today", disableMobile: "true", theme: "airbnb",
+                    onChange: function(dates, str) { if(datePickerMobile) datePickerMobile.setDate(str); applyAllFilters(); }
+                });
+                
+                datePickerMobile = flatpickr("#input-date-mobile", {
+                    locale: "id", altInput: true, altFormat: "j F Y", dateFormat: "Y-m-d", minDate: "today", disableMobile: "true", theme: "airbnb",
+                    onChange: function(dates, str) { if(datePicker) datePicker.setDate(str); applyAllFilters(); }
                 });
             }
 
-            // EVENT LISTENER TANGGAL / BULAN
+            // EVENT LISTENER TANGGAL / BULAN (DESKTOP)
             if (inputMonth) {
                 inputMonth.addEventListener('change', function() {
                     if (this.value === 'specific') {
-                        // Sembunyiin Dropdown Bulan, Tampilin Date Picker
                         this.classList.add('hidden');
                         if (monthIcon) monthIcon.classList.add('hidden');
-                        if (dateWrapper) {
-                            dateWrapper.classList.remove('hidden');
-                            dateWrapper.classList.add('flex');
-                        }
-                        // Langsung buka kalendernya
+                        if (dateWrapper) { dateWrapper.classList.remove('hidden'); dateWrapper.classList.add('flex'); }
                         if (datePicker) setTimeout(() => datePicker.open(), 50);
-                    } else {
-                        applyAllFilters();
-                    }
+                    } else { applyAllFilters(); }
                 });
             }
-
             if (btnClearDate) {
                 btnClearDate.addEventListener('click', function(e) {
                     e.stopPropagation();
                     if (datePicker) datePicker.clear();
-
-                    // Sembunyiin Date Picker, Balikin Dropdown Bulan
-                    if (dateWrapper) {
-                        dateWrapper.classList.add('hidden');
-                        dateWrapper.classList.remove('flex');
-                    }
-                    if (inputMonth) {
-                        inputMonth.classList.remove('hidden');
-                        inputMonth.value = "";
-                    }
+                    if (dateWrapper) { dateWrapper.classList.add('hidden'); dateWrapper.classList.remove('flex'); }
+                    if (inputMonth) { inputMonth.classList.remove('hidden'); inputMonth.value = ""; }
                     if (monthIcon) monthIcon.classList.remove('hidden');
-
                     applyAllFilters();
                 });
             }
 
-            // EVENT LISTENERS UNTUK FILTER & SORTING
-            if (sortSelect) sortSelect.addEventListener('change', () => {
-                if (sortSelectMobile) sortSelectMobile.value = sortSelect.value;
-                applyAllFilters();
-            });
-            if (sortSelectMobile) sortSelectMobile.addEventListener('change', () => {
-                if (sortSelect) sortSelect.value = sortSelectMobile.value;
-                applyAllFilters();
-            });
+            // EVENT LISTENER TANGGAL / BULAN (MOBILE)
+            const inputMonthMob = document.getElementById('input-month-mobile');
+            const dateWrapperMob = document.getElementById('date-wrapper-mobile');
+            const monthIconMob = document.getElementById('month-icon-mobile');
+            const btnClearDateMob = document.getElementById('btn-clear-date-mobile');
+            
+            if (inputMonthMob) {
+                inputMonthMob.addEventListener('change', function() {
+                    if (this.value === 'specific') {
+                        this.classList.add('hidden');
+                        if (monthIconMob) monthIconMob.classList.add('hidden');
+                        if (dateWrapperMob) { dateWrapperMob.classList.remove('hidden'); dateWrapperMob.classList.add('flex'); }
+                        if (datePickerMobile) setTimeout(() => datePickerMobile.open(), 50);
+                    } else { applyAllFilters(); }
+                });
+            }
+            if (btnClearDateMob) {
+                btnClearDateMob.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (datePickerMobile) datePickerMobile.clear();
+                    if (dateWrapperMob) { dateWrapperMob.classList.add('hidden'); dateWrapperMob.classList.remove('flex'); }
+                    if (inputMonthMob) { inputMonthMob.classList.remove('hidden'); inputMonthMob.value = ""; }
+                    if (monthIconMob) monthIconMob.classList.remove('hidden');
+                    applyAllFilters();
+                });
+            }
 
-            radios.forEach(radio => {
+            // SORTING
+            if (sortSelect) sortSelect.addEventListener('change', () => { if (sortSelectMobile) sortSelectMobile.value = sortSelect.value; applyAllFilters(); });
+            if (sortSelectMobile) sortSelectMobile.addEventListener('change', () => { if (sortSelect) sortSelect.value = sortSelectMobile.value; applyAllFilters(); });
+
+            // RADIO HARGA (Paket Hemat, Standar, VIP)
+            const allRadios = document.querySelectorAll('.category-radio, .category-radio-mobile');
+            allRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
                     const prices = priceMap[this.value];
                     if (prices) {
                         if (minInput) minInput.value = prices.min;
                         if (maxInput) maxInput.value = prices.max < 999999999 ? prices.max : '';
-                        if (rangeInput) rangeInput.value = prices.max < 999999999 ? prices.max :
-                            rangeInput.max;
+                        if (rangeInput) rangeInput.value = prices.max < 999999999 ? prices.max : rangeInput.max;
+                        
+                        const minMob = document.getElementById('price-min-mobile');
+                        const maxMob = document.getElementById('price-max-mobile');
+                        const rangeMob = document.getElementById('price-range-mobile');
+                        if(minMob) minMob.value = prices.min;
+                        if(maxMob) maxMob.value = prices.max < 999999999 ? prices.max : '';
+                        if(rangeMob) rangeMob.value = prices.max < 999999999 ? prices.max : rangeMob.max;
+                        
                         applyAllFilters();
                     }
                 });
             });
 
-            if (minInput) minInput.addEventListener('input', () => {
-                uncheckRadios();
+            // SLIDER RENTANG HARGA (Otomatis ngisi kotak Max Harga)
+            function updateRangeToMax(e) {
+                uncheckRadios(); // Matiin pilihan Paket kalau geser manual
+                if (maxInput) maxInput.value = e.target.value;
+                const maxMob = document.getElementById('price-max-mobile'); 
+                if (maxMob) maxMob.value = e.target.value;
                 applyAllFilters();
-            });
-            if (maxInput) maxInput.addEventListener('input', () => {
-                uncheckRadios();
-                applyAllFilters();
-            });
-            if (rangeInput) {
-                rangeInput.addEventListener('input', function() {
-                    if (maxInput) maxInput.value = this.value;
-                    uncheckRadios();
-                    applyAllFilters();
-                });
             }
 
-            if (searchInput) searchInput.addEventListener('input', applyAllFilters);
+            if (rangeInput) {
+                rangeInput.addEventListener('input', updateRangeToMax);
+            }
+            const rangeInputMobile = document.getElementById('price-range-mobile');
+            if (rangeInputMobile) {
+                rangeInputMobile.addEventListener('input', updateRangeToMax);
+            }
+
+            // INPUT HARGA MIN & MAX MANUAL (Ketik sendiri)
+            const priceInputs = [minInput, maxInput, document.getElementById('price-min-mobile'), document.getElementById('price-max-mobile')];
+            priceInputs.forEach(input => {
+                if (input) {
+                    input.addEventListener('input', () => {
+                        uncheckRadios(); // Matiin pilihan Paket otomatis
+                        applyAllFilters();
+                    });
+                }
+            });
+
+            // CHECKBOX KATEGORI
             categoryCheckboxes.forEach(cb => cb.addEventListener('change', applyAllFilters));
 
             applyAllFilters();
         });
 
         function syncCompareState() {
-            let currentList = getCompareList(); // Ambil dari localStorage
-
-            // Cari semua kartu produk di halaman
-            const productCards = document.querySelectorAll('.product-card');
-
+            let currentList = getCompareList();
             productCards.forEach(card => {
                 const idProduk = card.getAttribute('data-id');
-                // Cari tombol bandingkan di dalam kartu ini
                 const compareBtn = card.querySelector('button[onclick="addToCompare(this)"]');
-
                 if (compareBtn && currentList.includes(idProduk)) {
-                    // Kalau ID-nya ada di localStorage, nyalain tombolnya!
                     compareBtn.classList.remove('bg-white/20');
                     compareBtn.classList.add('bg-teal-500', 'border-teal-500');
                 }
@@ -661,43 +845,61 @@
         }
 
         function uncheckRadios() {
-            radios.forEach(radio => radio.checked = false);
+            document.querySelectorAll('.category-radio, .category-radio-mobile').forEach(radio => radio.checked = false);
         }
 
         window.resetAllFilters = function() {
-            // CEK URL: Kalau ada parameter dari backend, bersihkan URL-nya dengan reload
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('mitra') || urlParams.has('kategori')) {
-                window.location.href = window.location.pathname;
-                return; // Stop JS disini karena halaman akan memuat ulang
-            }
+            // 👇 HAPUS LOGIKA REDIRECT URLPARAMS DI SINI 👇
+            // Biarkan user tetap di halaman Mitra/Kategori, cukup bersihkan form input-nya saja.
 
-            // Kalau gak ada URL parameter, jalankan reset JS biasa
             if (searchInput) searchInput.value = '';
+            const searchMob = document.getElementById('search-input-mobile');
+            if (searchMob) searchMob.value = '';
+
             uncheckRadios();
+            
             if (minInput) minInput.value = '';
             if (maxInput) maxInput.value = '';
             if (rangeInput) rangeInput.value = rangeInput.min;
+            
+            const minMob = document.getElementById('price-min-mobile');
+            const maxMob = document.getElementById('price-max-mobile');
+            if (minMob) minMob.value = '';
+            if (maxMob) maxMob.value = '';
+            
             categoryCheckboxes.forEach(cb => cb.checked = false);
+            
             if (sortSelect) sortSelect.value = 'default';
             if (sortSelectMobile) sortSelectMobile.value = 'default';
-
-            // Reset Tanggal
+            
             if (datePicker) datePicker.clear();
-            if (dateWrapper) {
-                dateWrapper.classList.add('hidden');
-                dateWrapper.classList.remove('flex');
-            }
-            if (inputMonth) {
-                inputMonth.classList.remove('hidden');
-                inputMonth.value = "";
-            }
-            if (monthIcon) monthIcon.classList.remove('hidden');
+            if (datePickerMobile) datePickerMobile.clear();
 
+            // Tutup semua flatpickr element
+            [dateWrapper, document.getElementById('date-wrapper-mobile')].forEach(w => {
+                if(w) {
+                    w.classList.add('hidden');
+                    w.classList.remove('flex');
+                }
+            });
+
+            [inputMonth, document.getElementById('input-month-mobile')].forEach(i => {
+                if(i) {
+                    i.classList.remove('hidden');
+                    i.value = "";
+                }
+            });
+
+            [monthIcon, document.getElementById('month-icon-mobile')].forEach(i => {
+                if(i) i.classList.remove('hidden');
+            });
+
+            // Jalankan ulang filternya (Sekarang akan nampilin semua paket milik Travel ini lagi)
             applyAllFilters();
         };
 
-        function applyAllFilters() {
+       function applyAllFilters() {
+            // Karena sinkronisasi jalan, kita cukup baca dari input Desktop sebagai Master Data
             let query = searchInput ? searchInput.value.toLowerCase() : '';
             let min = minInput && minInput.value ? parseInt(minInput.value) : 0;
             let max = maxInput && maxInput.value ? parseInt(maxInput.value) : Infinity;
@@ -706,16 +908,15 @@
                 .filter(cb => cb.checked)
                 .map(cb => cb.value);
 
-            // Logika Tanggal Hybrid
             let monthVal = inputMonth ? inputMonth.value : '';
             let dateVal = document.getElementById('input-date') ? document.getElementById('input-date').value : '';
             let tglFilter = (monthVal === 'specific') ? dateVal : monthVal;
 
             filteredCardsArray = [];
 
-            // 1. FILTERING
             productCards.forEach(card => {
                 let isMatch = true;
+
                 let namaPaket = (card.getAttribute('data-nama') || '').toLowerCase();
                 let hargaPaket = parseInt(card.getAttribute('data-harga')) || 0;
                 let kategoriPaket = card.getAttribute('data-category');
@@ -724,53 +925,48 @@
                 if (query && !namaPaket.includes(query)) isMatch = false;
                 if (hargaPaket < min || hargaPaket > max) isMatch = false;
                 if (checkedCategories.length > 0 && !checkedCategories.includes(kategoriPaket)) isMatch = false;
-
-                // Filter Waktu (Support cek exact date ATAU cek bulan aja)
                 if (tglFilter !== '' && !cardTanggal.startsWith(tglFilter)) isMatch = false;
 
                 card.style.display = 'none';
 
-                if (isMatch) {
-                    filteredCardsArray.push(card);
-                }
+                if (isMatch) filteredCardsArray.push(card);
             });
 
-            // 2. SORTING
             let sortValue = sortSelect ? sortSelect.value : 'default';
-
             if (sortValue === 'price_asc') {
-                filteredCardsArray.sort((a, b) => (parseInt(a.getAttribute('data-harga')) || 0) - (parseInt(b.getAttribute(
-                    'data-harga')) || 0));
+                filteredCardsArray.sort((a, b) => (parseInt(a.getAttribute('data-harga')) || 0) - (parseInt(b.getAttribute('data-harga')) || 0));
             } else if (sortValue === 'price_desc') {
-                filteredCardsArray.sort((a, b) => (parseInt(b.getAttribute('data-harga')) || 0) - (parseInt(a.getAttribute(
-                    'data-harga')) || 0));
+                filteredCardsArray.sort((a, b) => (parseInt(b.getAttribute('data-harga')) || 0) - (parseInt(a.getAttribute('data-harga')) || 0));
             } else if (sortValue === 'name_asc') {
-                filteredCardsArray.sort((a, b) => (a.getAttribute('data-nama') || '').localeCompare(b.getAttribute(
-                    'data-nama') || ''));
+                filteredCardsArray.sort((a, b) => (a.getAttribute('data-nama') || '').localeCompare(b.getAttribute('data-nama') || ''));
             } else if (sortValue === 'name_desc') {
-                filteredCardsArray.sort((a, b) => (b.getAttribute('data-nama') || '').localeCompare(a.getAttribute(
-                    'data-nama') || ''));
+                filteredCardsArray.sort((a, b) => (b.getAttribute('data-nama') || '').localeCompare(a.getAttribute('data-nama') || ''));
             }
 
-            // Apply visual order for CSS Grid
             filteredCardsArray.forEach((card, index) => {
                 card.style.order = index;
             });
 
             if (counterElement) counterElement.innerText = filteredCardsArray.length;
-
-            if (emptyState) {
-                emptyState.style.display = filteredCardsArray.length === 0 ? 'block' : 'none';
-            }
+            if (emptyState) emptyState.style.display = filteredCardsArray.length === 0 ? 'block' : 'none';
 
             currentPage = 1;
             renderPagination();
             displayCurrentPage();
+
+            // 👇 FIX UX: Jarak Auto Scroll ke Atas Ditinggikan 👇
+            const productSection = document.getElementById('produk');
+            if (productSection) {
+                // Jarak aman diubah jadi - 250 biar scroll-nya lebih ke atas dan gak ketutup navbar
+                window.scrollTo({
+                    top: productSection.offsetTop - 250, 
+                    behavior: 'smooth'
+                });
+            }
         }
 
         function displayCurrentPage() {
             filteredCardsArray.forEach(card => card.style.display = 'none');
-
             const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
             const endIndex = startIndex + ITEMS_PER_PAGE;
             const cardsToShow = filteredCardsArray.slice(startIndex, endIndex);
@@ -785,10 +981,8 @@
 
         function renderPagination() {
             if (!paginationContainer) return;
-
             const totalPages = Math.ceil(filteredCardsArray.length / ITEMS_PER_PAGE);
             paginationContainer.innerHTML = '';
-
             if (totalPages <= 1) {
                 paginationContainer.style.display = 'none';
                 return;
@@ -797,44 +991,27 @@
             }
 
             const prevBtn = document.createElement('button');
-            prevBtn.className =
-                `w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-200 active:scale-95 ${currentPage === 1 ? 'border-slate-100 text-slate-300 cursor-not-allowed bg-slate-50' : 'border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50 bg-white shadow-sm'}`;
+            prevBtn.className = `w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-200 active:scale-95 ${currentPage === 1 ? 'border-slate-100 text-slate-300 cursor-not-allowed bg-slate-50' : 'border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50 bg-white shadow-sm'}`;
             prevBtn.innerHTML = '<i class="ph-bold ph-caret-left"></i>';
-            prevBtn.onclick = () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    updateView();
-                }
-            };
+            prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; updateView(); } };
             paginationContainer.appendChild(prevBtn);
 
             for (let i = 1; i <= totalPages; i++) {
                 const pageBtn = document.createElement('button');
                 if (i === currentPage) {
-                    pageBtn.className =
-                        "w-10 h-10 rounded-xl bg-orange-600 text-white font-bold flex items-center justify-center shadow-[0_8px_20px_rgba(234,88,12,0.3)] transition-all duration-200";
+                    pageBtn.className = "w-10 h-10 rounded-xl bg-orange-600 text-white font-bold flex items-center justify-center shadow-[0_8px_20px_rgba(234,88,12,0.3)] transition-all duration-200";
                 } else {
-                    pageBtn.className =
-                        "w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-600 font-bold flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm active:scale-95";
+                    pageBtn.className = "w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-600 font-bold flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm active:scale-95";
                 }
                 pageBtn.innerText = i;
-                pageBtn.onclick = () => {
-                    currentPage = i;
-                    updateView();
-                };
+                pageBtn.onclick = () => { currentPage = i; updateView(); };
                 paginationContainer.appendChild(pageBtn);
             }
 
             const nextBtn = document.createElement('button');
-            nextBtn.className =
-                `w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-200 active:scale-95 ${currentPage === totalPages ? 'border-slate-100 text-slate-300 cursor-not-allowed bg-slate-50' : 'border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50 bg-white shadow-sm'}`;
+            nextBtn.className = `w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-200 active:scale-95 ${currentPage === totalPages ? 'border-slate-100 text-slate-300 cursor-not-allowed bg-slate-50' : 'border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50 bg-white shadow-sm'}`;
             nextBtn.innerHTML = '<i class="ph-bold ph-caret-right"></i>';
-            nextBtn.onclick = () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    updateView();
-                }
-            };
+            nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; updateView(); } };
             paginationContainer.appendChild(nextBtn);
         }
 
@@ -844,17 +1021,13 @@
             const productSection = document.getElementById('produk');
             if (productSection) {
                 const offset = productSection.offsetTop - 100;
-                window.scrollTo({
-                    top: offset,
-                    behavior: 'smooth'
-                });
+                window.scrollTo({ top: offset, behavior: 'smooth' });
             }
         }
 
         window.toggleMobileFilter = function() {
             const modal = document.getElementById('mobile-filter');
             const content = document.getElementById('mobile-filter-content');
-
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
                 setTimeout(() => content.classList.remove('translate-y-full'), 10);
@@ -870,7 +1043,6 @@
 
         // --- FUNGSI PERBANDINGAN (COMPARE) DI HALAMAN KATALOG ---
         const MAX_COMPARE = 2;
-
         function getCompareList() {
             let compareList = localStorage.getItem('compareList');
             return compareList ? JSON.parse(compareList) : [];
@@ -884,10 +1056,8 @@
 
         function addToCompare(button) {
             if (window.event) window.event.stopPropagation();
-
             const card = button.closest('.product-card');
             if (!card) return;
-
             const idProduk = card.getAttribute('data-id');
             if (!idProduk) {
                 console.error("data-id tidak ditemukan di HTML product-card!");
@@ -895,71 +1065,33 @@
             }
 
             let currentList = getCompareList();
-
             if (currentList.includes(idProduk)) {
-                // Hapus dari array
                 currentList = currentList.filter(id => id !== idProduk);
                 localStorage.setItem('compareList', JSON.stringify(currentList));
-
-                // Kembalikan style tombol ke tidak aktif
                 button.classList.add('bg-white/20', 'text-white');
                 button.classList.remove('bg-teal-500', 'border-teal-500');
-
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Dihapus dari perbandingan',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
+                Swal.fire({ icon: 'info', title: 'Dihapus dari perbandingan', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
                 return;
             }
 
             if (currentList.length >= MAX_COMPARE) {
                 Swal.fire({
-                    icon: 'warning',
-                    title: 'Batas Maksimal!',
-                    text: 'Anda hanya bisa membandingkan maksimal 2 paket sekaligus.',
-                    confirmButtonColor: '#ea580c',
-                    confirmButtonText: 'Lihat Perbandingan',
-                    showCancelButton: true,
-                    cancelButtonText: 'Tutup'
-                }).then((result) => {
-                    if (result.isConfirmed) goToComparePage();
-                });
+                    icon: 'warning', title: 'Batas Maksimal!', text: 'Anda hanya bisa membandingkan maksimal 2 paket sekaligus.', confirmButtonColor: '#ea580c', confirmButtonText: 'Lihat Perbandingan', showCancelButton: true, cancelButtonText: 'Tutup'
+                }).then((result) => { if (result.isConfirmed) goToComparePage(); });
                 return;
             }
 
-            // Tambah ke array
             currentList.push(idProduk);
             localStorage.setItem('compareList', JSON.stringify(currentList));
-
-            // Ubah style tombol jadi aktif (Teal)
             button.classList.remove('bg-white/20');
             button.classList.add('bg-teal-500', 'border-teal-500');
 
             if (currentList.length === MAX_COMPARE) {
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Siap Dibandingkan!',
-                    text: '2 Paket sudah dipilih. Ingin melihat perbandingannya sekarang?',
-                    confirmButtonColor: '#14b8a6',
-                    confirmButtonText: 'Ya, Bandingkan',
-                    showCancelButton: true,
-                    cancelButtonText: 'Pilih Lagi'
-                }).then((result) => {
-                    if (result.isConfirmed) goToComparePage();
-                });
+                    icon: 'success', title: 'Siap Dibandingkan!', text: '2 Paket sudah dipilih. Ingin melihat perbandingannya sekarang?', confirmButtonColor: '#14b8a6', confirmButtonText: 'Ya, Bandingkan', showCancelButton: true, cancelButtonText: 'Pilih Lagi'
+                }).then((result) => { if (result.isConfirmed) goToComparePage(); });
             } else {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Ditambahkan ke perbandingan',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
+                Swal.fire({ icon: 'success', title: 'Ditambahkan ke perbandingan', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
             }
         }
     </script>
@@ -967,55 +1099,31 @@
     <script>
         // --- FUNGSI WISHLIST DINAMIS (AJAX) ---
         async function toggleWishlist(button, productId) {
-            // Mencegah klik nyasar ke link detail produk kalau tombolnya ditindih
             if (window.event) window.event.stopPropagation();
-
             const icon = button.querySelector('i');
-
-            // Simpan class asli buat jaga-jaga kalau gagal
             const originalIconClass = icon.className;
-            const isWishlisted = button.classList.contains('bg-white'); // Cek apakah udah merah/aktif
+            const isWishlisted = button.classList.contains('bg-white');
 
-            // 1. UI Loading State (Ganti icon heart jadi spinner loading)
             icon.className = 'ph-bold ph-spinner animate-spin text-lg pointer-events-none';
             button.disabled = true;
 
             try {
-                // 👇 PERBAIKAN 1: PAKAI ROUTE LARAVEL BIAR GAK NYASAR 👇
                 const response = await fetch('{{ route('marketplace.profil.wishlist.toggle') }}', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Wajib bawa CSRF Token biar gak ditolak Laravel
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        product_id: productId
-                    })
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify({ product_id: productId })
                 });
-
                 const result = await response.json();
 
-                // 3. Handle kalau belum Login (Session Habis / Gak Punya Token)
                 if (response.status === 401 || result.message === 'Unauthenticated') {
                     Swal.fire({
-                        icon: 'warning',
-                        title: 'Harap Login',
-                        text: 'Anda harus masuk ke akun untuk menyimpan paket impian.',
-                        confirmButtonText: 'Login Sekarang',
-                        confirmButtonColor: '#ea580c',
-                        showCancelButton: true,
-                        cancelButtonText: 'Batal'
-                    }).then((res) => {
-                        // 👇 PERBAIKAN 2: TYPO VARIABEL 'res' 👇
-                        if (res.isConfirmed) window.location.href = '/login';
-                    });
+                        icon: 'warning', title: 'Harap Login', text: 'Anda harus masuk ke akun untuk menyimpan paket impian.', confirmButtonText: 'Login Sekarang', confirmButtonColor: '#ea580c', showCancelButton: true, cancelButtonText: 'Batal'
+                    }).then((res) => { if (res.isConfirmed) window.location.href = '/login'; });
                     throw new Error('Unauthenticated');
                 }
 
                 if (!response.ok) throw new Error(result.message || 'Gagal menyimpan wishlist');
 
-                // 4. Update UI Berdasarkan Hasil (Aktif / Non-aktif)
                 if (result.action === 'added' || !isWishlisted) {
                     button.classList.remove('bg-white/20', 'text-white');
                     button.classList.add('bg-white', 'text-red-500', 'border-red-500');
@@ -1025,38 +1133,18 @@
                     button.classList.add('bg-white/20', 'text-white');
                     showToast('info', 'Dihapus dari Wishlist');
                 }
-
-                // Kembalikan Icon Heart
-                icon.className =
-                    'ph-fill ph-heart text-lg pointer-events-none transition-transform group-active/wishlist:scale-75';
-
+                icon.className = 'ph-fill ph-heart text-lg pointer-events-none transition-transform group-active/wishlist:scale-75';
             } catch (error) {
-                // Kalau gagal/error, kembalikan tombol seperti semula
                 button.disabled = false;
                 icon.className = originalIconClass;
-
-                if (error.message !== 'Unauthenticated') {
-                    showToast('error', 'Terjadi kesalahan sistem.');
-                    console.error('Wishlist Error:', error);
-                }
+                if (error.message !== 'Unauthenticated') { showToast('error', 'Terjadi kesalahan sistem.'); console.error('Wishlist Error:', error); }
             } finally {
                 button.disabled = false;
             }
         }
 
-        // Fungsi pembantu buat manggil Toast SweetAlert
         function showToast(iconType, message) {
-            Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2500,
-                timerProgressBar: true
-            }).fire({
-                icon: iconType,
-                title: message
-            });
+            Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500, timerProgressBar: true }).fire({ icon: iconType, title: message });
         }
     </script>
-
 </x-layouts.products>

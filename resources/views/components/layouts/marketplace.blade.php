@@ -139,6 +139,12 @@
             /* Memberikan efek glossy/licin */
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
+        /* searchbar hero */
+        @keyframes shimmer {
+        100% { transform: translateX(100%); }
+        }
+
     </style>
 
 </head>
@@ -167,6 +173,15 @@
 
 <script>
     let datePicker;
+
+    window.addEventListener('pageshow', function(event) {
+        // Jika halaman dimuat ulang dari tombol Back (Cache Browser)
+        if (event.persisted) {
+            // Force reload diam-diam agar status Wishlist & Compare ambil data terbaru
+            window.location.reload();
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         // --- FLATPICKR ---
         if (typeof flatpickr !== 'undefined') {
@@ -245,14 +260,15 @@
             }
         }
 
+        // 👇 1. RESET DATA FORM (KOTA, WAKTU, BUDGET) 👇
+        document.getElementById('input-departure').value = "";
+        document.getElementById('input-budget').value = "all";
+
         const inputMonth = document.getElementById('input-month');
         const monthWrapper = document.getElementById('month-wrapper');
         const dateWrapper = document.getElementById('date-wrapper');
 
-        document.getElementById('input-departure').value = "";
-        document.getElementById('input-budget').value = "all";
-
-        if (datePicker) datePicker.clear();
+        if (typeof datePicker !== 'undefined' && datePicker) datePicker.clear();
         if (dateWrapper) {
             dateWrapper.classList.add('hidden');
             dateWrapper.classList.remove('flex');
@@ -260,28 +276,53 @@
         if (monthWrapper) monthWrapper.classList.remove('hidden');
         if (inputMonth) inputMonth.value = "";
 
+        // 👇 2. RESET TAMPILAN UI DROPDOWN (BIAR USER GAK BINGUNG) 👇
+        
+        // A. Kembalikan teks dropdown ke default
+        const departureText = document.querySelector('[data-target="dropdown-departure"] .selected-text');
+        if (departureText) departureText.textContent = "Semua Kota";
+
+        const budgetText = document.querySelector('[data-target="dropdown-budget"] .selected-text');
+        if (budgetText) budgetText.textContent = "Semua Harga";
+
+        const monthText = document.querySelector('[data-target="dropdown-month"] .selected-text');
+        if (monthText) monthText.textContent = "Semua Waktu";
+
+        // B. Reset icon centang (checklist) di dalam menu dropdown
+        document.querySelectorAll('.option-item').forEach(opt => {
+            opt.classList.remove('active');
+            let icon = opt.querySelector('.check-icon');
+            if (icon) icon.classList.replace('opacity-100', 'opacity-0');
+        });
+
+        // C. Berikan centang kembali ke pilihan "Semua"
+        document.querySelectorAll('.option-item[data-value=""], .option-item[data-value="all"]').forEach(opt => {
+            opt.classList.add('active');
+            let icon = opt.querySelector('.check-icon');
+            if (icon) icon.classList.replace('opacity-0', 'opacity-100');
+        });
+
+        // 👇 3. UPDATE WARNA TOMBOL TAB KATEGORI 👇
+        
+        // Reset warna semua tombol jadi mati
         document.querySelectorAll('.kategori-btn').forEach(btn => {
-            btn.className =
-                "kategori-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap";
+            btn.className = "kategori-btn px-4 py-2 rounded-full text-xs md:text-sm font-medium text-slate-200 hover:text-white hover:bg-white/10 transition-all duration-300 whitespace-nowrap";
         });
-
         document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.className =
-                "filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent";
+            btn.className = "filter-btn px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border bg-white text-slate-600 border-slate-200 hover:bg-slate-100 md:bg-transparent md:border-transparent";
         });
 
-        let tombolDipilih = document.querySelectorAll(
-            `[onclick="filterKategori('${idKategori}')"], [data-filter="${idKategori}"]`);
+        // Nyalakan warna pada tab yang diklik
+        let tombolDipilih = document.querySelectorAll(`[onclick="filterKategori('${idKategori}')"], [data-filter="${idKategori}"]`);
         tombolDipilih.forEach(btn => {
             if (btn.classList.contains('kategori-btn')) {
-                btn.className =
-                    "kategori-btn active px-4 py-2 rounded-full text-xs md:text-sm font-bold text-white bg-orange-600 shadow-md transition-all duration-300 whitespace-nowrap hover:bg-orange-700";
+                btn.className = "kategori-btn active px-4 py-2 rounded-full text-xs md:text-sm font-bold text-white bg-orange-600 shadow-md transition-all duration-300 whitespace-nowrap hover:bg-orange-700";
             } else {
-                btn.className =
-                    "filter-btn active px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 whitespace-nowrap border bg-orange-600 text-white border-transparent shadow-md hover:bg-orange-700";
+                btn.className = "filter-btn active px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 whitespace-nowrap border bg-orange-600 text-white border-transparent shadow-md hover:bg-orange-700";
             }
         });
 
+        // 👇 4. TAMPILKAN NOTIF & JALANKAN PENCARIAN 👇
         if (typeof Swal !== 'undefined') {
             Swal.fire({
                 toast: true,
@@ -299,7 +340,7 @@
             });
         }
 
-        // Panggil pencarian, tapi JANGAN kasih parameter `true` (Jangan munculin popup, jangan scroll)
+        // Panggil pencarian sentral
         jalankanPencarian(false);
     }
 
@@ -327,11 +368,11 @@
         }, 800);
     }
 
-    // --- MESIN PENCARIAN ---
+   // --- MESIN PENCARIAN UTAMA ---
     function jalankanPencarian(isFromSearchButton = false) {
         let kotaBerangkat = document.getElementById('input-departure').value.toLowerCase();
         let budget = document.getElementById('input-budget').value;
-
+        
         let inputMonthEl = document.getElementById('input-month');
         let inputDateEl = document.getElementById('input-date');
         let monthVal = inputMonthEl ? inputMonthEl.value : '';
@@ -341,24 +382,31 @@
         let daftarCard = document.querySelectorAll('.product-card');
         let jumlahDitemukan = 0;
 
+        // Saring produk dengan ketat
         daftarCard.forEach(card => {
             let tampilkan = true;
-
             let cardKategori = card.getAttribute('data-category') || '';
             let cardKota = (card.getAttribute('data-kota') || '').toLowerCase();
             let cardTanggal = card.getAttribute('data-tanggal') || '';
             let cardHarga = parseInt(card.getAttribute('data-harga')) || 0;
 
+            // Cek Kategori
             if (kategoriAktif !== 'all' && cardKategori !== String(kategoriAktif)) tampilkan = false;
+
+            // Cek Kota
             if (kotaBerangkat !== '' && !cardKota.includes(kotaBerangkat)) tampilkan = false;
+
+            // Cek Waktu
             if (tglBerangkat !== '' && !cardTanggal.startsWith(tglBerangkat)) tampilkan = false;
 
+            // Cek Budget
             if (budget !== 'all') {
                 if (budget === 'hemat' && cardHarga >= 28000000) tampilkan = false;
                 if (budget === 'reguler' && (cardHarga < 28000000 || cardHarga > 35000000)) tampilkan = false;
                 if (budget === 'vip' && cardHarga <= 35000000) tampilkan = false;
             }
 
+            // Eksekusi Tampilan
             if (tampilkan) {
                 card.style.display = 'flex';
                 jumlahDitemukan++;
@@ -367,19 +415,34 @@
             }
         });
 
-        // Hanya munculkan SweetAlert jika dipanggil dari Tombol "Cari" di Form
+        // Tampilkan UI "Produk Tidak Ditemukan" (Empty State)
+        const emptyState = document.getElementById('empty-state');
+        if (emptyState) {
+            if (jumlahDitemukan === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+        }
+
+        // Alert & Scroll Handling dari Tombol Cari
         if (isFromSearchButton) {
-            Swal.fire({
-                icon: jumlahDitemukan > 0 ? 'success' : 'warning',
-                title: jumlahDitemukan > 0 ? 'Pencarian Selesai!' : 'Oops!',
-                text: jumlahDitemukan > 0 ? `Ditemukan ${jumlahDitemukan} paket yang sesuai kriteria.` :
-                    'Maaf, tidak ada paket yang sesuai dengan filter Anda.',
-                confirmButtonText: 'Lihat Paket',
-                confirmButtonColor: '#ea580c'
-            }).then(() => {
-                // Scroll ditegaskan lagi setelah nutup alert
+            if (jumlahDitemukan > 0) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Pencarian Selesai!',
+                    text: `Ditemukan ${jumlahDitemukan} paket yang sesuai kriteria.`,
+                    confirmButtonText: 'Lihat Paket',
+                    confirmButtonColor: '#ea580c'
+                }).then(() => {
+                    scrollToProduk();
+                });
+            } else {
+                // Kalau nggak ketemu, langsung scroll ke Empty State (tanpa modal)
                 scrollToProduk();
-            });
+            }
         }
     }
 </script>
@@ -760,6 +823,112 @@ function addToCompare(button) {
         });
     }
 }
+
+    // Fungsi khusus buat nahan guest yang mau klik wishlist/like
+    function requireLoginAlert(event) {
+        event.preventDefault(); // Mencegah aksi default
+        event.stopPropagation(); // Mencegah klik tembus ke elemen di belakangnya
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Harap Login',
+            text: 'Silakan masuk ke akun Anda terlebih dahulu untuk menyimpan paket impian ke Wishlist.',
+            showCancelButton: true,
+            confirmButtonText: 'Login Sekarang',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#ea580c',
+            reverseButtons: true
+        }).then((res) => {
+            if (res.isConfirmed) {
+                window.location.href = '/login'; // Sesuaikan dengan URL login lu
+            }
+        });
+    }
+
+</script>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownTriggers = document.querySelectorAll('.dropdown-trigger');
+        const allMenus = document.querySelectorAll('.dropdown-menu');
+
+        // Menutup semua dropdown yang sedang terbuka
+        function closeAllDropdowns() {
+            allMenus.forEach(menu => {
+                menu.classList.add('opacity-0', 'invisible', 'translate-y-4');
+                menu.classList.remove('translate-y-0');
+            });
+            document.querySelectorAll('.caret-icon').forEach(icon => {
+                icon.classList.remove('rotate-180');
+            });
+        }
+
+        // Event Listener untuk setiap tombol trigger
+        dropdownTriggers.forEach(trigger => {
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const targetId = this.getAttribute('data-target');
+                const targetMenu = document.getElementById(targetId);
+                const caret = this.querySelector('.caret-icon');
+                
+                // Cek apakah menu yang diklik sedang terbuka
+                const isCurrentlyOpen = !targetMenu.classList.contains('opacity-0');
+                
+                // Tutup semua dulu
+                closeAllDropdowns();
+
+                // Jika sebelumnya tertutup, buka menu yang ini
+                if (!isCurrentlyOpen) {
+                    targetMenu.classList.remove('opacity-0', 'invisible', 'translate-y-4');
+                    targetMenu.classList.add('translate-y-0');
+                    if(caret) caret.classList.add('rotate-180');
+                }
+            });
+        });
+
+        // Menutup dropdown jika user klik di luar form
+        document.addEventListener('click', function() {
+            closeAllDropdowns();
+        });
+
+        // Handling pemilihan Opsi di dalam dropdown
+        const optionItems = document.querySelectorAll('.option-item');
+        optionItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const container = this.closest('.custom-dropdown-container');
+                const hiddenInput = container.querySelector('input[type="hidden"]');
+                const selectedText = container.querySelector('.selected-text');
+                const siblingOptions = container.querySelectorAll('.option-item');
+                
+                const value = this.getAttribute('data-value');
+                const label = this.getAttribute('data-label');
+
+                // Set value ke hidden input dan ubah teks label
+                if(hiddenInput) hiddenInput.value = value;
+                if(selectedText) selectedText.textContent = label;
+
+                // Reset checklist di grup dropdown ini
+                siblingOptions.forEach(opt => {
+                    opt.querySelector('.check-icon').classList.replace('opacity-100', 'opacity-0');
+                    opt.classList.remove('active');
+                });
+
+                // Tampilkan checklist pada opsi yang dipilih
+                this.querySelector('.check-icon').classList.replace('opacity-0', 'opacity-100');
+                this.classList.add('active');
+                
+                // Memicu Event Change Manual (Sangat penting agar integrasi ke Flatpickr jalan)
+                if(hiddenInput) {
+                    hiddenInput.dispatchEvent(new Event('change'));
+                }
+
+                closeAllDropdowns();
+            });
+        });
+    });
 
 </script>
 

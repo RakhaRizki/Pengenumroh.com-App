@@ -9,7 +9,7 @@ use Carbon\Carbon;
 class UserDashboardController extends Controller
 {
     
- private function getProfileData()
+    private function getProfileData()
     {
         // 1. Ambil token dan data user dari session pas login
         $token = session('api_token'); 
@@ -133,10 +133,6 @@ class UserDashboardController extends Controller
         return null;
     }
 
-    /**
-     * 1. Halaman Profil Utama
-     */
-
     public function index(Request $request)
     {
         $userProfile = $this->getProfileData();
@@ -151,10 +147,7 @@ class UserDashboardController extends Controller
         return view('marketplace.user.profil', compact('userProfile'));
     }
 
-   /** 
-     * 2. Halaman Riwayat Pesanan 
-     */ 
-   public function pesanan(Request $request) 
+    public function pesanan(Request $request) 
     { 
         $userProfile = $this->getProfileData(); 
         if (!$userProfile) { 
@@ -224,7 +217,7 @@ class UserDashboardController extends Controller
         return view('marketplace.user.pesanan', compact('userProfile', 'transactions')); 
     }
 
-  public function uploadBukti(Request $request) 
+    public function uploadBukti(Request $request) 
     { 
         $token = session('api_token'); 
         if (!$token) return response()->json(['status' => 'error', 'message' => 'Sesi berakhir.']);
@@ -270,123 +263,312 @@ class UserDashboardController extends Controller
         } 
     }
 
-public function processCheckout(Request $request)
-{
-    $token = session('api_token');
-    if (!$token) {
-        return response()->json(['status' => 'error', 'message' => 'Sesi login berakhir.'], 401);
+    public function uploadBuktiCicilan(Request $request, $idInstallment)
+    {
+        $token = session('api_token');
+        if (!$token) return response()->json(['status' => 'error', 'message' => 'Sesi berakhir.']);
+
+        $signature = config('app.api_signature');
+
+        try {
+            $foto = $request->file('bukti_bayar');
+            
+            // 🌟 ENDPOINT KHUSUS CICILAN DARI DARDA 🌟
+            $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/installments/' . $idInstallment . '/upload';
+
+            // 🌟 PAKAI METHOD PUT + ATTACH MULTIPART 🌟
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'X-App-Signature' => $signature,
+                    'Accept'          => 'application/json'
+                ])
+                ->attach(
+                    'evidence_url', // Field file sesuai standar
+                    file_get_contents($foto->getPathname()),
+                    $foto->getClientOriginalName()
+                )
+                ->put($urlApi); // Langsung hajar PUT tanpa ngirim array status
+
+            if ($response->successful()) {
+                return response()->json(['status' => 'success', 'message' => 'Bukti cicilan berhasil dikirim!']);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal Upload: ' . ($response->json('message') ?? $response->body())
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Error Sistem: ' . $e->getMessage()]);
+        }
     }
 
-    // 0. Ambil Signature Keamanan
-    $signature = config('app.api_signature');
-
-    try {
-        $sessionUser = session('user');
-        $userId = $sessionUser['id'] ?? $sessionUser['id_user'] ?? null;
-
-        // 1. KITA SESUAIKAN KEY-NYA DENGAN DATABASE DARDA (Pake 'S')
-        $details = [];
-        foreach ($request->items as $item) {
-            $details[] = [
-                'product_id' => (int) $request->product_id, // Masukin ID produk di tiap baris
-                'room_types' => $item['room_type'],        // GANTI: room_type -> room_types (Tambah S)
-                'quantity'   => (int) $item['quantity'],
-                'price'      => (int) $item['price']
-            ];
+    public function getPaymentOptions(Request $request, $id)
+    {
+        $token = session('api_token');
+        if (!$token) {
+            return response()->json(['status' => 'error', 'message' => 'Sesi berakhir, silakan login ulang.'], 401);
         }
 
-        // QTY QUAD, QTY DOUBLE, QTY TRIPLE //
+        $signature = config('app.api_signature');
+        $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/' . $id . '/payment-options';
 
-       // 2. PAYLOAD FINAL      
-        $payload = [
-            'user_id'        => (int) $userId,
-            'product_id'     => (int) $request->product_id,
-            'items'          => $details,         
-            'total_price'    => (int) array_sum(array_column($details, 'price')), 
-            'payment_method' => 'TRANSFER',
-        ];
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(15)->withToken($token)->withHeaders([
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json'
+            ])->get($urlApi);
 
-        // 3. TEMBAK API DARDA SEBAGAI JSON MURNI (BAWA TOKEN + SIGNATURE)
-        $response = Http::withToken($token)
-            ->withHeaders([
+            // Kalau sukses, lemparkan datanya
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+            
+            // 👇 KALAU API DARDA NOLAK/ERROR, KITA TANGKAP PESANNYA 👇
+            return response()->json([
+                'status'  => 'error', 
+                'message' => 'Backend Darda Error (' . $response->status() . '): ' . $response->body()
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Sistem Laravel Error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function processCheckout(Request $request)
+    {
+        $token = session('api_token');
+        if (!$token) {
+            return response()->json(['status' => 'error', 'message' => 'Sesi login berakhir.'], 401);
+        }
+
+        $signature = config('app.api_signature');
+
+        try {
+            $sessionUser = session('user');
+            $userId = $sessionUser['id'] ?? $sessionUser['id_user'] ?? null;
+
+            $details = [];
+            foreach ($request->items as $item) {
+                $details[] = [
+                    'product_id' => (int) $request->product_id,
+                    'room_types' => $item['room_type'],
+                    'quantity'   => (int) $item['quantity'],
+                    'price'      => (int) $item['price']
+                ];
+            }
+
+            // ==========================================
+            // 🌟 LOGIKA ENDPOINT DINAMIS (LUNAS VS CICILAN) 🌟
+            // ==========================================
+            $jenisPembayaran = strtoupper($request->payment_method ?? 'FULL');
+            
+            if ($jenisPembayaran === 'DP' || $jenisPembayaran === 'INSTALLMENT') {
+                $paymentType = 'INSTALLMENT';
+                // Arahkan ke endpoint khusus cicilan
+                $endpoint = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/checkout-installment';
+            } else {
+                $paymentType = 'FULL';
+                // Arahkan ke endpoint transaksi biasa
+                $endpoint = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions';
+            }
+
+            $payload = [
+                'user_id'        => (int) $userId,
+                'product_id'     => (int) $request->product_id,
+                'items'          => $details,
+                'total_price'    => (int) array_sum(array_column($details, 'price')),
+                'payment_type'   => $paymentType,
+                'payment_method' => 'TRANSFER', // Set default transfer
+            ];
+
+            // Sisipkan mode rekening (pusat/mandiri)
+            if ($request->has('payment_selection')) {
+                $paySel = $request->input('payment_selection');
+                $payload['payment_selection'] = $paySel;
+                $payload['rekening_mode'] = $paySel['type'] ?? 'MARKETPLACE';
+                $payload['rekening_type'] = $paySel['type'] ?? 'MARKETPLACE';
+                $payload['travel_rekening_id'] = (int) ($paySel['travel_rekening_id'] ?? 0);
+            }
+
+            // Tembak Endpoint Sesuai Metode Pembayaran
+            $response = Http::withToken($token)->withHeaders([
                 'X-App-Signature' => $signature,
                 'Accept'          => 'application/json',
                 'Content-Type'    => 'application/json'
-            ])
-            ->post('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions', $payload);
+            ])->post($endpoint, $payload);
 
-        // 4. CEK HASIL
-        if ($response->successful()) {
+            if ($response->successful()) {
+                // Hapus dari wishlist kalau udah dibeli (opsional)
+                try {
+                    $wishlistUrl = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist/' . $request->product_id;
+                    Http::withToken($token)->withHeaders(['X-App-Signature' => $signature, 'Accept' => 'application/json'])->delete($wishlistUrl);
+                } catch (\Exception $e) {}
+
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'Pesanan berhasil dibuat! Silakan bayar.',
+                ]);
+            }
+
+            $pesanBackend = $response->json('message') ?? 'Gagal membuat pesanan.';
             return response()->json([
-                'status'  => 'success',
-                'message' => 'Pesanan berhasil dibuat! Silakan bayar.',
-            ]);
+                'status'  => 'error',
+                'message' => $pesanBackend . " (Detail: " . json_encode($response->json()) . ")"
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Sistem sibuk: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function simpanJamaah(Request $request)
+    {
+        $token = session('api_token');
+        if (!$token) {
+            return response()->json(['status' => 'error', 'message' => 'Sesi berakhir, silakan login ulang.'], 401);
         }
 
-        // JIKA MASIH ERROR: Kita paksa keluarin apa alasan Darda kali ini
-        $pesanBackend = $response->json('message') ?? 'Gagal membuat pesanan.';
-        return response()->json([
-            'status'  => 'error', 
-            'message' => $pesanBackend . " (Detail: " . json_encode($response->json()) . ")"
-        ], 400);
+        $signature = config('app.api_signature');
+        $idJamaah = $request->id_jamaah; 
 
-    } catch (\Exception $e) {
-        return response()->json(['status' => 'error', 'message' => 'Sistem sibuk: ' . $e->getMessage()], 500);
-    }
+        $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/jamaah';
+        if ($idJamaah) {
+            $urlApi .= '/' . $idJamaah;
+        }
+
+        try {
+            // 🔥 KEMBALI KE PAYLOAD ASLI ABANG YANG TERBUKTI JALAN 🔥
+            $dataTeks = [
+                'transaction_id'        => $request->transaction_id,
+                'transaction_detail_id' => $request->transaction_detail_id,
+                'fullname'              => $request->fullname,
+                'email'                 => $request->email ?? '',
+                'phone'                 => $request->phone ?? '',
+                'gender'                => $request->gender ?? '',
+                'status'                => $request->status ?? '',
+            ];
+
+            $client = Http::timeout(60)->withToken($token)->withHeaders([
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json'
+            ]);
+
+            $daftarFile = ['img_ktp', 'img_kk', 'img_passpor', 'img_diri', 'img_akta_kelahiran'];
+            $adaFileBaru = false;
+            
+            foreach ($daftarFile as $namaFile) {
+                if ($request->hasFile($namaFile)) {
+                    $adaFileBaru = true;
+                    $file = $request->file($namaFile);
+                    $client->attach(
+                        $namaFile,
+                        file_get_contents($file->getPathname()),
+                        $file->getClientOriginalName()
+                    );
+                }
+            }
+
+            // 🔥 KEMBALI KE LOGIKA REQUEST ASLI ABANG (TANPA TRIK POST) 🔥
+            if ($idJamaah) {
+                if (!$adaFileBaru) {
+                    // Biar nggak loading lama (hang) pas ngedit tanpa gambar
+                    $client->asForm();
+                }
+                // Hajar langsung pakai method PUT aslinya!
+                $response = $client->put($urlApi, $dataTeks);
+            } else {
+                // Kalau Insert baru, pasti POST
+                $response = $client->post($urlApi, $dataTeks);
+            }
+
+            $responseData = $response->json();
+
+            // 🔥 ANTI FAKE SUCCESS TETAP DIPERTAHANKAN 🔥
+            $isApiSuccess = $response->successful() && (!isset($responseData['status']) || strtolower($responseData['status']) !== 'error');
+
+            if ($isApiSuccess) {
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'Data jamaah berhasil ' . ($idJamaah ? 'diupdate!' : 'disimpan!'),
+                    'data'    => $responseData['data'] ?? $responseData
+                ]);
+            }
+
+            // Kalau gagal nyimpen, ambil pesan error aslinya dari Darda
+            $errorMsg = 'Gagal menyimpan ke server.';
+            if (isset($responseData['message'])) {
+                $errorMsg = $responseData['message'];
+            }
+            if (isset($responseData['errors']) && is_array($responseData['errors'])) {
+                $firstError = collect($responseData['errors'])->flatten()->first();
+                $errorMsg .= ' ' . $firstError;
+            } else if (!$responseData) {
+                $errorMsg = 'Error ' . $response->status() . ': Request ditolak oleh server.';
+            }
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => $errorMsg
+            ], $response->status() === 500 ? 500 : 400);
+
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            return response()->json(['status' => 'error', 'message' => 'Koneksi ke server timeout. Silakan coba lagi.'], 504);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Sistem Error: ' . $e->getMessage()], 500);
+        }
     }
 
     public function wishlist(Request $request) 
     { 
+        $userProfile = $this->getProfileData(); 
+        if (!$userProfile) { 
+            return redirect()->route('login'); 
+        } 
 
-    $userProfile = $this->getProfileData(); 
-    if (!$userProfile) { 
-        return redirect()->route('login'); 
-    } 
+        // 1. Ambil token user dari session & Ambil Signature Keamanan 
+        $token = session('api_token'); 
+        $signature = config('app.api_signature'); 
 
-    // 1. Ambil token user dari session & Ambil Signature Keamanan 
-    $token = session('api_token'); 
-    $signature = config('app.api_signature'); 
+        // 2. Tembak API Wishlist dari backend (BAWA TOKEN + SIGNATURE) 
+        $response = Http::withToken($token)->withHeaders([ 
+            'X-App-Signature' => $signature, 
+            'Accept'          => 'application/json' 
+        ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist'); 
 
-    // 2. Tembak API Wishlist dari backend (BAWA TOKEN + SIGNATURE) 
-    $response = Http::withToken($token)->withHeaders([ 
-        'X-App-Signature' => $signature, 
-        'Accept'          => 'application/json' 
-    ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/wishlist'); 
+        // 3. Cek hasilnya dan KALKULASI DATA
+        if ($response->successful()) { 
+            $rawData = $response->json('data') ?? $response->json() ?? []; 
 
-    // 3. Cek hasilnya dan KALKULASI DATA
-    if ($response->successful()) { 
-        $rawData = $response->json('data') ?? $response->json() ?? []; 
-
-        // dd($rawData);
-        
-        // 👇 PERBAIKAN: Kita rapihin struktur dan hitung total kuotanya di Controller 👇
-        $wishlistData = collect($rawData)->map(function ($row) {
+            // dd($rawData);
             
-            // Deteksi struktur API (kadang di dalem 'product', kadang di luar)
-            $item = isset($row['product']) ? $row['product'] : $row;
-            
-            // 1. Paksa 'prices' jadi Array (buat jaga-jaga kalau dari API wujudnya masih string JSON)
-            $pricesData = is_string($item['prices'] ?? null) ? json_decode($item['prices'], true) : ($item['prices'] ?? []);
-            $item['prices'] = $pricesData;
-            
-            // 2. Hitung total_quota dari semua tipe kamar
-            $item['total_quota'] = collect($pricesData)->sum('quota');
-            
-            // Balikin ke struktur asalnya
-            if (isset($row['product'])) {
-                $row['product'] = $item;
-                return $row;
-            }
-            return $item;
-        })->toArray();
+            // 👇 PERBAIKAN: Kita rapihin struktur dan hitung total kuotanya di Controller 👇
+            $wishlistData = collect($rawData)->map(function ($row) {
+                
+                // Deteksi struktur API (kadang di dalem 'product', kadang di luar)
+                $item = isset($row['product']) ? $row['product'] : $row;
+                
+                // 1. Paksa 'prices' jadi Array (buat jaga-jaga kalau dari API wujudnya masih string JSON)
+                $pricesData = is_string($item['prices'] ?? null) ? json_decode($item['prices'], true) : ($item['prices'] ?? []);
+                $item['prices'] = $pricesData;
+                
+                // 2. Hitung total_quota dari semua tipe kamar
+                $item['total_quota'] = collect($pricesData)->sum('quota');
+                
+                // Balikin ke struktur asalnya
+                if (isset($row['product'])) {
+                    $row['product'] = $item;
+                    return $row;
+                }
+                return $item;
+            })->toArray();
 
-    } else { 
-        // Kalau API lagi down / error, kasih array kosong biar nggak error di HTML 
-        $wishlistData = []; 
-    } 
+        } else { 
+            // Kalau API lagi down / error, kasih array kosong biar nggak error di HTML 
+            $wishlistData = []; 
+        } 
 
-    // Lempar variabel $wishlistData ke tampilan HTML 
-    return view('marketplace.user.wishlist', compact('userProfile', 'wishlistData')); 
+        // Lempar variabel $wishlistData ke tampilan HTML 
+        return view('marketplace.user.wishlist', compact('userProfile', 'wishlistData')); 
     }
 
     public function toggleWishlist(Request $request)
@@ -458,62 +640,62 @@ public function processCheckout(Request $request)
         return response()->json(['message' => $pesan ?: 'Gagal terhubung ke server backend'], $response->status());
     }
 
-public function updateProfile(Request $request)
+    public function updateProfile(Request $request)
     {
-        $token = session('api_token');
-        if (!$token) {
-            return redirect()->route('login')->with('error', 'Silakan login ulang.');
-        }
+            $token = session('api_token');
+            if (!$token) {
+                return redirect()->route('login')->with('error', 'Silakan login ulang.');
+            }
 
-        // 1. Siapkan data teks (Bentuk Paling Bersih)
-        $payloadData = [
-            'fullname'    => $request->nama,
-            'address'     => $request->address,
-            'no_paspor'   => $request->no_paspor,
-            'nama_paspor' => $request->nama_paspor,
-            'jk'          => $request->jk,
-            'no_nik'      => $request->no_nik,
-            'no_wa'       => $request->telepon, // <-- Balikin normal gini aja
-            'tgl_lahir'   => $request->tanggal_lahir,
-        ];
+            // 1. Siapkan data teks (Bentuk Paling Bersih)
+            $payloadData = [
+                'fullname'    => $request->nama,
+                'address'     => $request->address,
+                'no_paspor'   => $request->no_paspor,
+                'nama_paspor' => $request->nama_paspor,
+                'jk'          => $request->jk,
+                'no_nik'      => $request->no_nik,
+                'no_wa'       => $request->telepon, // <-- Balikin normal gini aja
+                'tgl_lahir'   => $request->tanggal_lahir,
+            ];
 
-        $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/my-profile';
+            $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/my-profile';
 
-        $apiRequest = Http::withToken($token);
+            $apiRequest = Http::withToken($token);
 
-        if ($request->hasFile('avatar')) {
-            $foto = $request->file('avatar');
-            $response = $apiRequest->attach(
-                'image', file_get_contents($foto->getPathname()), $foto->getClientOriginalName()
-            )->put($urlApi, $payloadData);
-        } else {
-            $response = $apiRequest->put($urlApi, $payloadData);
-        }
-
-        // Fallback POST kalau PUT ditolak (404)
-        if ($response->status() == 404 || stripos($response->json('message') ?? '', 'tidak ditemukan') !== false) {
-            $apiRequestRetry = Http::withToken($token);
             if ($request->hasFile('avatar')) {
                 $foto = $request->file('avatar');
-                $response = $apiRequestRetry->attach(
+                $response = $apiRequest->attach(
                     'image', file_get_contents($foto->getPathname()), $foto->getClientOriginalName()
-                )->post($urlApi, $payloadData);
+                )->put($urlApi, $payloadData);
             } else {
-                $response = $apiRequestRetry->post($urlApi, $payloadData);
+                $response = $apiRequest->put($urlApi, $payloadData);
             }
-        }
 
-        // 3. Cek Hasil Akhirnya
-        if ($response->successful()) {
-            return back()->with('success', 'Data profil berhasil disimpan!');
-        }
+            // Fallback POST kalau PUT ditolak (404)
+            if ($response->status() == 404 || stripos($response->json('message') ?? '', 'tidak ditemukan') !== false) {
+                $apiRequestRetry = Http::withToken($token);
+                if ($request->hasFile('avatar')) {
+                    $foto = $request->file('avatar');
+                    $response = $apiRequestRetry->attach(
+                        'image', file_get_contents($foto->getPathname()), $foto->getClientOriginalName()
+                    )->post($urlApi, $payloadData);
+                } else {
+                    $response = $apiRequestRetry->post($urlApi, $payloadData);
+                }
+            }
 
-        // Kalau masih error
-        $pesanError = $response->json('message') ?? 'Gagal memperbarui profil.';
-        return back()->with('error', $pesanError);
+            // 3. Cek Hasil Akhirnya
+            if ($response->successful()) {
+                return back()->with('success', 'Data profil berhasil disimpan!');
+            }
+
+            // Kalau masih error
+            $pesanError = $response->json('message') ?? 'Gagal memperbarui profil.';
+            return back()->with('error', $pesanError);
     }
 
- public function updatePassword(Request $request)
+    public function updatePassword(Request $request)
     {
         $token = session('api_token');
         if (!$token) {
@@ -559,6 +741,42 @@ public function updateProfile(Request $request)
         // Kalau errornya hal lain (misal dari Darda nya emang ngasih pesan error lain)
         $pesanError = $response->json('message') ?? 'Gagal mengubah password. Silakan coba lagi nanti.';
         return back()->with('error', $pesanError);
+    }
+    
+    public function cancelOrder(Request $request, $id)
+    {
+        $token = session('api_token');
+        if (!$token) {
+            return response()->json(['status' => 'error', 'message' => 'Sesi telah berakhir. Silakan refresh halaman.'], 401);
+        }
+        $signature = config('app.api_signature');
+
+        try {
+            $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/' . $id;
+
+            // Pake DELETE murni / update status CANCELLED agar transaksi hilang/batal murni dari database
+            $response = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json'
+            ])->delete($urlApi);
+
+            // Fallback jika API backend minta metode PUT status CANCELLED
+            if ($response->status() == 405 || $response->status() == 400) {
+                $response = \Illuminate\Support\Facades\Http::asJson()->withToken($token)->withHeaders([
+                    'X-App-Signature' => $signature,
+                    'Accept'          => 'application/json'
+                ])->put($urlApi, ['status' => 'CANCELLED']);
+            }
+
+            if ($response->successful()) {
+                return response()->json(['status' => 'success', 'message' => 'Pesanan berhasil dibatalkan dan dihapus.']);
+            }
+
+            return response()->json(['status' => 'error', 'message' => 'Gagal membatalkan pesanan.'], 400);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Sistem Error: ' . $e->getMessage()], 500);
+        }
     }
 
 }

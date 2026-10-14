@@ -114,7 +114,7 @@
         </div>
     </nav>
 
-    <main class="pt-28 pb-10 min-h-screen">
+    <main class="pt-28 pb-8 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
@@ -196,133 +196,112 @@
 
                         {{-- CONTAINER WISHLIST --}}
                         @if (isset($wishlistData) && count($wishlistData) > 0)
-                            <div id="wishlist-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- 👇 Grid diubah jadi 2 kolom di mobile biar mirip beranda 👇 -->
+                            <div id="wishlist-container" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+                                @foreach ($wishlistData as $row)
+                                    {{-- MAPPING DATA API --}}
+                                    @php
+                                        $item = isset($row['product']) ? $row['product'] : $row;
+                                        $idProduk = $item['id'] ?? $loop->index;
+                                        $nama = $item['nama_produk'] ?? 'Nama Paket Umroh';
+                                        $gambar = !empty($item['thumbnail_url']) ? 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/' . rawurlencode($item['thumbnail_url']) : 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=600&q=80';
+                                        
+                                        $hotelMakkah = $item['hotels'][0]['name'] ?? '-';
+                                        $hotelMadinah = $item['hotels'][1]['name'] ?? '-';
+                                        $maskapai = $item['flights'][0]['airline_name'] ?? '-';
+                                        $tglKeberangkatan = !empty($item['tgl_keberangkatan']) ? \Carbon\Carbon::parse($item['tgl_keberangkatan'])->translatedFormat('d M Y') : '-';
+                                        
+                                        $pricesData = is_string($item['prices'] ?? null) ? json_decode($item['prices'], true) : ($item['prices'] ?? []);
+                                        $harga = $pricesData[0]['harga'] ?? ($pricesData[0]['price'] ?? ($item['price'] ?? 0));
+                                        
+                                        $kuotaDariPrices = collect($pricesData)->sum('quota');
+                                        if ($kuotaDariPrices > 0) {
+                                            $kuota = $kuotaDariPrices;
+                                        } else {
+                                            $kuota = intval($item['total_quota'] ?? $item['quota'] ?? $item['stok'] ?? $item['sisa_seat'] ?? 0);
+                                        }
+                                        
+                                        $maxSeat = $kuota > 45 ? 100 : 45;
+                                        $persenSeat = $maxSeat > 0 ? round(($kuota / $maxSeat) * 100) : 0;
+                                        if ($persenSeat > 100) $persenSeat = 100;
+                                    @endphp
 
-                               @foreach ($wishlistData as $row)
-                                {{-- MAPPING DATA API BIAR GAK ERROR/KOSONG --}}
-                                @php
-                                    // Deteksi struktur API
-                                    $item = isset($row['product']) ? $row['product'] : $row;
-                                    $idProduk = $item['id'] ?? $loop->index;
-                                    $nama = $item['nama_produk'] ?? 'Nama Paket Umroh';
-                                    $gambar = !empty($item['thumbnail_url']) ? 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/products/thumbnails/' . rawurlencode($item['thumbnail_url']) : 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=600&q=80';
-                                    $hotelMakkah = $item['hotels'][0]['name'] ?? '-';
-                                    $hotelMadinah = $item['hotels'][1]['name'] ?? '-';
-                                    $maskapai = $item['flights'][0]['airline_name'] ?? '-';
-
-                                 // AMBIL DATA TANGGAL
-                                $tglKeberangkatan = !empty($item['tgl_keberangkatan']) ? \Carbon\Carbon::parse($item['tgl_keberangkatan'])->translatedFormat('d M Y') : '-';
-                                
-                                // 1. Amankan data prices (antisipasi kalau API ngirim format aneh)
-                                $pricesData = is_string($item['prices'] ?? null) ? json_decode($item['prices'], true) : ($item['prices'] ?? []);
-                                
-                                // 2. Amankan harga
-                                $harga = $pricesData[0]['harga'] ?? ($pricesData[0]['price'] ?? ($item['price'] ?? 0));
-
-                                // 3. LOGIKA KUOTA (Sapu Jagat)
-                                $kuotaDariPrices = collect($pricesData)->sum('quota');
-                                
-                                // Kalau dari prices hasilnya 0, kita tembak semua kemungkinan nama variabel dari backend!
-                                if ($kuotaDariPrices > 0) {
-                                    $kuota = $kuotaDariPrices;
-                                } else {
-                                    $kuota = intval($item['total_quota'] ?? $item['quota'] ?? $item['stok'] ?? $item['sisa_seat'] ?? 0);
-                                }
-
-                                $maxSeat = $kuota > 45 ? 100 : 45;
-                                $persenSeat = $maxSeat > 0 ? round(($kuota / $maxSeat) * 100) : 0;
-                                
-                                // Cegah bar lebih dari 100%
-                                if ($persenSeat > 100) {
-                                    $persenSeat = 100;
-                                }
-                                @endphp
-
-                                    <div class="wishlist-item group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
-                                        id="wishlist-{{ $idProduk }}">
+                                    <div class="wishlist-item product-card group bg-white rounded-xl md:rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full hover:-translate-y-1" id="wishlist-{{ $idProduk }}">
+                                        
                                         <div class="relative aspect-[4/3] overflow-hidden bg-slate-200">
-                                            <img src="{{ $gambar }}"
-                                                class="w-full h-full object-cover group-hover:scale-110 transition duration-700"
-                                                alt="{{ $nama }}"
-                                                onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($nama) }}&background=F97316&color=fff'">
+                                            <img src="{{ $gambar }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700 cursor-pointer" alt="{{ $nama }}" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($nama) }}&background=F97316&color=fff'" onclick="openBerandaLightbox(this.src); event.stopPropagation();" title="Perbesar Gambar">
+                                            
+                                            <!-- Indikator Zoom Gambar -->
+                                            <div class="absolute bottom-2 left-2 md:bottom-3 md:left-3 z-10 flex gap-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
+                                                <div class="px-2 py-1 md:px-2.5 md:py-1.5 rounded-lg bg-black/40 backdrop-blur-md flex items-center gap-1.5 text-white/90 shadow-sm border border-white/20">
+                                                    <i class="ph-bold ph-arrows-out-simple text-[10px] md:text-xs"></i>
+                                                    <span class="text-[8px] md:text-[10px] font-bold uppercase tracking-wider">Perbesar</span>
+                                                </div>
+                                            </div>
 
-                                            <button onclick="removeItem(this, '{{ $idProduk }}')"
-                                                class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white text-red-500 shadow-md flex items-center justify-center hover:bg-red-50 transition z-10 border border-slate-100"
-                                                title="Hapus dari Wishlist">
-                                                <i class="ph-fill ph-heart text-lg"></i>
-                                            </button>
+                                            <!-- Tombol Hapus Wishlist -->
+                                            <div class="absolute top-2 right-2 md:top-3 md:right-3 z-10 flex gap-1.5 md:gap-2">
+                                                <button onclick="removeItem(this, '{{ $idProduk }}'); event.stopPropagation();" class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-white/90 backdrop-blur-md text-red-500 shadow-md flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition border border-white/30" title="Hapus dari Wishlist">
+                                                    <i class="ph-fill ph-heart text-xs md:text-lg"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class="p-5 flex flex-col flex-grow">
-                                            <div class="min-h-[3.5rem]">
-                                                <h3
-                                                    class="text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
-                                                    {{ $nama }}</h3>
+
+                                        <div class="p-3 md:p-5 flex flex-col flex-grow cursor-pointer hover:bg-slate-50/50 transition-colors" onclick="window.location.href='{{ route('marketplace.produk.detail', $idProduk) }}'" title="Lihat Detail Paket">
+                                            
+                                            <div class="min-h-[2.5rem] md:min-h-[3.5rem] mb-1 md:mb-0">
+                                                <h3 class="text-[11px] sm:text-xs md:text-base font-bold text-slate-900 group-hover:text-orange-600 transition line-clamp-2 leading-tight">
+                                                    {{ $nama }}
+                                                </h3>
                                             </div>
-                                            <div class="flex-grow space-y-3 mb-6">
-
-                                                <div class="flex items-center gap-3">
-                                                    <i
-                                                        class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                                    <p class="text-sm font-semibold text-slate-600 truncate">Makkah:
-                                                        {{ $hotelMakkah }}</p>
+                                            
+                                            <div class="flex-grow space-y-1.5 md:space-y-3 mb-4 md:mb-6 mt-1">
+                                                <div class="flex items-center gap-1.5 md:gap-3">
+                                                    <i class="ph-duotone ph-buildings text-orange-500 text-sm md:text-xl flex-shrink-0"></i>
+                                                    <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate">Makkah: {{ $hotelMakkah }}</p>
                                                 </div>
-                                                <div class="flex items-center gap-3">
-                                                    <i
-                                                        class="ph-duotone ph-buildings text-orange-500 text-xl flex-shrink-0"></i>
-                                                    <p class="text-sm font-semibold text-slate-600 truncate">Madinah:
-                                                        {{ $hotelMadinah }}</p>
+                                                <div class="flex items-center gap-1.5 md:gap-3">
+                                                    <i class="ph-duotone ph-buildings text-orange-500 text-sm md:text-xl flex-shrink-0"></i>
+                                                    <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate">Madinah: {{ $hotelMadinah }}</p>
                                                 </div>
-                                                <div class="flex items-center gap-3">
-                                                    <i
-                                                        class="ph-duotone ph-airplane-tilt text-blue-500 text-xl flex-shrink-0"></i>
-                                                    <p class="text-sm font-semibold text-slate-600 truncate">
-                                                        {{ $maskapai }}</p>
+                                                <div class="flex items-center gap-1.5 md:gap-3">
+                                                    <i class="ph-duotone ph-airplane-tilt text-blue-500 text-sm md:text-xl flex-shrink-0"></i>
+                                                    <p class="text-[9px] md:text-sm font-semibold text-slate-600 truncate">{{ $maskapai }}</p>
+                                                </div>
+                                                <div class="flex items-center gap-1.5 md:gap-3">
+                                                    <i class="ph-duotone ph-calendar-blank text-green-500 text-sm md:text-xl flex-shrink-0"></i>
+                                                    <p class="text-[9px] md:text-sm font-semibold text-slate-600">{{ $tglKeberangkatan }}</p>
                                                 </div>
 
-                                                {{-- 👇 TANGGAL KEBERANGKATAN DITAMBAHKAN DI SINI 👇 --}}
-                                                <div class="flex items-center gap-3">
-                                                    <i
-                                                        class="ph-duotone ph-calendar-blank text-green-500 text-xl flex-shrink-0"></i>
-                                                    <p class="text-sm font-semibold text-slate-600 truncate">
-                                                        {{ $tglKeberangkatan }}</p>
-                                                </div>
-
-                                               <div class="pt-2">
-                                                <div class="flex justify-between text-[11px] mb-1.5 font-bold">
-                                                    <span class="text-slate-500 uppercase tracking-tighter">Seat Tersisa</span>
-                                                    <span class="text-[#ff782e] font-black">{{ $kuota }} Seat</span>
-                                                </div>
-                                                <div class="w-full bg-slate-200 h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
-                                                    <div class="progress-orange-animated h-full rounded-full transition-all duration-700"
-                                                        style="width: {{ $persenSeat }}%; min-width: 5%;"></div>
+                                                <div class="pt-1.5 md:pt-2">
+                                                    <div class="flex justify-between text-[8px] md:text-[11px] mb-1 font-bold">
+                                                        <span class="text-slate-500 uppercase tracking-tighter">Seat Sisa</span>
+                                                        <span class="text-[#ff782e] font-black">{{ $kuota }} Seat</span>
+                                                    </div>
+                                                    <div class="w-full bg-slate-200 h-2 md:h-3.5 rounded-full overflow-hidden shadow-inner p-[1px]">
+                                                        <div class="progress-orange-animated h-full rounded-full transition-all duration-700" style="width: {{ $persenSeat }}%; min-width: 5%;"></div>
+                                                    </div>
                                                 </div>
                                             </div>
-
-                                            </div>
-                                            <div
-                                                class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                                            
+                                            <div class="pt-2 md:pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
                                                 <div>
-                                                    <p
-                                                        class="text-[10px] text-slate-400 uppercase font-black tracking-wider">
-                                                        Mulai Dari</p>
-                                                    <p class="text-xl font-black text-slate-900">
+                                                    <p class="text-[8px] md:text-[10px] text-slate-400 uppercase font-black tracking-wider">Mulai</p>
+                                                    <p class="text-xs sm:text-sm md:text-xl font-black text-slate-900">
                                                         @if ($harga > 0)
-                                                            Rp {{ number_format($harga / 1000000, 1, ',', '.') }} <span
-                                                                class="text-sm">Jt</span>
+                                                            Rp {{ number_format($harga / 1000000, 1, ',', '.') }} <span class="text-[8px] md:text-sm">Jt</span>
                                                         @else
-                                                            Hubungi Kami
+                                                            <span class="text-[10px] md:text-sm">Hubungi Kami</span>
                                                         @endif
                                                     </p>
                                                 </div>
-                                                <a href="{{ route('marketplace.produk.detail', $idProduk) }}"
-                                                    class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30">
-                                                    <i class="ph-bold ph-arrow-right text-lg"></i>
-                                                </a>
+                                                <div class="w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/30 flex-shrink-0">
+                                                    <i class="ph-bold ph-arrow-right text-xs md:text-lg"></i>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 @endforeach
-
                             </div>
                         @endif
 
@@ -346,6 +325,17 @@
 
             </div>
         </div>
+
+        {{-- 👇 MODAL LIGHTBOX IMAGE WISHLIST 👇 --}}
+        <div id="beranda-lightbox" class="fixed inset-0 z-[100] bg-black/95 items-center justify-center hidden p-4 transition-opacity duration-300 opacity-0" onclick="closeBerandaLightbox()">
+            <button class="absolute top-4 right-4 md:top-6 md:right-6 text-white hover:text-orange-500 transition focus:outline-none z-50 bg-white/10 hover:bg-red-500 p-2 md:p-3 rounded-full backdrop-blur-sm border border-white/20">
+                <i class="ph-bold ph-x text-xl md:text-2xl"></i>
+            </button>
+            <div class="relative w-full h-full flex items-center justify-center pointer-events-none p-4">
+                <img id="beranda-lightbox-img" src="" class="max-h-[95vh] w-auto max-w-full object-contain rounded-xl shadow-2xl transform scale-95 transition-transform duration-300 pointer-events-auto" onclick="event.stopPropagation()">
+            </div>
+        </div>
+
     </main>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -467,8 +457,39 @@
                     emptyState.classList.add('flex');
                 }
             }
+        }   
+    </script>
+
+    <script>
+       function openBerandaLightbox(src) {
+            const lightbox = document.getElementById('beranda-lightbox');
+            const img = document.getElementById('beranda-lightbox-img');
+            img.src = src;
+            lightbox.classList.remove('hidden');
+            lightbox.classList.add('flex');
+            // Timeout biar animasinya jalan
+            setTimeout(() => {
+                lightbox.classList.remove('opacity-0');
+                img.classList.remove('scale-95');
+                img.classList.add('scale-100');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+        function closeBerandaLightbox() {
+            const lightbox = document.getElementById('beranda-lightbox');
+            const img = document.getElementById('beranda-lightbox-img');
+            lightbox.classList.add('opacity-0');
+            img.classList.remove('scale-100');
+            img.classList.add('scale-95');
+            setTimeout(() => {
+                lightbox.classList.add('hidden');
+                lightbox.classList.remove('flex');
+                img.src = '';
+                document.body.style.overflow = 'auto';
+            }, 300);
         }
     </script>
+
 </body>
 
 </html>

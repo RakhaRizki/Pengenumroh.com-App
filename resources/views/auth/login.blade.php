@@ -30,6 +30,7 @@
             background: transparent;
         }
     </style>
+    
 </head>
 
 <body class="antialiased text-slate-800 h-screen overflow-hidden">
@@ -89,8 +90,7 @@
                         @csrf
 
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-700 ml-1 uppercase tracking-wide">Email atau
-                                Username</label>
+                            <label class="text-xs font-bold text-slate-700 ml-1 uppercase tracking-wide">Email</label>
                             <div class="relative group">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <i
@@ -98,7 +98,7 @@
                                 </div>
                                 <input type="text" name="email" required
                                     class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
-                                    placeholder="nama@email.com / Fulan...">
+                                    placeholder="Masukkan Alamat Email">
                             </div>
                         </div>
 
@@ -114,7 +114,7 @@
                                 </div>
                                 <input type="password" id="password" name="password" required
                                     class="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
-                                    placeholder="Masukkan kata sandi">
+                                    placeholder="Masukkan Kata Sandi">
                                 <button type="button" onclick="togglePassword('password', this)"
                                     class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-orange-500 focus:outline-none transition-colors cursor-pointer z-10">
                                     <i class="ph-bold ph-eye-slash text-xl"></i>

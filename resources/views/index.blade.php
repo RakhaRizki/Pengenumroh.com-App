@@ -6,10 +6,10 @@
         <div id="slider-img">
             <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
                 <div class="carousel-inner">
-                    <div class="carousel-item active">
+                    {{-- <div class="carousel-item active">
                         <img src="{{ asset('assets/img/company/banner4.webp') }}" class="d-block w-100" alt="">
-                    </div>
-                    <div class="carousel-item">
+                    </div> --}}
+                    <div class="carousel-item active">
                         <img src="{{ asset('assets/img/company/banner2.webp') }}" class="d-block w-100" alt="">
                     </div>
                     <div class="carousel-item">
@@ -617,9 +617,228 @@
             <!-- Artikel Cards -->
             <div class="row g-4">
 
-                <!-- MARET -->
+                <!-- JULI -->
 
                 <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="ratio ratio-16x9">
+                            <img src="{{ asset('assets/img/company/artikel/artikel39.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                            alt="Artikel 3" loading="lazy">
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold" style="color: #E92326;">Kenapa Hotel Dekat Masjid Bisa Membuat Ibadah Lebih Maksimal? 
+                            </h5>
+                            <p class="card-text">Jarak hotel ke Masjidil Haram atau Masjid Nabawi sangat memengaruhi kenyamanan ibadah umroh
+                            </p>
+                            
+                            <a href="{{ url('/artikel/kenapa-hotel-dekat-masjid-bisa-membuat-ibadah-lebih-maksimal') }}" class="btn text-white"
+                            style="background-color: #EB2427;">Selengkapnya</a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel38.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Ternyata Persiapan Umroh Dimulai Jauh Sebelum Berangkat!</h5>
+                        <p class="card-text">Persiapan umroh bukan hanya soal koper. Ketahui langkah-langkah penting yang perlu-
+                        </p>
+                        <a href="{{ url('/artikel/ternyata-persiapan-umroh-dimulai-jauh-sebelum-berangkat') }}"
+                        class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel37.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Banyak yang Menyesal! Ini 5 Hal yang Wajib Dicek Sebelum Daftar Umroh!</h5>
+                        <p class="card-text">Jangan asal memilih paket umroh. Ketahui 5 hal penting yang wajib diperhatikan-
+                        </p>
+                        <a href="{{ url('/artikel/banyak-yang-menyesal-ini-5-hal-yang-wajib-dicek-sebelum-daftar-umroh') }}" class="btn text-white"
+                        style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- JUNI -->
+
+                <div class="col-md-6 col-lg-4 extra-article d-none">
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel36.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Booking Umroh Lewat Marketplace? Ini Keuntungan yang Banyak Jamaah Belum Tahu 
+                        </h5>
+                        <p class="card-text">Booking umroh melalui marketplace bisa memberikan berbagai keuntungan tambahan
+                        </p>
+                        <a href="{{ url('/artikel/booking-umroh-lewat-marketplace-ini-keuntungan-yang-banyak-jamaah-belum-tahu') }}" class="btn text-white"
+                        style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div> 
+
+                <div class="col-md-6 col-lg-4 extra-article d-none">
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel35.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Jangan Tergiur Harga Murah! Ini 5 Cara Memilih Travel Umroh yang Tepat</h5>
+                        <p class="card-text">Bingung memilih travel umroh? Simak 5 cara memilih travel umroh yang tepat agar perjalanan ibadah-
+                        </p>
+                        <a href="{{ url('/artikel/jangan-tergiur-harga-murah-ini-5-cara-memilih-travel-umroh-yang-tepat') }}"
+                        class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 extra-article d-none">
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel34.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Travel Umroh Bermasalah Makin Ramai Dibicarakan, Bagaimana Cara Memilih yang Lebih Aman?</h5>
+                        <p class="card-text">Kasus travel umroh bermasalah kembali menjadi perhatian. Ketahui cara memilih travel umroh-
+                        </p>
+                        <a href="{{ url('/artikel/travel-umroh-bermasalah-makin-ramai-dibicarakan-bagaimana-cara-memilih-yang-lebih-aman') }}" class="btn text-white"
+                        style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- MEI -->
+
+                <div class="col-md-6 col-lg-4 extra-article d-none">    
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel33.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Jarang Diketahui! Ini Bagian Ka’bah dan Maknanya
+                        </h5>
+                        <p class="card-text">Kenali bagian-bagian Ka’bah seperti Hajar Aswad, Multazam, Hijr Ismail, dan Maqam
+                        Ibrahim beserta maknanya dalam ibadah
+                        umroh
+                        </p>
+                        <a href="{{ url('/artikel/jarang-diketahui-ini-bagian-kabah-dan-maknanya') }}" class="btn text-white"
+                        style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 extra-article d-none">
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel32.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Masih Sering Dilanggar? Ini Larangan Ihram
+                        yang Wajib Diketahui</h5>
+                        <p class="card-text">Ketahui larangan ihram saat umroh berdasarkan hadits shahih
+                        </p>
+                        <a href="{{ url('/artikel/masih-sering-dilanggar-ini-larangan-ihram-yang-wajib-diketahui') }}"
+                        class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 extra-article d-none">
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel31.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Sering Kelelahan? Ini 5 Tips Umroh Nyaman
+                        untuk Lansia</h5>
+                        <p class="card-text">Tips umroh nyaman untuk lansia agar tidak mudah lelah. Pelajari cara menjaga
+                        stamina, memilih hotel dekat-
+                        </p>
+                        <a href="{{ url('/artikel/sering-kelelahan-ini-5-tips-umroh-nyaman-untuk-lansia') }}" class="btn text-white"
+                        style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- APRIL -->
+
+                <div class="col-md-6 col-lg-4 extra-article d-none">
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel30.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Terlihat Sepele, Tapi 5 Kesalahan Administrasi
+                        Ini Bisa Gagalkan Umroh Anda</h5>
+                        <p class="card-text">Kesalahan kecil dalam administrasi umroh bisa berdampak besar. Kenali 5 kesalahan
+                        yang harus dihindari agar ibadah
+                        berjalan lancar
+                        </p>
+                        <a href="{{ url('/artikel/terlihat-sepele-tapi-5-kesalahan-administrasi-ini-bisa-gagalkan-umroh-anda') }}"
+                        class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 extra-article d-none">
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel29.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Urus Umroh Sendiri atau Lewat Jasa? Ini Risiko
+                        yang Harus Anda Tahu</h5>
+                        <p class="card-text">Masih bingung urus umroh sendiri atau lewat jasa? Simak risiko yang perlu Anda
+                        ketahui agar perjalanan ibadah lebih aman
+                        dan nyaman
+                        </p>
+                        <a href="{{ url('/artikel/urus-umroh-sendiri-atau-lewat-jasa-ini-risiko-yang-harus-anda-tahu') }}"
+                        class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 extra-article d-none">
+                    <div class="card border-0 shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                        <img src="{{ asset('assets/img/company/artikel/artikel28.webp') }}" class="card-img-top object-fit-cover rounded-top"
+                        alt="Artikel 3" loading="lazy">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #E92326;">Kenapa Banyak Jamaah Umroh Terlambat
+                        Berangkat? Ini Penyebab yang Jarang Disadari</h5>
+                        <p class="card-text">Banyak jamaah umroh mengalami penundaan tanpa disadari. Ketahui penyebabnya dan
+                        cara menghindari agar perjalanan ibadah
+                        Anda berjalan lancar
+                        </p>
+                        <a href="{{ url('/artikel/kenapa-banyak-jamaah-umroh-terlambat-berangkat-ini-penyebab-yang-jarang-disadari') }}"
+                        class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
+                    </div>
+                    </div>
+                </div>
+
+                <!-- MARET -->
+
+                <div class="col-md-6 col-lg-4 extra-article d-none">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="ratio ratio-16x9">
                             <img src="{{ asset('assets/img/company/artikel/artikel27.webp') }}"
@@ -632,13 +851,13 @@
                                 Terlupakan: Momen Spiritual yang Bikin Hati Rindu Kembali Lagi</h5>
                             <p class="card-text">Sahur di Tanah Suci bukan sekadar makan sebelum berpuasa
                             </p>
-                            <a href="artikel/pengalaman-sahur-di-tanah-suci-yang-tidak-terlupakan-momen-spiritual-yang-bikin-hati-rindu-kembali-lagi.html"
+                            <a href="{{ url('/artikel/pengalaman-sahur-di-tanah-suci-yang-tidak-terlupakan-momen-spiritual-yang-bikin-hati-rindu-kembali-lagi') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-4 extra-article d-none">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="ratio ratio-16x9">
                             <img src="{{ asset('assets/img/company/artikel/artikel26.webp') }}"
@@ -654,13 +873,13 @@
                                 spiritual
                                 yang lebih kuat, pahala yang berlipat-
                             </p>
-                            <a href="artikel/panduan-itinerary-umroh-ramadhan-agar-ibadah-tetap-nyaman-dan-khusyuk.html"
+                            <a href="{{ url('/artikel/panduan-itinerary-umroh-ramadhan-agar-ibadah-tetap-nyaman-dan-khusyuk') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-4 extra-article d-none">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="ratio ratio-16x9">
                             <img src="{{ asset('assets/img/company/artikel/artikel25.webp') }}"
@@ -672,7 +891,7 @@
                                 Ramadhan agar Lebih Mustajab dan Penuh Keberkahan</h5>
                             <p class="card-text">Umroh di bulan Ramadhan adalah impian banyak umat Muslim
                             </p>
-                            <a href="artikel/cara-memaksimalkan-doa-saat-umroh-di-bulan-ramadhan-agar-lebih-mustajab-dan-penuh-keberkahan.html"
+                            <a href="{{ url('/artikel/cara-memaksimalkan-doa-saat-umroh-di-bulan-ramadhan-agar-lebih-mustajab-dan-penuh-keberkahan') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -695,7 +914,7 @@
                                 beribadah di Tanah
                                 Suci. Tidak heran jika permintaan-
                             </p>
-                            <a href="artikel/panduan-memilih-travel-umroh-ramadhan-terpercaya-agar-tidak-tertipu-tips-lengkap-untuk-jamaah.html"
+                            <a href="{{ url('/artikel/panduan-memilih-travel-umroh-ramadhan-terpercaya-agar-tidak-tertipu-tips-lengkap-untuk-jamaah') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -716,7 +935,7 @@
                                 Muslim di seluruh
                                 dunia.
                             </p>
-                            <a href="artikel/rahasia-umroh-di-bulan-ramadhan-yang-pahalanya-setara-haji-kenapa-banyak-orang-berebut-berangkat.html"
+                            <a href="{{ url('/artikel/rahasia-umroh-di-bulan-ramadhan-yang-pahalanya-setara-haji-kenapa-banyak-orang-berebut-berangkat') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -737,7 +956,7 @@
                                 suasananya lebih istimewa dan penuh
                                 keberkahan.
                             </p>
-                            <a href="artikel/tips-packing-praktis-untuk-umroh-ramadhan-ringkas-nyaman-dan-tetap-khusyuk.html"
+                            <a href="{{ url('/artikel/tips-packing-praktis-untuk-umroh-ramadhan-ringkas-nyaman-dan-tetap-khusyuk') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -762,7 +981,7 @@
                                 penuh
                                 kekhusyukan.
                             </p>
-                            <a href="artikel/banyak-jamaah-kehilangan-barang-saat-umroh-ini-penyebab-yang-sering-diabaikan.html"
+                            <a href="{{ url('/artikel/banyak-jamaah-kehilangan-barang-saat-umroh-ini-penyebab-yang-sering-diabaikan') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -785,7 +1004,7 @@
                                 ibadah
                                 ke Tanah Suci,
                             </p>
-                            <a href="artikel/umroh-bersama-keluarga-tips-nyaman-untuk-anak-dan-orang-tua.html"
+                            <a href="{{ url('/artikel/umroh-bersama-keluarga-tips-nyaman-untuk-anak-dan-orang-tua') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -806,7 +1025,7 @@
                                 memperbaiki diri. Tidak
                                 sedikit umat Muslim-
                             </p>
-                            <a href="artikel/umroh-awal-tahun-waktu-terbaik-memulai-ibadah-dengan-lebih-khusyuk.html"
+                            <a href="{{ url('/artikel/umroh-awal-tahun-waktu-terbaik-memulai-ibadah-dengan-lebih-khusyuk') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -830,7 +1049,7 @@
                                 cara mudah
                                 menghindarinya.
                             </p>
-                            <a href="artikel/5-kesalahan-kecil-yang-sering-dilakukan-jamaah-umroh-dan-cara-menghindarinya.html"
+                            <a href="{{ url('/artikel/5-kesalahan-kecil-yang-sering-dilakukan-jamaah-umroh-dan-cara-menghindarinya') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -853,7 +1072,7 @@
                                 dari suasana
                                 pelataran Nabawi hingga-
                             </p>
-                            <a href="artikel/hal-hal-kecil-yang-cuma-bisa-kamu-rasakan-saat-umroh-bikin-hati-adem.html"
+                            <a href="{{ url('/artikel/hal-hal-kecil-yang-cuma-bisa-kamu-rasakan-saat-umroh-bikin-hati-adem') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -876,7 +1095,7 @@
                                 dan perlengkapan
                                 yang tepat.
                             </p>
-                            <a href="artikel/cara-biar-umroh-lebih-tenang-mulai-dari-dokumen-sampai-perlengkapan.html"
+                            <a href="{{ url('/artikel/cara-biar-umroh-lebih-tenang-mulai-dari-dokumen-sampai-perlengkapan') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -900,7 +1119,7 @@
                                 terburu-buru. Simak alasan penting kenapa
                                 kamu harus merencanakan perjalanan suci-
                             </p>
-                            <a href="artikel/kenapa-persiapan-umroh-akhir-tahun-harus-dimulai-dari-sekarang.html"
+                            <a href="{{ url('/artikel/kenapa-persiapan-umroh-akhir-tahun-harus-dimulai-dari-sekarang') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -923,7 +1142,7 @@
                                 Temukan hal-hal sederhana yang cuma
                                 bisa kamu rasakan-
                             </p>
-                            <a href="artikel/hal-hal-kecil-tapi-bermakna-yang-cuma-bisa-kamu-rasakan-saat-umroh.html"
+                            <a href="{{ url('/artikel/hal-hal-kecil-tapi-bermakna-yang-cuma-bisa-kamu-rasakan-saat-umroh') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -946,7 +1165,7 @@
                                 nyaman, lancar, dan penuh berkah
                                 bersama pengenUmroh.com.
                             </p>
-                            <a href="artikel/akhir-tahun-mau-umroh-ini-cara-biar-perjalananmu-tetap-nyaman-dan-lancar.html"
+                            <a href="{{ url('/artikel/akhir-tahun-mau-umroh-ini-cara-biar-perjalananmu-tetap-nyaman-dan-lancar') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -971,7 +1190,7 @@
                                 mental-spiritual, hingga perlengkapan
                                 wajib.
                             </p>
-                            <a href="artikel/tips-trick-persiapan-umroh-akhir-tahun-biar-ibadah-lebih-khusyuk2.html"
+                            <a href="{{ url('/artikel/tips-trick-persiapan-umroh-akhir-tahun-biar-ibadah-lebih-khusyuk2') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -995,7 +1214,7 @@
                                 keluarga, hingga paket spesial hotel
                                 dekat masjid.
                             </p>
-                            <a href="artikel/kenapa-umroh-akhir-tahun-jadi-pilihan-terbaik-ini-alasannya2.html"
+                            <a href="{{ url('/artikel/kenapa-umroh-akhir-tahun-jadi-pilihan-terbaik-ini-alasannya2') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -1017,7 +1236,7 @@
                                 mengapa umroh akhir tahun jadi
                                 pilihan terbaik
                             </p>
-                            <a href="artikel/liburan-akhir-tahun-penuh-berkah-umroh-bersama-keluarga.html"
+                            <a href="{{ url('/artikel/liburan-akhir-tahun-penuh-berkah-umroh-bersama-keluarga') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -1042,7 +1261,7 @@
                                 mental-spiritual, hingga perlengkapan
                                 wajib.
                             </p>
-                            <a href="artikel/tips-trick-persiapan-umroh-akhir-tahun-biar-ibadah-lebih-khusyuk.html"
+                            <a href="{{ url('/artikel/tips-trick-persiapan-umroh-akhir-tahun-biar-ibadah-lebih-khusyuk') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -1064,7 +1283,7 @@
                                 suasana ibadah lebih
                                 syahdu, hingga fasilitas premium.
                             </p>
-                            <a href="artikel/keuntungan-umroh-akhir-tahun-dari-cuaca-hingga-suasana-ibadah.html"
+                            <a href="{{ url('/artikel/keuntungan-umroh-akhir-tahun-dari-cuaca-hingga-suasana-ibadah') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -1088,7 +1307,7 @@
                                 dan keuntungan melaksanakan ibadah
                                 umroh
                             </p>
-                            <a href="artikel/kenapa-umroh-akhir-tahun-jadi-pilihan-terbaik-ini-alasannya.html"
+                            <a href="{{ url('/artikel/kenapa-umroh-akhir-tahun-jadi-pilihan-terbaik-ini-alasannya') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -1111,7 +1330,7 @@
                                 Program
                                 Umroh + China
                             </p>
-                            <a href="artikel/high-season-high-experience-umroh-china-halal-tour-mulai-33-jutaan-aja.html"
+                            <a href="{{ url('/artikel/high-season-high-experience-umroh-china-halal-tour-mulai-33-jutaan-aja') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -1132,7 +1351,7 @@
                                 menyimpan sejarah
                                 Islam.
                             </p>
-                            <a href="artikel/hainan-pulau-tropis-dengan-jejak-islam-dari-masjid-tua-sampai-kuliner-halal.html"
+                            <a href="{{ url('/artikel/hainan-pulau-tropis-dengan-jejak-islam-dari-masjid-tua-sampai-kuliner-halal') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -1155,7 +1374,7 @@
                                 tropis ramah Muslim
                                 yang Temukan sisi lain dari China
                             </p>
-                            <a href="artikel/hainan-surga-halal-tersembunyi-di-tengah-modernitas-china.html"
+                            <a href="{{ url('/artikel/hainan-surga-halal-tersembunyi-di-tengah-modernitas-china') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -1177,7 +1396,7 @@
                             <p class="card-text">Sebelum berangkat Umroh, ada beberapa hal penting yang harus
                                 kamu
                                 siapkan.</p>
-                            <a href="artikel/7-hal-yang-perlu-disiapkan-sebelum-berangkat-umroh.html"
+                            <a href="{{ url('/artikel/7-hal-yang-perlu-disiapkan-sebelum-berangkat-umroh') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -1199,7 +1418,7 @@
                                 ini
                                 sebelum daftar.
                             </p>
-                            <a href="artikel/tips-memilih-travel-umroh-yang-terpercaya-dan-aman.html"
+                            <a href="{{ url('/artikel/tips-memilih-travel-umroh-yang-terpercaya-dan-aman') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>
@@ -1220,7 +1439,7 @@
                             <p class="card-text">Urus Umroh kini gak perlu ribet. pengenumroh.com bantu kamu
                                 cari
                                 travel</p>
-                            <a href="artikel/bingung-urus-umroh-sekarang-semua-bisa-lewat-satu-platform.html"
+                            <a href="{{ url('/artikel/bingung-urus-umroh-sekarang-semua-bisa-lewat-satu-platform') }}"
                                 class="btn text-white" style="background-color: #EB2427;">Selengkapnya</a>
                         </div>
                     </div>

@@ -166,7 +166,7 @@
                                 <!-- Tambah name="name" -->
                                 <input type="text" id="input-name" name="name" required
                                     class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
-                                    placeholder="Contoh: Budi Santoso">
+                                    placeholder="Nama lengkap Anda">
                             </div>
                         </div>
 
@@ -182,7 +182,7 @@
                                     <!-- Tambah name="email" -->
                                     <input type="email" name="email" required
                                         class="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
-                                        placeholder="nama@email.com">
+                                        placeholder="Masukkan Alamat Email">
                                 </div>
                             </div>
                             <div class="space-y-1.5">
@@ -212,7 +212,7 @@
                                 <!-- Tambah name="password" -->
                                 <input type="password" id="password" name="password" required
                                     class="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all text-sm font-medium"
-                                    placeholder="Minimal 8 karakter">
+                                    placeholder="Minimal 6 karakter">
                                 <button type="button" onclick="togglePassword('password', this)"
                                     class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none transition-colors cursor-pointer z-10">
                                     <i class="ph-bold ph-eye-slash text-xl"></i>
@@ -263,13 +263,33 @@
             }
         }
 
-        // Script sudah dibersihkan dari preventDefault agar bisa ngepost ke Controller
         function handleRegister() {
+            // Cegah form submit otomatis sementara untuk kita validasi dulu
+            event.preventDefault(); 
+            
+            const passwordInput = document.getElementById('password').value;
+
+            // Validasi: Jika kurang dari 6 karakter
+            if (passwordInput.length < 6) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Password Terlalu Pendek!',
+                    text: 'Kata sandi harus terdiri dari minimal 6 karakter.',
+                    confirmButtonColor: '#ea580c'
+                });
+                return false; // Berhenti di sini, form tidak dikirim
+            }
+
+            // Jika validasi lolos, jalankan animasi loading
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin text-xl"></i> Memproses...`;
             btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            // Lanjutkan pengiriman form ke server
+            document.getElementById('registerForm').submit();
         }
+
     </script>
 
     <script>
@@ -297,7 +317,7 @@
                 btnTravel.classList.add(...inactiveClass);
 
                 labelName.textContent = "Nama Lengkap";
-                inputName.placeholder = "Contoh: Budi Santoso";
+                inputName.placeholder = "Nama Lengkap Anda";
 
                 iconName.className =
                     "ph-duotone ph-user text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors";
@@ -310,7 +330,7 @@
                 btnJamaah.classList.add(...inactiveClass);
 
                 labelName.textContent = "Nama Travel / Biro";
-                inputName.placeholder = "Contoh: PT Berkah Mulia Travel";
+                inputName.placeholder = "Nama Agen Travel Anda";
 
                 iconName.className =
                     "ph-duotone ph-buildings text-slate-400 text-xl group-focus-within:text-orange-500 transition-colors";

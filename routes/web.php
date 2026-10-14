@@ -1,57 +1,57 @@
-<?php
+    <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ApiAuthController;
-use App\Http\Controllers\MarketplaceController;
-use App\Http\Controllers\TravelDashboardController;
-use App\Http\Controllers\UserDashboardController;
+    use App\Http\Controllers\ProfileController;
+    use App\Http\Controllers\ApiAuthController;
+    use App\Http\Controllers\MarketplaceController;
+    use App\Http\Controllers\TravelDashboardController;
+    use App\Http\Controllers\UserDashboardController;
+    
+    use App\Http\Middleware\CheckRoleJamaah;
+    use App\Http\Middleware\CheckRoleTravel;
 
-use App\Http\Middleware\CheckRoleJamaah;
-use App\Http\Middleware\CheckRoleTravel;
+    use Illuminate\Support\Facades\Route;
 
-use Illuminate\Support\Facades\Route;
+    // ==========================================================
+    // AUTHENTICATION
+    // ========================================================== 
 
-// ==========================================================
-// AUTHENTICATION
-// ========================================================== 
+    // A. Halaman UI Login
+    Route::get('/login', function () {
+        return view('auth.login');
+    })->name('login');
 
-// A. Halaman UI Login
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+    // B. Proses Tembak API Login 
+    Route::post('/login/proses', [ApiAuthController::class, 'prosesLogin'])->name('login.proses');
 
-// B. Proses Tembak API Login 
-Route::post('/login/proses', [ApiAuthController::class, 'prosesLogin'])->name('login.proses');
+    // C. Halaman UI Register (Nampilin desain)
+    Route::get('/register', function () {
+        return view('auth.register');
+    })->name('register');
 
-// C. Halaman UI Register (Nampilin desain)
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register');
+    // Proses Tembak API Register (Nangkep data dari form)
+    Route::post('/register/proses', [ApiAuthController::class, 'prosesRegister'])->name('register.proses');
 
-// Proses Tembak API Register (Nangkep data dari form)
-Route::post('/register/proses', [ApiAuthController::class, 'prosesRegister'])->name('register.proses');
+    // D. Logout 
+    Route::post('/logout', [ApiAuthController::class, 'logout'])->name('logout');
 
-// D. Logout 
-Route::post('/logout', [ApiAuthController::class, 'logout'])->name('logout');
+    // Saat user membuka pengenumroh.com //
+    Route::get('/', function () {
+        return view('beranda'); // Merender beranda.blade.php (company profile)
+    });
 
-// Saat user membuka pengenumroh.com //
-Route::get('/', function () {
-    return view('beranda'); // Merender beranda.blade.php (company profile)
-});
+    // saat user membuka button loyalty card //
+    Route::get('/loyaltyCard', function () {
+        // 'company.loyaltycard' artinya folder company, file loyaltycard.blade.php
+        return view('company.loyaltycard'); 
+    })->name('company.loyalty');
 
-// saat user membuka button loyalty card //
-Route::get('/loyaltyCard', function () {
-    // 'company.loyaltycard' artinya folder company, file loyaltycard.blade.php
-    return view('company.loyaltycard'); 
-})->name('company.loyalty');
+    // untuk kembali ke beranda //
+    Route::get('/', function () {
+        return view('index'); // Sesuaikan dengan nama file HTML/Blade berandamu
+    })->name('company.beranda'); // <-- Berikan nama, misalnya 'home' atau 'beranda'
 
-// untuk kembali ke beranda //
-Route::get('/', function () {
-    return view('index'); // Sesuaikan dengan nama file HTML/Blade berandamu
-})->name('company.beranda'); // <-- Berikan nama, misalnya 'home' atau 'beranda'
-
-// Membungkus semua route yang berawalan '/marketplace' dan bernama 'marketplace.'
-Route::prefix('marketplace')->name('marketplace.')->group(function () {
+    // Membungkus semua route yang berawalan '/marketplace' dan bernama 'marketplace.'
+    Route::prefix('marketplace')->name('marketplace.')->group(function () {
 
     // Beranda Marketplace 
     Route::get('/', [MarketplaceController::class, 'index'])->name('beranda');
@@ -61,24 +61,30 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     // ----------------------------------------------------
 
     Route::get('/produk', [MarketplaceController::class, 'produk'])->name('produk.index');
-
     // DETAIL PAKET
     Route::get('/produk/{id}', [MarketplaceController::class, 'detail'])->name('produk.detail');
-
+    // 👇 ROUTE BARU: AMBIL OPSI PEMBAYARAN REKENING SEBELUM CHECKOUT 👇
+    Route::get('/produk/{id}/payment-options', [UserDashboardController::class, 'getPaymentOptions'])->name('produk.payment-options');
     // CHECKOUT PAKET
     Route::post('/checkout', [UserDashboardController::class, 'processCheckout'])->name('produk.checkout');
 
   // ==========================================================
     // SUB-GRUP: AREA DASHBOARD MITRA TRAVEL
     // ==========================================================
-    // 👇 UPDATE: Tambah middleware CheckRoleTravel
 
    Route::middleware([CheckRoleTravel::class])->group(function () {
    Route::prefix('travel')->name('travel.')->group(function () {
         Route::get('/', [TravelDashboardController::class, 'index'])->name('profil');
         Route::post('/update-profil', [App\Http\Controllers\TravelDashboardController::class, 'updateProfile'])->name('profil.update');
+        Route::match(['put', 'post'], '/password', [TravelDashboardController::class, 'updatePassword'])->name('profil.password');
+
+        Route::post('/profil/rekening/toggle', [TravelDashboardController::class, 'toggleRekeningMode'])->name('profil.rekening.toggle');
+        Route::post('/profil/rekening/simpan', [TravelDashboardController::class, 'simpanRekeningTunggal'])->name('profil.rekening.simpan');
+        Route::delete('/profil/rekening/{id}/hapus', [TravelDashboardController::class, 'hapusRekeningTunggal'])->name('profil.rekening.hapus');
+
         Route::get('/pesanan-masuk', [TravelDashboardController::class, 'pesananMasuk'])->name('pesanan-masuk');
-        Route::put('/pesanan-masuk/{id}/verifikasi', [TravelDashboardController::class, 'verifikasiPembayaran'])->name('pesanan.verifikasi');
+        Route::match(['put', 'patch'], '/pesanan-masuk/{id}/verifikasi', [TravelDashboardController::class, 'verifikasiPembayaran'])->name('pesanan.verifikasi');
+
         Route::get('/kelola-produk', [TravelDashboardController::class, 'kelolaProduk'])->name('kelola-produk');
         Route::get('/upload-produk', [TravelDashboardController::class, 'uploadProduk'])->name('upload-produk');
         Route::post('/upload-produk/store', [TravelDashboardController::class, 'storeProduk'])->name('produk.store');
@@ -87,12 +93,12 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/kelola-produk/edit/{id}', [TravelDashboardController::class, 'editProduk'])->name('produk.edit');
         Route::post('/produk/{id}/update', [TravelDashboardController::class, 'updateProduk'])->name('produk.update');
     });
-});
+    });
 
     // ==========================================================
     // SUB-GRUP: AREA HALAMAN PROFIL MEMBER (JAMAAH)
     // ==========================================================
-    // 👇 UPDATE: Tambah middleware CheckRoleJamaah
+
     Route::prefix('profil')
         ->name('profil.')
         ->middleware([\App\Http\Middleware\CheckRoleJamaah::class]) 
@@ -104,14 +110,18 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/pesanan', [UserDashboardController::class, 'pesanan'])->name('pesanan');
         // Upload Bukti
         Route::post('/pesanan/upload-bukti', [UserDashboardController::class, 'uploadBukti'])->name('upload_bukti');
+        // Cancel Pesanan 
+        Route::post('/pesanan/{id}/cancel', [UserDashboardController::class, 'cancelOrder'])->name('pesanan.cancel');
+        // Upload Bukti Khusus Cicilan
+        Route::post('/pesanan/cicilan/{idInstallment}/upload', [UserDashboardController::class, 'uploadBuktiCicilan'])->name('upload_cicilan');
+        // SIMPAN JAMAAH DI SINI 
+        Route::post('/pesanan/jamaah', [UserDashboardController::class, 'simpanJamaah'])->name('pesanan.simpanJamaah');
         // Halaman Wishlist
         Route::get('/wishlist', [UserDashboardController::class, 'wishlist'])->name('wishlist');
         // Ajax Wishlist
         Route::post('/wishlist/toggle', [UserDashboardController::class, 'toggleWishlist'])->name('wishlist.toggle');
         // Update Profile
         Route::post('/update', [UserDashboardController::class, 'updateProfile'])->name('update');
-        
-        // 👇 UPDATE: Hapus yang PUT biasa, sisakan yang MATCH aja biar rapi
         // Update Ubah Password
         Route::match(['put', 'post'], '/password', [UserDashboardController::class, 'updatePassword'])->name('password');
     });
@@ -120,6 +130,18 @@ Route::prefix('marketplace')->name('marketplace.')->group(function () {
     Route::get('/bandingkan', [MarketplaceController::class, 'bandingkan'])->name('bandingkan');
     });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard');
+
+    // Cukup SATU route ini untuk SEMUA artikel lu
+    Route::get('/artikel/{slug}', function ($slug) {
+        
+        // Keamanan: Cek dulu apakah file blade-nya beneran ada di folder resources/views/artikel/
+        if (View::exists('artikel.' . $slug)) {
+            return view('artikel.' . $slug);
+        }
+
+        // Kalau user ngetik asal atau filenya gak ada, otomatis lempar ke halaman 404 bawaan Laravel
+        abort(404);
+    });

@@ -59,10 +59,15 @@
                     </div>
                 @else
                     {{-- GRID PERBANDINGAN --}}
-                    <div id="comparison-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-stretch transition-all duration-500">
-                        
+                    <div id="comparison-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-14 items-stretch transition-all duration-500">
                         @foreach($produkPerbandingan as $produk)
                             @php
+                                // Cek status dari API
+                                $statusProduk = strtolower($produk['status'] ?? 'publish');
+                                if ($statusProduk === 'arsip' || $statusProduk === 'draft' || $statusProduk === 'inactive') {
+                                    continue; 
+                                }
+
                                 // PARSING DATA API
                                 $tanggalBerangkat = \Carbon\Carbon::parse($produk['tgl_keberangkatan'] ?? now());
                                 $hargaMulai = $produk['prices'][0]['harga'] ?? ($produk['prices'][0]['price'] ?? 0);
@@ -95,149 +100,150 @@
                                     }
                                 }
 
-                                // Hitung Total Kuota Gabungan Semua Kamar
+                                // Hitung Total Kuota
                                 $totalKuota = collect($produk['prices'] ?? [])->sum('quota');
                             @endphp
 
-                            <div class="product-card group relative flex flex-col h-full bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:border-teal-300 hover:shadow-[0_8px_30px_rgb(13,148,136,0.15)] transition-all duration-300 overflow-hidden" data-id="{{ $produk['id'] }}">
+                            <div class="product-card group relative flex flex-col h-full bg-white rounded-2xl sm:rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:border-teal-300 hover:shadow-[0_8px_30px_rgb(13,148,136,0.15)] transition-all duration-300 overflow-hidden" data-id="{{ $produk['id'] }}">
 
-                                <button onclick="removeSingleCompare('{{ $produk['id'] }}')" class="cursor-pointer absolute top-4 right-4 z-30 w-9 h-9 bg-white/30 backdrop-blur-md hover:bg-red-500 border border-white/50 rounded-full flex items-center justify-center text-white hover:text-white transition-all duration-200 shadow-lg group-hover:scale-110" title="Hapus produk ini">
-                                    <i class="fas fa-times text-sm drop-shadow-md"></i>
+                                <button onclick="removeSingleCompare('{{ $produk['id'] }}')" class="cursor-pointer absolute top-3 right-3 sm:top-4 sm:right-4 z-30 w-8 h-8 sm:w-9 sm:h-9 bg-white/30 backdrop-blur-md hover:bg-red-500 border border-white/50 rounded-full flex items-center justify-center text-white hover:text-white transition-all duration-200 shadow-lg group-hover:scale-110" title="Hapus produk ini">
+                                    <i class="fas fa-times text-xs sm:text-sm drop-shadow-md"></i>
                                 </button>
 
-                                <div class="relative h-64 overflow-hidden cursor-pointer bg-slate-200" onclick="openModal(this.querySelector('img').src)">
+                                <div class="relative h-[450px] sm:h-[400px] lg:h-[600px] overflow-hidden cursor-pointer bg-slate-200" onclick="openModal(this.querySelector('img').src)">
                                     <img src="{{ $gambarUtama }}" onerror="this.src='https://images.unsplash.com/photo-1565552684305-7e8d5eb09539?q=80&w=1000&auto=format&fit=crop'" alt="{{ $produk['nama_produk'] }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-                                        <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/30 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                            <i class="fas fa-search-plus"></i>
+                                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white border border-white/30 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                            <i class="fas fa-search-plus text-sm sm:text-base"></i>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="pt-6 px-6 pb-2 flex flex-col items-center text-center">
-                                    <div class="mb-3">
-                                        <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-md bg-teal-50 text-teal-700 text-[11px] font-bold tracking-wider uppercase shadow-sm">
-                                            <i class="ph-fill ph-seal-check text-teal-500 text-xs"></i>
+                                <div class="pt-5 sm:pt-6 px-4 sm:px-6 pb-2 flex flex-col items-center text-center">
+                                    <div class="mb-2.5 sm:mb-3">
+                                        <span class="inline-flex items-center gap-1 sm:gap-1.5 py-1 px-2.5 sm:px-3 rounded-md bg-teal-50 text-teal-700 text-[9px] sm:text-[11px] font-bold tracking-wider uppercase shadow-sm">
+                                            <i class="ph-fill ph-seal-check text-teal-500 text-[10px] sm:text-xs"></i>
                                             {{ $biroTravel }}
                                         </span>
                                     </div>
-                                    <h3 class="text-xl md:text-2xl font-bold text-gray-900 leading-snug group-hover:text-teal-600 transition-colors line-clamp-2">
+                                    <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 leading-tight sm:leading-snug group-hover:text-teal-600 transition-colors line-clamp-2">
                                         {{ $produk['nama_produk'] }}
                                     </h3>
                                 </div>
 
-                                <div class="px-6 py-4 flex justify-center items-center border-b border-dashed border-gray-100">
+                                <div class="px-4 sm:px-6 py-3 sm:py-4 flex justify-center items-center border-b border-dashed border-gray-100">
                                     <div class="text-center">
-                                        <p class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-0.5">Mulai Dari</p>
+                                        <p class="text-[9px] sm:text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-0.5">Mulai Dari</p>
                                         <div class="flex items-baseline justify-center gap-1">
-                                            <span class="text-sm font-bold text-teal-600">Rp</span>
-                                            <span class="text-3xl font-extrabold text-teal-700 tracking-tight">
+                                            <span class="text-xs sm:text-sm font-bold text-teal-600">Rp</span>
+                                            <span class="text-2xl sm:text-3xl font-extrabold text-teal-700 tracking-tight">
                                                 @if($hargaMulai > 0)
-                                                    {{ number_format($hargaMulai / 1000000, 1, ',', '.') }}<span class="text-lg">jt</span>
+                                                    {{ number_format($hargaMulai / 1000000, 1, ',', '.') }}<span class="text-base sm:text-lg">jt</span>
                                                 @else
-                                                    <span class="text-xl">Hubungi Kami</span>
+                                                    <span class="text-lg sm:text-xl">Hubungi Kami</span>
                                                 @endif
                                             </span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="p-6 flex-grow flex flex-col gap-6">
-                                    <div class="grid grid-cols-3 gap-3">
-                                        <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Durasi</p>
-                                            <p class="font-bold text-gray-800 text-sm flex items-center justify-center gap-1">
-                                                <i class="ph-duotone ph-clock text-orange-500 text-base"></i> {{ $produk['duration'] ?? '-' }} Hari
+                                <div class="p-4 sm:p-6 flex-grow flex flex-col gap-4 sm:gap-6">
+                                    <!-- 👇 UBAH: Jadi 2 Kolom di Mobile, 3 Kolom di Tablet/Desktop 👇 -->
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                                        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center border border-gray-100">
+                                            <p class="text-[8px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Durasi</p>
+                                            <p class="font-bold text-gray-800 text-[11px] sm:text-sm flex items-center justify-center gap-1">
+                                                <i class="ph-duotone ph-clock text-orange-500 text-[13px] sm:text-base"></i> {{ $produk['duration'] ?? '-' }} Hari
                                             </p>
                                         </div>
-                                        <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Tanggal</p>
-                                            <p class="font-bold text-gray-800 text-sm flex items-center justify-center gap-1">
-                                                <i class="ph-duotone ph-calendar-blank text-orange-500 text-base"></i> {{ $tanggalBerangkat->translatedFormat('d M Y') }}
+                                        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center border border-gray-100">
+                                            <p class="text-[8px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Tanggal</p>
+                                            <p class="font-bold text-gray-800 text-[11px] sm:text-sm flex items-center justify-center gap-1">
+                                                <i class="ph-duotone ph-calendar-blank text-orange-500 text-[13px] sm:text-base"></i> {{ $tanggalBerangkat->translatedFormat('d M Y') }}
                                             </p>
                                         </div>
-                                        <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Maskapai</p>
-                                            <p class="font-bold text-gray-800 text-sm flex items-center justify-center gap-1 line-clamp-1" title="{{ $maskapai }}">
-                                                <i class="ph-duotone ph-airplane-takeoff text-orange-500 text-base"></i>{{ $maskapai }}
+                                        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center border border-gray-100">
+                                            <p class="text-[8px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Maskapai</p>
+                                            <p class="font-bold text-gray-800 text-[11px] sm:text-sm flex items-center justify-center gap-1 line-clamp-1" title="{{ $maskapai }}">
+                                                <i class="ph-duotone ph-airplane-takeoff text-orange-500 text-[13px] sm:text-base"></i>{{ $maskapai }}
                                             </p>
                                         </div>
-                                        <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Keberangkatan</p>
-                                            <p class="font-bold text-gray-800 text-sm flex items-center justify-center gap-1">
-                                                <i class="ph-duotone ph-airplane-takeoff text-orange-500 text-base"></i>{{ $produk['tmp_keberangkatan'] ?? 'CGK' }}
+                                        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center border border-gray-100">
+                                            <p class="text-[8px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Berangkat</p>
+                                            <p class="font-bold text-gray-800 text-[11px] sm:text-sm flex items-center justify-center gap-1">
+                                                <i class="ph-duotone ph-airplane-takeoff text-orange-500 text-[13px] sm:text-base"></i>{{ $produk['tmp_keberangkatan'] ?? 'CGK' }}
                                             </p>
                                         </div>
-                                        <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Hotel Makkah</p>
-                                            <p class="font-bold text-gray-800 text-sm flex items-center justify-center gap-1 line-clamp-1" title="{{ $hotelMakkah }}">
-                                                <i class="ph-duotone ph-buildings text-orange-500 text-base"></i> {{ $hotelMakkah }}
+                                        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center border border-gray-100">
+                                            <p class="text-[8px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Htl Makkah</p>
+                                            <p class="font-bold text-gray-800 text-[11px] sm:text-sm flex items-center justify-center gap-1 line-clamp-1" title="{{ $hotelMakkah }}">
+                                                <i class="ph-duotone ph-buildings text-orange-500 text-[13px] sm:text-base"></i> {{ $hotelMakkah }}
                                             </p>
                                         </div>
-                                        <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Jarak Hotel Makkah</p>
-                                            <p class="font-bold text-gray-800 text-sm flex items-center justify-center gap-1 line-clamp-1">
-                                                <i class="ph-duotone ph-map-pin text-orange-500 text-base"></i> {{ $jarakMakkah }}
+                                        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center border border-gray-100">
+                                            <p class="text-[8px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Jrk Makkah</p>
+                                            <p class="font-bold text-gray-800 text-[11px] sm:text-sm flex items-center justify-center gap-1 line-clamp-1">
+                                                <i class="ph-duotone ph-map-pin text-orange-500 text-[13px] sm:text-base"></i> {{ $jarakMakkah }}
                                             </p>
                                         </div>
-                                        <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Hotel Madinah</p>
-                                            <p class="font-bold text-gray-800 text-sm flex items-center justify-center gap-1 line-clamp-1" title="{{ $hotelMadinah }}">
-                                                <i class="ph-duotone ph-buildings text-orange-500 text-base"></i> {{ $hotelMadinah }}
+                                        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center border border-gray-100">
+                                            <p class="text-[8px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Htl Madinah</p>
+                                            <p class="font-bold text-gray-800 text-[11px] sm:text-sm flex items-center justify-center gap-1 line-clamp-1" title="{{ $hotelMadinah }}">
+                                                <i class="ph-duotone ph-buildings text-orange-500 text-[13px] sm:text-base"></i> {{ $hotelMadinah }}
                                             </p>
                                         </div>
-                                        <div class="bg-gray-50 rounded-xl p-2.5 text-center border border-gray-100">
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Jarak Madinah</p>
-                                            <p class="font-bold text-gray-800 text-sm flex items-center justify-center gap-1 line-clamp-1">
-                                                <i class="ph-duotone ph-map-pin text-orange-500 text-base"></i> {{ $jarakMadinah }}
+                                        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center border border-gray-100">
+                                            <p class="text-[8px] sm:text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-1">Jrk Madinah</p>
+                                            <p class="font-bold text-gray-800 text-[11px] sm:text-sm flex items-center justify-center gap-1 line-clamp-1">
+                                                <i class="ph-duotone ph-map-pin text-orange-500 text-[13px] sm:text-base"></i> {{ $jarakMadinah }}
                                             </p>
                                         </div>
-                                        <div class="bg-orange-50 rounded-xl p-2.5 text-center border border-orange-100 shadow-inner">
-                                            <p class="text-[10px] text-orange-500 uppercase font-bold tracking-wide mb-1">Sisa Seat</p>
-                                            <p class="font-black text-orange-600 text-sm flex items-center justify-center gap-1">
-                                                <i class="ph-bold ph-users text-orange-500 text-base"></i> {{ $totalKuota }} Pax
+                                        <div class="bg-orange-50 rounded-lg sm:rounded-xl p-2 sm:p-2.5 text-center border border-orange-100 shadow-inner sm:col-span-1 col-span-2">
+                                            <p class="text-[8px] sm:text-[10px] text-orange-500 uppercase font-bold tracking-wide mb-1">Sisa Seat</p>
+                                            <p class="font-black text-orange-600 text-[11px] sm:text-sm flex items-center justify-center gap-1">
+                                                <i class="ph-bold ph-users text-orange-500 text-[13px] sm:text-base"></i> {{ $totalKuota }} Pax
                                             </p>
                                         </div>
                                     </div>
                                     
-                                    <div class="border border-gray-100 rounded-2xl p-4 bg-white relative overflow-hidden flex-grow">
-                                        <div class="absolute top-0 right-0 w-16 h-16 bg-teal-50 rounded-bl-full -mr-8 -mt-8 z-0"></div>
-                                        <p class="text-[10px] font-bold text-teal-800 uppercase mb-3 flex items-center gap-2 relative z-10">
+                                    <div class="border border-gray-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 bg-white relative overflow-hidden flex-grow">
+                                        <div class="absolute top-0 right-0 w-12 h-12 sm:w-16 sm:h-16 bg-teal-50 rounded-bl-full -mr-6 -mt-6 sm:-mr-8 sm:-mt-8 z-0"></div>
+                                        <p class="text-[9px] sm:text-[10px] font-bold text-teal-800 uppercase mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2 relative z-10">
                                             <i class="fas fa-box-open text-teal-500"></i> Fasilitas Termasuk
                                         </p>
-                                        <div class="grid grid-cols-2 gap-y-2 gap-x-2 relative z-10">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 sm:gap-y-2 gap-x-2 relative z-10">
                                             @forelse($includeFacilities as $item)
-                                                <div class="flex items-start gap-2">
-                                                    <i class="ph-duotone ph-check-circle text-teal-500 text-[14px] mt-0.5 shrink-0"></i>
-                                                    <span class="text-[10px] text-gray-600 font-medium leading-tight">{{ $item }}</span>
+                                                <div class="flex items-start gap-1.5 sm:gap-2">
+                                                    <i class="ph-duotone ph-check-circle text-teal-500 text-[12px] sm:text-[14px] mt-0.5 shrink-0"></i>
+                                                    <span class="text-[9px] sm:text-[10px] text-gray-600 font-medium leading-tight">{{ $item }}</span>
                                                 </div>
                                             @empty
-                                                <span class="text-[10px] text-gray-400 italic">Belum ada data rincian fasilitas.</span>
+                                                <span class="text-[9px] sm:text-[10px] text-gray-400 italic">Belum ada data rincian fasilitas.</span>
                                             @endforelse
                                         </div>
                                     </div>
 
-                                    <div class="bg-white rounded-xl p-3 border border-gray-100 shadow-sm mt-auto">
-                                        <h5 class="text-[10px] font-bold text-red-600 uppercase mb-2 flex items-center gap-1.5">
+                                    <div class="bg-white rounded-xl p-2.5 sm:p-3 border border-gray-100 shadow-sm mt-auto">
+                                        <h5 class="text-[9px] sm:text-[10px] font-bold text-red-600 uppercase mb-1.5 sm:mb-2 flex items-center gap-1 sm:gap-1.5">
                                             <i class="fas fa-times-circle text-red-500"></i> Tidak Termasuk
                                         </h5>
-                                        <ul class="space-y-1.5">
+                                        <ul class="space-y-1 sm:space-y-1.5">
                                             @forelse($excludeFacilities as $item)
-                                                <li class="text-[10px] text-gray-500 flex items-start gap-1.5 leading-tight">
-                                                    <span class="w-1 h-1 rounded-full bg-red-300 mt-1.5 shrink-0"></span>
+                                                <li class="text-[9px] sm:text-[10px] text-gray-500 flex items-start gap-1 sm:gap-1.5 leading-tight">
+                                                    <span class="w-1 h-1 rounded-full bg-red-300 mt-1 sm:mt-1.5 shrink-0"></span>
                                                     {{ $item }}
                                                 </li>
                                             @empty
-                                                <li class="text-[10px] text-gray-400 italic">Belum ada rincian tidak termasuk.</li>
+                                                <li class="text-[9px] sm:text-[10px] text-gray-400 italic">Belum ada rincian.</li>
                                             @endforelse
                                         </ul>
                                     </div>
                                 </div>
 
-                                <div class="p-5 bg-gray-50 border-t border-gray-100">
-                                    <a href="{{ route('marketplace.produk.detail', $produk['id']) }}" class="w-full py-3.5 bg-white border-2 border-teal-600 text-teal-700 font-bold rounded-xl hover:bg-teal-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-0.5 flex justify-center items-center gap-2 group decoration-0">
+                                <div class="p-4 sm:p-5 bg-gray-50 border-t border-gray-100">
+                                    <a href="{{ route('marketplace.produk.detail', $produk['id']) }}" class="w-full py-2.5 sm:py-3.5 text-sm sm:text-base bg-white border-2 border-teal-600 text-teal-700 font-bold rounded-xl hover:bg-teal-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-0.5 flex justify-center items-center gap-2 group decoration-0">
                                         Pilih Paket Ini
-                                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                                        <i class="fas fa-arrow-right text-xs sm:text-sm group-hover:translate-x-1 transition-transform"></i>
                                     </a>
                                 </div>
                             </div>
@@ -250,36 +256,63 @@
 
     {{-- MODAL LIGHTBOX GAMBAR --}}
     <div id="imageModal" class="fixed inset-0 z-[100] hidden items-center justify-center transition-all duration-300 opacity-0" role="dialog" aria-modal="true">
-        <div class="absolute inset-0 bg-gray-900/90 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
-        <button onclick="closeModal()" class="absolute top-5 right-5 z-[110] w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all hover:rotate-90 hover:scale-110 focus:outline-none">
-            <i class="fas fa-times text-xl"></i>
+        <!-- Background Blur (Bisa diklik untuk tutup) -->
+        <div class="absolute inset-0 bg-gray-900/95 backdrop-blur-sm transition-opacity cursor-pointer" onclick="closeModal()"></div>
+        <!-- Tombol Close (Z-index 120 biar paling atas, tidak tertimpa gambar) -->
+        <button onclick="closeModal()" class="fixed top-4 right-4 md:top-6 md:right-6 z-[120] w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/20 md:bg-white/10 hover:bg-red-500 text-white transition-all hover:rotate-90 hover:scale-110 focus:outline-none shadow-lg border border-white/30">
+            <i class="fas fa-times text-lg md:text-xl"></i>
         </button>
-        <div class="relative z-[110] p-4 max-w-5xl w-full h-full flex items-center justify-center">
-            <img id="modalImage" src="" alt="Preview" class="max-h-[90vh] max-w-full object-contain rounded-xl shadow-2xl transform scale-95 transition-transform duration-300 select-none">
-            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full text-white text-sm font-medium border border-white/10">
-                Tekan ESC untuk menutup
-            </div>
+        <!-- Container Gambar (pointer-events-none agar tidak menghalangi klik ke background) -->
+        <div class="relative z-[110] w-full h-full flex items-center justify-center p-3 md:p-6 pointer-events-none">
+            <!-- Gambar dibuat lebih tinggi (95vh) -->
+            <img id="modalImage" src="" alt="Preview" class="max-h-[90vh] w-auto max-w-full object-contain rounded-xl shadow-2xl transform scale-95 transition-transform duration-300 select-none pointer-events-auto" onclick="event.stopPropagation()">
         </div>
     </div>
 
     {{-- SCRIPTS --}}
     <script>
-        // --- AUTO SYNC LOCALSTORAGE & URL (PERBAIKAN BUG) ---
-        // Script ini akan berjalan otomatis pas halaman perbandingan dibuka
+      // --- AUTO SYNC LOCALSTORAGE & VALIDASI ID HILANG/DIHAPUS ---
         document.addEventListener('DOMContentLoaded', function() {
             let compareList = JSON.parse(localStorage.getItem('compareList')) || [];
             const urlParams = new URLSearchParams(window.location.search);
             const idsInUrl = urlParams.get('ids');
 
-            // Kasus 1: User buka halaman /bandingkan polos (dari navbar), tapi di memori masih ada isinya
+            // KASUS 1: Datang dari navbar (URL kosong) tapi memori ada isinya.
+            // WAJIB redirect dulu biar server PHP memuat produknya. Jangan divalidasi sekarang!
             if (compareList.length > 0 && !idsInUrl) {
-                // Langsung redirect paksa bawa ID yang ada di memori
                 window.location.replace(`/marketplace/bandingkan?ids=${compareList.join(',')}`);
+                return; // Stop script di sini, tunggu halaman reload
             }
-            // Kasus 2: User buka link hasil share temen (?ids=x,y), kita timpa memorinya biar sinkron
-            else if (idsInUrl) {
+
+            // KASUS 2: URL sudah bawa ID (baik dari redirect Kasus 1, atau link share teman).
+            // Sekarang server PHP sudah memuat produknya, baru kita boleh absen (validasi).
+            if (idsInUrl) {
+                const renderedCards = document.querySelectorAll('.product-card');
+                let validIdsOnServer = [];
+                
+                renderedCards.forEach(card => {
+                    validIdsOnServer.push(String(card.getAttribute('data-id')));
+                });
+
                 let urlIdsArray = idsInUrl.split(',').filter(id => id.trim() !== '');
-                localStorage.setItem('compareList', JSON.stringify(urlIdsArray));
+                
+                // Cek mana ID yang beneran sukses tampil di layar
+                let cleanedIds = urlIdsArray.filter(id => validIdsOnServer.includes(String(id)));
+
+                // Jika ada ID "Siluman" (dihapus travel tapi dibawa oleh URL)
+                if (cleanedIds.length !== urlIdsArray.length) {
+                    // Simpan sisa produk yang valid ke memori
+                    localStorage.setItem('compareList', JSON.stringify(cleanedIds));
+                    
+                    if (cleanedIds.length > 0) {
+                        window.location.replace(`/marketplace/bandingkan?ids=${cleanedIds.join(',')}`);
+                    } else {
+                        window.location.replace(`/marketplace/bandingkan`); // Kosong total
+                    }
+                } else {
+                    // Semua ID valid, sinkronkan ke memori (Penting untuk user yang buka via Link Share)
+                    localStorage.setItem('compareList', JSON.stringify(cleanedIds));
+                }
             }
         });
 

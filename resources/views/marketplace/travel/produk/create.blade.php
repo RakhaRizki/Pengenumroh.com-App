@@ -95,10 +95,16 @@
                         </div>
                     </div>
                 </div>
+                <div class="lg:hidden">
+                    <a href="/marketplace/" class="text-slate-700 hover:text-orange-600">
+                        <i class="ph-bold ph-house text-2xl"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
-    <main class="pt-28 pb-10 min-h-screen">
+
+    <main class="pt-28 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 <div class="lg:col-span-1 space-y-6" data-aos="fade-right">
@@ -206,7 +212,7 @@
                                             <label class="text-sm font-bold text-slate-700">Kategori</label>
                                             <div class="relative">
                                                 <i class="ph-bold ph-tag absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                                                <select id="category" required class="w-full pl-11 pr-10 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition appearance-none bg-white">
+                                                <select id="category" required onchange="handleCategoryChange(this)" class="w-full pl-11 pr-10 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition appearance-none bg-white">
                                                     <option value="" disabled selected>Pilih Kategori</option>
                                                     <option value="1">Umroh Reguler 9 Hari</option>
                                                     <option value="2">Umroh Reguler 12 Hari</option>
@@ -305,7 +311,7 @@
                                     <div class="space-y-2">
                                         <label class="text-sm font-bold text-slate-700">Durasi (Hari)</label>
                                         <div class="relative">
-                                            <input type="number" id="duration" required placeholder="9" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition">
+                                            <input type="number" id="duration" required placeholder="9" onchange="adjustItinerary(this.value)" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition">
                                             <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">Hari</span>
                                         </div>
                                     </div>
@@ -313,7 +319,15 @@
                                         <label class="text-sm font-bold text-slate-700">Keberangkatan</label>
                                         <div class="relative">
                                             <i class="ph-bold ph-map-pin absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-                                            <input type="text" id="departure_from" required placeholder="Jakarta (CGK)" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition">
+                                            <select id="departure_from" required class="w-full pl-11 pr-10 py-3 rounded-xl border border-slate-200 text-slate-800 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition appearance-none bg-white">
+                                                <option value="" disabled selected>Pilih Kota Keberangkatan</option>
+                                                <option value="Jakarta">Jakarta (CGK)</option>
+                                                <option value="Surabaya">Surabaya (SUB)</option>
+                                                <option value="Medan">Medan (KNO)</option>
+                                                <option value="Makassar">Makassar (UPG)</option>
+                                                <option value="Jeddah">Jeddah (Langsung)</option>
+                                            </select>
+                                            <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -548,6 +562,55 @@
             once: true
         });
 
+        // 👇 TAMBAHAN: FITUR CERDAS AUTO-DURASI & AUTO-ITINERARY 👇
+        function handleCategoryChange(select) {
+            const durationInput = document.getElementById('duration');
+            // Ambil teks dari dropdown yang diplih (Misal: "Umroh Reguler 12 Hari")
+            const selectedText = select.options[select.selectedIndex].text;
+            
+            // Logika Cerdas: Otomatis nyari angka di dalam teks pakai Regex
+            const match = selectedText.match(/(\d+)\s*Hari/i);
+            
+            if (match) {
+                const jumlahHari = match[1];
+                durationInput.value = jumlahHari; // 1. Auto isi input durasi
+                adjustItinerary(jumlahHari);      // 2. Auto nambahin/ngurangin kolom Itinerary
+                
+                // 3. Kasih notif manis di pojokan biar UX-nya kerasa premium
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: `Durasi diatur otomatis ke ${jumlahHari} Hari`,
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true
+                });
+            }
+        }
+
+        function adjustItinerary(targetDays) {
+            targetDays = parseInt(targetDays);
+            if (!targetDays || targetDays <= 0) return;
+
+            const container = document.getElementById('itinerary-container');
+            const currentDays = container.children.length;
+            
+            // Kalau kolom itinerary kurang, tambahin otomatis
+            if (currentDays < targetDays) {
+                for (let i = currentDays; i < targetDays; i++) {
+                    addItineraryDay();
+                }
+            } 
+            // Kalau kolom itinerary kelebihan, hapus dari yang paling bawah otomatis
+            else if (currentDays > targetDays) {
+                for (let i = currentDays; i > targetDays; i--) {
+                    container.lastElementChild.remove();
+                }
+            }
+        }
+        // 👆 SELESAI TAMBAHAN FITUR CERDAS 👆
+
         function formatCurrency(input) {
             let value = input.value.replace(/\D/g, '');
             if (value !== '') {
@@ -591,17 +654,25 @@
             }
         }
 
-        window.onload = function() {
+        window.onload = function() {    
             addItineraryDay();
         };
 
-        function addItineraryDay() {
-            const container = document.getElementById('itinerary-container');
-            const dayCount = container.children.length + 1;
-            const div = document.createElement('div');
-            div.className = 'relative pl-6 pb-8 itinerary-item';
-            div.innerHTML = ` <div class="absolute -left-[21px] top-0 w-10 h-10 bg-white border-2 border-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-xs shadow-sm z-10">H<span class="day-num">${dayCount}</span></div> <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 group hover:border-orange-200 transition"> <div class="flex justify-between mb-2"> <input type="text" class="itinerary-title w-full bg-transparent font-bold text-slate-800 text-sm focus:outline-none placeholder:text-slate-400" placeholder="Judul Kegiatan (Misal: City Tour Makkah)"> <button type="button" onclick="removeDay(this)" class="text-slate-400 hover:text-red-500 transition"><i class="ph-bold ph-trash"></i></button> </div> <textarea rows="2" class="itinerary-desc w-full bg-white px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-orange-500 resize-none" placeholder="Deskripsi kegiatan..."></textarea> </div>`;
-            container.appendChild(div);
+        function addItineraryDay() { 
+            const container = document.getElementById('itinerary-container'); 
+            const dayCount = container.children.length + 1; 
+            const div = document.createElement('div'); 
+            div.className = 'relative pl-6 pb-8 itinerary-item'; 
+            div.innerHTML = ` 
+                <div class="absolute -left-[21px] top-0 w-10 h-10 bg-white border-2 border-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-xs shadow-sm z-10">H<span class="day-num">${dayCount}</span></div> 
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 group hover:border-orange-200 transition"> 
+                    <div class="flex justify-between mb-2"> 
+                        <input type="text" required class="itinerary-title w-full bg-transparent font-bold text-slate-800 text-sm focus:outline-none placeholder:text-slate-400" placeholder="Judul Kegiatan (Wajib diisi, Misal: City Tour Makkah)"> 
+                        <button type="button" onclick="removeDay(this)" class="text-slate-400 hover:text-red-500 transition"><i class="ph-bold ph-trash"></i></button> 
+                    </div> 
+                    <textarea rows="2" required class="itinerary-desc w-full bg-white px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-orange-500 resize-none" placeholder="Deskripsi kegiatan... (Wajib diisi)"></textarea> 
+                </div>`; 
+            container.appendChild(div); 
         }
 
         function removeDay(btn) {

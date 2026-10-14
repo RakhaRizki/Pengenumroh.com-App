@@ -15,10 +15,69 @@ class TravelDashboardController extends Controller
     public function index(Request $request)
     {
         $token = session('api_token');
+        if (!$token) {
+            return redirect()->route('login');
+        }
+
         $user = session('user');
+        $signature = config('app.api_signature');
 
-        $response = Http::withToken($token)->get($this->apiUrl . '/transaction');
+        // 👇 1. TARIK STATUS MODE REKENING (PUSAT/MANDIRI) 👇
+        $profileRes = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/my-profile');
+        
+        if ($profileRes->successful()) {
+            $dataProfile = $profileRes->json('data') ?? $profileRes->json();
+            
+            $allowMarketplace = true; 
+            if (isset($dataProfile['allow_marketplace'])) {
+                $allowMarketplace = filter_var($dataProfile['allow_marketplace'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                if ($allowMarketplace === null) $allowMarketplace = false; 
+            } elseif (isset($dataProfile['rekening_mode'])) {
+                $allowMarketplace = strtoupper($dataProfile['rekening_mode']) === 'MARKETPLACE';
+            }
 
+            if ($allowMarketplace === false) {
+                $user['rekening_mode'] = 'MANDIRI';
+                $user['allow_marketplace'] = false;
+            } else {
+                $user['rekening_mode'] = 'MARKETPLACE';
+                $user['allow_marketplace'] = true;
+            }
+        }
+
+        // 🌟 FIX UTAMA: TARIK LIST REKENING LANGSUNG DARI API REKENING 🌟
+        // (Biar pas login ulang, data rekening travelnya ditarik lagi dari database Backend)
+        $rekRes = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/rekening');
+
+        if ($rekRes->successful()) {
+            $dataRekening = $rekRes->json('data') ?? $rekRes->json();
+            // Pastikan datanya berbentuk Array biar HTML nggak error
+            if (is_array($dataRekening)) {
+                $user['rekening'] = $dataRekening;
+            } else {
+                // Jaga-jaga kalau backend ngirim single object
+                $user['rekening'] = [$dataRekening];
+            }
+        } else {
+            $user['rekening'] = [];
+        }
+
+        // Kunci semua datanya ke memori!
+        session(['user' => $user]); 
+        session()->save(); 
+
+        // Mengambil statistik pesanan
+        $response = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->get('https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions');
+        
         $statistik = [];
         if ($response->successful()) {
             $statistik = $response->json('data') ?? [];
@@ -34,84 +93,245 @@ class TravelDashboardController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login ulang.');
         }
 
-        // 1. Siapkan data teks (Sesuai dengan name input di Blade Travel)
+        $signature = config('app.api_signature');
+        $userData = session('user');
+
+        $rekMode = $request->input('rekening_mode', $userData['rekening_mode'] ?? 'MARKETPLACE');
+        $allowMarketplace = ($rekMode === 'MARKETPLACE') ? true : false;
+
         $payloadData = [
-            'fullname' => $request->fullname,
+            'fullname'          => $request->fullname,
+            'no_wa'             => $request->no_wa,
+            'rekening_mode'     => $rekMode,           
+            'allow_marketplace' => $allowMarketplace   
         ];
-
+        
         $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/my-profile';
+        $apiRequest = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ]);
 
-        $apiRequest = Http::withToken($token);
-
-        // 2. LOGIKA EXACTLY SAMA DENGAN JAMAAH
         if ($request->hasFile('avatar')) {
             $foto = $request->file('avatar');
-            $response = $apiRequest->attach(
-                'image', file_get_contents($foto->getPathname()), $foto->getClientOriginalName()
-            )->put($urlApi, $payloadData);
+            $responseProfile = $apiRequest->attach('image', file_get_contents($foto->getPathname()), $foto->getClientOriginalName())->put($urlApi, $payloadData);
         } else {
-            $response = $apiRequest->put($urlApi, $payloadData);
+            $responseProfile = $apiRequest->put($urlApi, $payloadData);
         }
 
-        // Fallback POST kalau PUT ditolak (404)
-        if ($response->status() == 404 || stripos($response->json('message') ?? '', 'tidak ditemukan') !== false) {
-            $apiRequestRetry = Http::withToken($token);
+        // Fallback jika API Darda butuh POST
+        if ($responseProfile->status() == 404 || stripos($responseProfile->json('message') ?? '', 'tidak ditemukan') !== false) {
+            $apiRequestRetry = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json'
+            ]);
             if ($request->hasFile('avatar')) {
                 $foto = $request->file('avatar');
-                $response = $apiRequestRetry->attach(
-                    'image', file_get_contents($foto->getPathname()), $foto->getClientOriginalName()
-                )->post($urlApi, $payloadData);
+                $responseProfile = $apiRequestRetry->attach('image', file_get_contents($foto->getPathname()), $foto->getClientOriginalName())->post($urlApi, $payloadData);
             } else {
-                $response = $apiRequestRetry->post($urlApi, $payloadData);
+                $responseProfile = $apiRequestRetry->post($urlApi, $payloadData);
             }
         }
 
-      // 3. Cek Hasil Akhirnya
-        if ($response->successful()) {  
-            $userData = session('user');
-            $userData['fullname'] = $request->input('fullname');
+        if ($responseProfile->successful()) {
             
-            $responseData = $response->json('data');
+            // TEMBAK API TOGGLE DENGAN PARAMETER "status" SESUAI PERMINTAAN BACKEND
+            $toggleUrl = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/rekening/toggle-marketplace';
+            $togglePayload = [
+                'status'            => $allowMarketplace, 
+                'allow_marketplace' => $allowMarketplace,
+                'rekening_mode'     => $rekMode
+            ];
 
-            // 👇 KITA PAKAI FOLDER YANG SAMA PERSIS DENGAN PUNYA JAMAAH
+            $httpToggle = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json'
+            ]);
+            
+            // Hajar pakai POST, kalau gagal hajar pakai PUT
+            $resToggle = $httpToggle->post($toggleUrl, $togglePayload);
+            if (!$resToggle->successful()) {
+                $httpToggle->put($toggleUrl, $togglePayload);
+            }
+
+            $userData['fullname'] = $request->fullname;
+            $userData['no_wa']    = $request->no_wa;
+            $userData['rekening_mode'] = $rekMode;
+            $userData['allow_marketplace'] = $allowMarketplace;
+            
+            $responseData = $responseProfile->json('data');
             if (isset($responseData['image']) && $responseData['image'] != null) {
-                
-                $namaFoto = ltrim($responseData['image'], '/'); // Bersihkan garis miring biar rapi
-                
-                // INI FOLDER ASLINYA DARI BACKEND LU!
-                $baseImageUrl = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/profiles/'; 
-                
+                $namaFoto = ltrim($responseData['image'], '/');
+                $baseImageUrl = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/assets/img/profiles/';
                 $newAvatar = $baseImageUrl . $namaFoto;
                 $userData['avatar_url'] = $newAvatar;
                 session(['user_avatar' => $newAvatar]);
                 session(['foto_global_navbar' => $newAvatar]);
             }
             
-            session(['user' => $userData]);
-
-            return back()->with('success', 'Data profil berhasil disimpan!');
+            session(['user' => $userData]); 
+            
+            // 🔥 Fungsi paksa save dihapus biar pesan success bisa masuk ke session 🔥
+            return back()->with('success', 'Data Profil & Pengaturan Rekening berhasil disimpan!');
         }
 
-        // Kalau masih error
-        $pesanError = $response->json('message') ?? 'Gagal memperbarui profil.';
-        return back()->with('error', $pesanError);
+        return back()->with('error', $responseProfile->json('message') ?? 'Gagal memperbarui profil utama.');
+    }
 
+    public function toggleRekeningMode(Request $request)
+    {
+        $token = session('api_token');
+        $signature = config('app.api_signature'); 
+        $mode = $request->input('mode'); 
+        $allow = ($mode === 'MARKETPLACE') ? true : false;
+
+        // 🌟 FIX 3: API TOGGLE LEWAT AJAX JUGA DIHAJAR PAKAI PARAMETER "status" 🌟
+        $url = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/rekening/toggle-marketplace';
+        $payload = [
+            'status'            => $allow, // Ini yang diminta Backend!
+            'allow_marketplace' => $allow,
+            'rekening_mode'     => $mode
+        ];
+
+        $http = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ]);
+
+        $response = $http->post($url, $payload);
+        if (!$response->successful()) {
+            $response = $http->put($url, $payload);
+        }
+
+        // APAPUN HASILNYA DARI BACKEND, KITA PAKSA SESI BERUBAH LOKAL!
+        $user = session('user');
+        $user['rekening_mode'] = $mode;
+        $user['allow_marketplace'] = $allow;
+        session(['user' => $user]);
+        session()->save(); // 🔥 PAKSA MEMORI TERSIMPAN!
+
+        return response()->json(['status' => 'success', 'message' => 'Opsi rekening berhasil diubah.']);
+    }
+
+    public function simpanRekeningTunggal(Request $request)
+    {
+        $token = session('api_token');
+        $signature = config('app.api_signature'); 
+        $url = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/rekening';
+        
+        $payload = [
+            'nama_bank'   => $request->bank_name,
+            'no_rekening' => $request->bank_account,
+            'atas_nama'   => $request->bank_owner,
+        ];
+
+        $http = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ]);
+
+        if ($request->has('id') && $request->id != '') {
+            $url .= '/' . $request->id;
+            $response = $http->put($url, $payload);
+        } else {
+            $response = $http->post($url, $payload);
+        }
+
+        if ($response->successful()) {
+            $dataRekening = $response->json('data') ?? [];
+            
+            $user = session('user');
+            $rekeningList = $user['rekening'] ?? [];
+            
+            $newRek = [
+                'id'          => $dataRekening['id'] ?? $request->id ?? uniqid(),
+                'nama_bank'   => $request->bank_name,
+                'no_rekening' => $request->bank_account,
+                'atas_nama'   => $request->bank_owner,
+            ];
+
+            $isUpdate = false;
+            foreach ($rekeningList as $key => $rek) {
+                if (isset($rek['id']) && $rek['id'] == $newRek['id']) {
+                    $rekeningList[$key] = $newRek; 
+                    $isUpdate = true;
+                    break;
+                }
+            }
+            if (!$isUpdate) {
+                $rekeningList[] = $newRek; 
+            }
+
+            $user['rekening'] = $rekeningList;
+            
+            // Kunci paksa mode ke MANDIRI kalau Travel nambah rekening
+            $user['rekening_mode'] = 'MANDIRI';
+            $user['allow_marketplace'] = false;
+            
+            // Tembak API Toggle
+            $toggleUrl = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/rekening/toggle-marketplace';
+            $togglePayload = ['status' => false, 'allow_marketplace' => false, 'rekening_mode' => 'MANDIRI'];
+            
+            $httpToggle = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+                'X-App-Signature' => $signature,
+                'Accept'          => 'application/json'
+            ]);
+            $resToggle = $httpToggle->post($toggleUrl, $togglePayload);
+            if (!$resToggle->successful()) $httpToggle->put($toggleUrl, $togglePayload);
+
+            session(['user' => $user]);
+            session()->save(); // 🔥 PAKSA MEMORI TERSIMPAN!
+
+            return response()->json(['status' => 'success', 'message' => 'Rekening disimpan', 'data' => $dataRekening]);
+        }
+
+        return response()->json(['status' => 'error', 'message' => $response->json('message') ?? 'Gagal menyimpan rekening'], 400);
+    }
+
+    public function hapusRekeningTunggal($id)
+    {
+        $token = session('api_token');
+        $signature = config('app.api_signature'); // 🔥 WAJIB ADA
+        $url = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/rekening/' . $id;
+        
+        $response = \Illuminate\Support\Facades\Http::withToken($token)->withHeaders([
+            'X-App-Signature' => $signature,
+            'Accept'          => 'application/json'
+        ])->delete($url);
+
+        if ($response->successful()) {
+            $user = session('user');
+            $rekeningList = $user['rekening'] ?? [];
+            
+            foreach ($rekeningList as $key => $rek) {
+                if (isset($rek['id']) && $rek['id'] == $id) {
+                    unset($rekeningList[$key]);
+                    break;
+                }
+            }
+            
+            $user['rekening'] = array_values($rekeningList); 
+            session(['user' => $user]);
+
+            return response()->json(['status' => 'success', 'message' => 'Rekening dihapus']);
+        }
+        return response()->json(['status' => 'error', 'message' => 'Gagal menghapus rekening'], 400);
     }
  
     public function updatePassword(Request $request)
     {
         $token = session('api_token');
         if (!$token) {
-            return redirect()->route('login')->with('error', 'Silakan login ulang.');
+            return redirect()->route('login')->with('error', 'Sesi telah berakhir. Silakan login ulang.');
         }
 
-        // 1. Validasi
+        // 1. Validasi Input Laravel
         $request->validate([
             'current_password' => 'required',
-            'new_password' => 'required|min:6|confirmed', 
+            'new_password'     => 'required|min:6|confirmed',
         ], [
             'new_password.confirmed' => 'Konfirmasi password baru tidak cocok!',
-            'new_password.min' => 'Password baru minimal 6 karakter!'
+            'new_password.min'       => 'Password baru minimal 6 karakter!'
         ]);
 
         // 2. Tembak API Backend
@@ -121,22 +341,25 @@ class TravelDashboardController extends Controller
             'confirmPassword' => $request->new_password 
         ]);
 
+        // 3. Cek kalau SUKSES (Status 200)
         if ($response->successful()) {
             return back()->with('success', 'Password berhasil diubah!');
         }
 
+        // 4. Logika error password salah (sesuai pesan dari backend)
         $pesanAsliServer = strtolower($response->json('message') ?? '');
-
+        
         if (
             str_contains($pesanAsliServer, 'wrong') || 
             str_contains($pesanAsliServer, 'incorrect') || 
             str_contains($pesanAsliServer, 'match') || 
-            str_contains($pesanAsliServer, 'salah') ||
+            str_contains($pesanAsliServer, 'salah') || 
             str_contains($pesanAsliServer, 'lama')
         ) {
             return back()->with('error', 'Password lama yang Anda masukkan salah!');
         }
 
+        // Fallback error lainnya
         $pesanError = $response->json('message') ?? 'Gagal mengubah password. Silakan coba lagi nanti.';
         return back()->with('error', $pesanError);
     }
@@ -170,18 +393,26 @@ class TravelDashboardController extends Controller
                 $rawData = $response->json('data') ?? $response->json() ?? [];
                 
                 if (is_array($rawData)) {
-                    // 👇 LOGIKA FILTER 100% PRESISI BERDASARKAN HASIL DD() 👇
                     $pesanan = collect($rawData)
-                        ->filter(function ($trx) use ($myTravelId) {
-                            // Ambil user_id dari dalam object product
-                            $pemilikProduk = $trx['product']['user_id'] ?? null;
-                            
-                            // Hanya loloskan transaksi kalau produknya punya Travel ini
-                            return $pemilikProduk == $myTravelId;
-                        })
-                        ->sortByDesc('created_at')
-                        ->values()
-                        ->toArray();
+                    ->filter(function ($trx) use ($myTravelId) {
+                        // 1. Coba ambil dari relasi product (kalau produk masih ada)
+                        $pemilikProduk = $trx['product']['user_id'] ?? null;
+                        
+                        // 2. FALLBACK: Kalau produk dihapus, ambil dari snapshot detail transaksi!
+                        // (Ini asumsi backend lu ngasih snapshot 'travel_id' di dalam 'details')
+                        if (!$pemilikProduk && isset($trx['details'][0])) {
+                            $travelSnapshot = is_string($trx['details'][0]['travel_snapshot'] ?? null) 
+                                            ? json_decode($trx['details'][0]['travel_snapshot'], true) 
+                                            : ($trx['details'][0]['travel_snapshot'] ?? []);
+                                            
+                            $pemilikProduk = $travelSnapshot['id'] ?? null;
+                        }
+
+                        return $pemilikProduk == $myTravelId;
+                    })
+                    ->sortByDesc('created_at')
+                    ->values()
+                    ->toArray();
                 }
             } else {
                 $pesanError = $response->json('message') ?? 'Terjadi kesalahan pada server API.';
@@ -197,57 +428,106 @@ class TravelDashboardController extends Controller
     }
 
     public function verifikasiPembayaran(Request $request, $id)
-   {
-    $token = session('api_token');
-    
-    if (!$token) {
-        return response()->json(['status' => 'error', 'message' => 'Sesi telah berakhir. Silakan refresh halaman.'], 401);
-    }
-
-    // 0. Ambil Signature Keamanan
-    $signature = config('app.api_signature');
-
-    try {
-        $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/' . $id;
-
-        // 1. Siapkan data dasar yang PASTI di-update
-        $payload = [
-            'status' => 'PAID'
-        ];
-
-        // 2. CEGAH ERROR API: Hanya kirim evidence_url kalau datanya beneran ada/nggak null
-        if ($request->filled('evidence_url') && $request->input('evidence_url') !== 'null') {
-            $payload['evidence_url'] = $request->input('evidence_url');
+    {
+        $token = session('api_token');
+        if (!$token) {
+            return response()->json(['status' => 'error', 'message' => 'Sesi telah berakhir. Silakan refresh halaman.'], 401);
         }
 
-        // 3. Tembak API dengan asJson() biar Backend ngebaca datanya secara sempurna
-        // NOTE: Kalau API lu ternyata pakenya PATCH (bukan PUT), tinggal ganti ->put jadi ->patch
-        $response = Http::asJson()->withToken($token)->withHeaders([
-            'X-App-Signature' => $signature,
-            'Accept'          => 'application/json'
-        ])->put($urlApi, $payload);
+        $signature = config('app.api_signature');
 
-        // 4. Cek apakah update ke database berhasil
-        if ($response->successful()) {
-            return response()->json(['status' => 'success', 'message' => 'Pembayaran berhasil diverifikasi ke database!']);
+        try {
+            // 🌟 TANGKAP STATUS DAN TIPE DARI JAVASCRIPT ('PAID' / 'FAILED' & 'FULL' / 'INSTALLMENT')
+            $targetStatus = strtoupper($request->input('target_status', 'PAID'));
+            $type = strtoupper($request->input('type', 'FULL'));
+            $payload = [];
+            $pesanSukses = '';
+
+            // ==========================================
+            // 🌟 LOGIKA KHUSUS CICILAN (INSTALLMENT)
+            // ==========================================
+            if ($type === 'INSTALLMENT') { 
+                if ($targetStatus === 'PAID') { 
+                    // 👇 JALUR ACC: Pakai endpoint khusus '/status' yang strict minta 'SUCCESS' 👇 
+                    $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/installments/' . $id . '/status'; 
+                    $payload['status'] = 'SUCCESS'; 
+                    $pesanSukses = 'Bukti Cicilan berhasil diverifikasi (ACC)!'; 
+
+                    $response = \Illuminate\Support\Facades\Http::asJson() 
+                        ->withToken($token) 
+                        ->withHeaders(['X-App-Signature' => $signature, 'Accept' => 'application/json']) 
+                        ->patch($urlApi, $payload); 
+                } else { 
+                    // 👇 JALUR TOLAK: Kita samakan dengan Jalur ACC, pakai PATCH 👇 
+                    $urlApiStatus = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/installments/' . $id . '/status'; 
+                    $pesanSukses = 'Bukti Cicilan ditolak. Status dikembalikan agar jamaah bisa unggah ulang.'; 
+                    
+                    // 1. Set status menjadi FAILED
+                    $payload['status'] = 'FAILED'; 
+                    $payload['evidence_url'] = 'REJECTED_IMAGE'; // 🌟 TAMBAHKAN BARIS INI
+                    
+                    // KITA GANTI JADI PATCH
+                    $response = \Illuminate\Support\Facades\Http::asJson() 
+                        ->withToken($token) 
+                        ->withHeaders(['X-App-Signature' => $signature, 'Accept' => 'application/json']) 
+                        ->patch($urlApiStatus, $payload); 
+
+                    // 2. Kalau FAILED masih ditolak, fallback ke UNPAID (Tetap PATCH)
+                    if (!$response->successful()) { 
+                        $payload['status'] = 'UNPAID'; 
+                        // (evidence_url 'REJECTED_IMAGE' otomatis ikut terkirim)
+                        $response = \Illuminate\Support\Facades\Http::asJson() 
+                            ->withToken($token) 
+                            ->withHeaders(['X-App-Signature' => $signature, 'Accept' => 'application/json']) 
+                            ->patch($urlApiStatus, $payload); 
+                    } 
+                }
+            }
+            // ==========================================
+            // 🌟 LOGIKA PEMBAYARAN FULL (NORMAL)
+            // ==========================================
+            else {
+                $urlApi = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/transactions/' . $id;
+
+                if ($targetStatus === 'FAILED') {
+                    $payload['status'] = 'FAILED';
+                    $payload['evidence_url'] = 'REJECTED_IMAGE';
+                    $pesanSukses = 'Bukti pembayaran ditolak. Pesanan masuk ke tab Dibatalkan.';
+                    
+                    $response = \Illuminate\Support\Facades\Http::asJson()
+                        ->withToken($token)
+                        ->withHeaders(['X-App-Signature' => $signature, 'Accept' => 'application/json'])
+                        ->put($urlApi, $payload);
+                } else {
+                    $payload['status'] = 'PAID';
+                    if ($request->filled('evidence_url') && $request->input('evidence_url') !== 'null') {
+                        $payload['evidence_url'] = $request->input('evidence_url');
+                    }
+                    $pesanSukses = 'Pembayaran berhasil diverifikasi menjadi LUNAS!';
+
+                    $response = \Illuminate\Support\Facades\Http::asJson()
+                        ->withToken($token)
+                        ->withHeaders(['X-App-Signature' => $signature, 'Accept' => 'application/json'])
+                        ->patch($urlApi, $payload);
+                }
+            }
+
+            $apiResult = $response->json();
+
+            // Cek Response Akhir
+            if ($response->successful()) {
+                return response()->json(['status' => 'success', 'message' => $pesanSukses]);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Dari Backend: ' . ($apiResult['message'] ?? $response->body())
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Sistem Error: ' . $e->getMessage()], 500);
         }
-
-        // 5. Tangkap pesan error ASLI dari server API lu kalau misal masih gagal
-        $pesanError = $response->json('message') ?? 'Gagal memverifikasi di database server.';
-        
-        return response()->json([
-            'status' => 'error', 
-            'message' => $pesanError,
-            'debug' => $response->json() // Biar kita tau error sebenernya dari API apa
-        ], 400);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error', 
-            'message' => 'Koneksi ke server terputus: ' . $e->getMessage()
-        ], 500);
     }
-   } 
 
     public function kelolaProduk(Request $request) 
     { 
@@ -595,7 +875,7 @@ class TravelDashboardController extends Controller
             return redirect()->route('marketplace.travel.kelola-produk')->with('error', 'Gagal terhubung ke server backend.');
         }
     }
-    
+
     public function updateProduk(Request $request, $id)
     {
         $token = session('api_token');
@@ -607,11 +887,19 @@ class TravelDashboardController extends Controller
         $apiUrl = 'https://mediumspringgreen-meerkat-585223.hostingersite.com/api/products/' . $id;
 
         try {
-            // 1. Susun data dasar ke format Array Asli PHP
+            // 🌟 1. TARIK DATA FOTO LAMA LANGSUNG DARI JAVASCRIPT
+            $oldImgMakkah = $request->old_image_makkah ?? '';
+            $oldImgMadinah = $request->old_image_madinah ?? '';
+
+            // 🌟 2. SUSUN ARRAY MENTAH
+            $quotaQuad = (int) ($request->quota_quad ?? 0);
+            $quotaDouble = (int) ($request->quota_double ?? 0);
+            $quotaTriple = (int) ($request->quota_triple ?? 0);
+
             $pricesArray = [
-                ['room_types' => 'Quad', 'price' => (int) $request->price_quad],
-                ['room_types' => 'Double', 'price' => (int) $request->price_double],
-                ['room_types' => 'Triple', 'price' => (int) $request->price_triple]
+                ['room_types' => 'Quad', 'price' => (int) $request->price_quad, 'quota' => $quotaQuad],
+                ['room_types' => 'Double', 'price' => (int) $request->price_double, 'quota' => $quotaDouble],
+                ['room_types' => 'Triple', 'price' => (int) $request->price_triple, 'quota' => $quotaTriple]
             ];
 
             $flightsArray = [
@@ -619,117 +907,81 @@ class TravelDashboardController extends Controller
                 ['airline_name' => $request->flight_return, 'type' => 'Return']
             ];
 
-            // Decode string JSON hotel & fasilitas dari frontend
-            $hotelMakkah = json_decode($request->hotel_makkah ?? '{}', true) ?? [];
-            $hotelMadinah = json_decode($request->hotel_madinah ?? '{}', true) ?? [];
-            
+            $hotelMakkahReq = json_decode($request->hotel_makkah ?? '{}', true) ?? [];
+            $hotelMadinahReq = json_decode($request->hotel_madinah ?? '{}', true) ?? [];
+
+            // 👇 KUNCI UTAMA (REQUEST DARI BACKEND): KITA PAKE KEY "existing_image" 👇
             $hotelsArray = [
                 [
-                    'city'       => 'Mekkah',
-                    'name'       => $hotelMakkah['name'] ?? '',
-                    'rating'     => (int) ($hotelMakkah['rating'] ?? 0),
-                    'jarak'      => $hotelMakkah['distance'] ?? '',
-                    'facilities' => is_array($hotelMakkah['facilities'] ?? '') ? implode(', ', $hotelMakkah['facilities']) : ($hotelMakkah['facilities'] ?? '')
+                    'city'           => 'Mekkah',
+                    'name'           => $hotelMakkahReq['name'] ?? '',
+                    'rating'         => (int) ($hotelMakkahReq['rating'] ?? 0),
+                    'jarak'          => $hotelMakkahReq['distance'] ?? '',
+                    'facilities'     => is_array($hotelMakkahReq['facilities'] ?? '') ? implode(', ', $hotelMakkahReq['facilities']) : ($hotelMakkahReq['facilities'] ?? ''),
+                    'image'          => $oldImgMakkah, // Tetap kirim buat jaga-jaga
+                    'existing_image' => $oldImgMakkah  // 🔥 INI DIA PERMINTAAN BACKEND LU!
                 ],
                 [
-                    'city'       => 'Madinah',
-                    'name'       => $hotelMadinah['name'] ?? '',
-                    'rating'     => (int) ($hotelMadinah['rating'] ?? 0),
-                    'jarak'      => $hotelMadinah['distance'] ?? '',
-                    'facilities' => is_array($hotelMadinah['facilities'] ?? '') ? implode(', ', $hotelMadinah['facilities']) : ($hotelMadinah['facilities'] ?? '')
+                    'city'           => 'Madinah',
+                    'name'           => $hotelMadinahReq['name'] ?? '',
+                    'rating'         => (int) ($hotelMadinahReq['rating'] ?? 0),
+                    'jarak'          => $hotelMadinahReq['distance'] ?? '',
+                    'facilities'     => is_array($hotelMadinahReq['facilities'] ?? '') ? implode(', ', $hotelMadinahReq['facilities']) : ($hotelMadinahReq['facilities'] ?? ''),
+                    'image'          => $oldImgMadinah, // Tetap kirim buat jaga-jaga
+                    'existing_image' => $oldImgMadinah  // 🔥 INI DIA PERMINTAAN BACKEND LU!
                 ]
             ];
 
-            // Rekonstruksi model data facility
             $facilitiesPayload = [];
-            $includedRaw = json_decode($request->included_facilities ?? '[]', true) ?? [];
-            if (is_array($includedRaw)) {
-                foreach ($includedRaw as $inc) { 
-                    if(!empty($inc)) $facilitiesPayload[] = ['facility' => $inc, 'type' => 'INCLUDE']; 
-                }
-            }
-            $excludedRaw = json_decode($request->excluded_facilities ?? '[]', true) ?? [];
-            if (is_array($excludedRaw)) {
-                foreach ($excludedRaw as $exc) { 
-                    if(!empty($exc)) $facilitiesPayload[] = ['facility' => $exc, 'type' => 'EXCLUDE']; 
-                }
-            }
+            $incRaw = json_decode($request->included_facilities ?? '[]', true) ?? [];
+            foreach ($incRaw as $inc) { if(!empty($inc)) $facilitiesPayload[] = ['facility' => $inc, 'type' => 'INCLUDE']; }
+            $excRaw = json_decode($request->excluded_facilities ?? '[]', true) ?? [];
+            foreach ($excRaw as $exc) { if(!empty($exc)) $facilitiesPayload[] = ['facility' => $exc, 'type' => 'EXCLUDE']; }
 
-            // Rekonstruksi Itinerary
-            $itineraryRaw = json_decode($request->itinerary ?? '[]', true) ?? [];
             $itinerariesPayload = [];
-            if (is_array($itineraryRaw)) {
-                foreach ($itineraryRaw as $it) {
-                    if(!empty($it['title'])) {
-                        $itinerariesPayload[] = [
-                            'day_order'   => (int) ($it['day'] ?? 0),
-                            'day'         => (int) ($it['day'] ?? 0),
-                            'title'       => $it['title'] ?? '',
-                            'description' => $it['description'] ?? ''
-                        ];
-                    }
-                }
-            }
+            $itRaw = json_decode($request->itinerary ?? '[]', true) ?? [];
+            foreach ($itRaw as $it) { if(!empty($it['title'])) $itinerariesPayload[] = ['day_order' => (int)($it['day']??0), 'title' => $it['title'], 'description' => $it['description']??'']; }
 
-            // Rekonstruksi S&K & Notes
-            $termsRaw = json_decode($request->terms ?? '[]', true) ?? [];
             $snksPayload = [];
-            if (is_array($termsRaw)) {
-                foreach ($termsRaw as $t) { 
-                    if(!empty($t)) $snksPayload[] = ['name' => $t]; 
-                }
-            }
+            $termRaw = json_decode($request->terms ?? '[]', true) ?? [];
+            foreach ($termRaw as $t) { if(!empty($t)) $snksPayload[] = ['name' => $t]; }
 
-            $notesRaw = json_decode($request->notes ?? '[]', true) ?? [];
             $notesPayload = [];
-            if (is_array($notesRaw)) {
-                foreach ($notesRaw as $n) { 
-                    if(!empty($n)) $notesPayload[] = ['note' => $n]; 
-                }
-            }
+            $noteRaw = json_decode($request->notes ?? '[]', true) ?? [];
+            foreach ($noteRaw as $n) { if(!empty($n)) $notesPayload[] = ['note' => $n]; }
 
-            // ==========================================================================
-            // PAYLOAD ALL-IN-ONE (BOM SEMUA VARIASI NAMA BIAR PASTI MASUK)
-            // ==========================================================================
+            // 🌟 3. BUNGKUS PAYLOAD (WAJIB ENCODE SEMUA ARRAY BIAR NODE.JS AMAN)
             $payload = [
-                'nama_produk'         => $request->product_name,
-                'product_name'        => $request->product_name,
-                'category_id'         => (int) $request->category,
-                'category'            => (int) $request->category,
-                'quota'               => (int) $request->quota,
-                'status'              => $request->status,
-                'tgl_keberangkatan'   => $request->departure_date,
-                'departure_date'      => $request->departure_date,
-                'duration'            => (int) $request->duration,
-                'durasi_hari'         => (int) $request->duration,
-                'tmp_keberangkatan'   => $request->departure_from,
-                'departure_from'      => $request->departure_from,
-                'description'         => $request->description,
+                'nama_produk'       => $request->product_name ?? '',
+                'category_id'       => (int) ($request->category ?? 0),
+                'tgl_keberangkatan' => $request->departure_date ?? '',
+                'tmp_keberangkatan' => $request->departure_from ?? '',
+                'duration'          => (int) ($request->duration ?? 0),
+                'quota'             => $quotaQuad + $quotaDouble + $quotaTriple,
+                'description'       => $request->description ?? '',
+                'status'            => $request->status ?? 'publish',
                 
-                'prices'              => json_encode($pricesArray),
-                'flights'             => json_encode($flightsArray),
-                'hotels'              => json_encode($hotelsArray),
-                
-                'facility'            => json_encode($facilitiesPayload),
-                'facilities'          => json_encode($facilitiesPayload),
-                'included_facilities' => $request->included_facilities,
-                'excluded_facilities' => $request->excluded_facilities,
-                
-                'itinerary'           => json_encode($itinerariesPayload),
-                'itineraries'         => json_encode($itinerariesPayload),
-                
-                // 👇 INI DIA BOM-NYA: Kita kirim semua variasi S&K ke backend 👇
-                'snk'                 => json_encode($snksPayload),
-                'snks'                => json_encode($snksPayload),
-                'terms'               => $request->terms, 
-                'term'                => $request->terms,
-                'syarat'              => json_encode($snksPayload),
-                
-                'notes'               => json_encode($notesPayload),
+                'prices'            => json_encode($pricesArray),
+                'flights'           => json_encode($flightsArray),
+                'hotels'            => json_encode($hotelsArray), // Sekarang udah ada "existing_image"
+                'facilities'        => json_encode($facilitiesPayload),
+                'itineraries'       => json_encode($itinerariesPayload),
+                'snks'              => json_encode($snksPayload),
+                'notes'             => json_encode($notesPayload),
             ];
 
-            // Setup HTTP Client sebagai Multipart
-            $http = \Illuminate\Support\Facades\Http::timeout(30)
+            // BOM Variabel Root Jaga-jaga buat Multer Darda (Kita tembak pake nama existing_image juga)
+            if (!empty($oldImgMakkah)) {
+                $payload['hotel_image_mekkah'] = $oldImgMakkah;
+                $payload['existing_image_mekkah'] = $oldImgMakkah;
+            }
+            if (!empty($oldImgMadinah)) {
+                $payload['hotel_image_madinah'] = $oldImgMadinah;
+                $payload['existing_image_madinah'] = $oldImgMadinah;
+            }
+
+            // 🌟 4. KUNCI PERMANEN: WAJIB MULTIPART WALAUPUN GAK ADA GAMBAR BARU
+            $http = \Illuminate\Support\Facades\Http::timeout(60)
                 ->asMultipart()
                 ->withToken($token)
                 ->withHeaders([
@@ -737,7 +989,6 @@ class TravelDashboardController extends Controller
                     'Accept'          => 'application/json'
                 ]);
 
-            // Proses Attach Gambar (Udah aman)
             if ($request->hasFile('thumbnail')) {
                 $file = $request->file('thumbnail');
                 $http->attach('thumbnail', fopen($file->getRealPath(), 'r'), $file->getClientOriginalName());
@@ -745,23 +996,29 @@ class TravelDashboardController extends Controller
             if ($request->hasFile('image_makkah')) {
                 $file = $request->file('image_makkah');
                 $http->attach('hotel_image_mekkah', fopen($file->getRealPath(), 'r'), $file->getClientOriginalName());
+                unset($payload['hotel_image_mekkah'], $payload['existing_image_mekkah']); // Buang string biar nggak nabrak file asli
             }
             if ($request->hasFile('image_madinah')) {
                 $file = $request->file('image_madinah');
                 $http->attach('hotel_image_madinah', fopen($file->getRealPath(), 'r'), $file->getClientOriginalName());
+                unset($payload['hotel_image_madinah'], $payload['existing_image_madinah']); // Buang string biar nggak nabrak file asli
             }
 
-            // Eksekusi PUT Request
+            // 5. EKSEKUSI
             $response = $http->put($apiUrl, $payload);
 
             if ($response->successful()) {
                 return response()->json(['status' => 'success', 'message' => 'Produk berhasil diperbarui!']);
             }
 
-            return response()->json([
-                'message' => 'Gagal memperbarui data di server pusat.',
-                'debug'   => $response->json() ?? $response->body()
-            ], 400);
+            $responseData = $response->json();
+            $errorPesan = $responseData['message'] ?? 'Gagal memperbarui data.';
+            if (isset($responseData['errors'])) {
+                $errorList = collect($responseData['errors'])->flatten()->implode(', ');
+                $errorPesan .= " (Detail: " . $errorList . ")";
+            }
+
+            return response()->json(['message' => $errorPesan, 'debug' => $responseData ?? $response->body()], 400);
 
         } catch (\Exception $e) {
             return response()->json(['message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()], 500);
@@ -769,3 +1026,4 @@ class TravelDashboardController extends Controller
     }
 
 }
+
